@@ -1,0 +1,76 @@
+<html>
+<head>
+<script src="fifths.js"></script>
+</head>
+<body>
+  <form id="settingsForm">
+	<label for="keySelect">Key:</label>
+	<select id="keySelect">
+	   <option value="0" selected="selected">C</option>
+	   <option value="1">C#</option>
+	   <option value="2">D</option>
+	   <option value="3">D#</option>
+	   <option value="4">E</option>
+	   <option value="5">F</option>
+	   <option value="6">F#</option>
+	   <option value="7">G</option>
+	   <option value="8">G#</option>
+	   <option value="9">A</option>
+	   <option value="10">A#</option>
+	   <option value="11">B</option>
+	  </select>
+
+	<label for="chordModeSelect">Chord Mode:</label>
+	<select id="chordModeSelect">
+	   <option value="0" selected="selected">None</option>
+	   <option value="1">CircleMajorMinor</option>
+	   <option value="2">sus2</option>
+	   <option value="3">sus4</option>
+	   <option value="4">dim</option>
+	   <option value="5">aug</option>
+	   <option value="6">add7</option>
+	   <option value="7">add9</option>
+	  </select>
+
+	<label for="octaveSelect">Octave:</label>
+
+	<select id="octaveSelect" onkeypress="changeOctave(event)">
+	  <option>0</option>
+	  <option>1</option>
+	  <option>2</option>
+	  <option selected="selected">3</option>
+	  <option>4</option>
+	  <option>5</option>
+	  <option>6</option>
+	  <option>7</option>
+	  <option>8</option>
+	</select>
+
+	<label for="outputSelect">Output:</label>
+
+	<select id="outputSelect">
+	  <option value="0" selected="selected">oscillator</option>
+	  <option value="1">midi</option>
+	</select>
+
+
+  </form>
+
+<canvas id="circleCanvas" width="500" height="500" onmousedown="canvasDown(event)" onmouseup="canvasUp(event)"></canvas>
+
+
+<form id="displayForm">
+<label for="noteText0">FirstNote:</label>
+<input type="text" id="noteText0" readonly>
+
+<label for="noteText1">SecondNote:</label>
+<input type="text" id="noteText1" readonly>
+
+<label for="noteText2">Third:</label>
+<input type="text" id="noteText2" readonly>
+
+<label for="noteText3">Forth:</label>
+<input type="text" id="noteText3" readonly>
+</form>
+</body>
+</html>
