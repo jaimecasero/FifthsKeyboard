@@ -215,29 +215,30 @@ function renderCircle() {
 	ctx.arc(c.width/2, c.height/2, c.width/2/4*3, 0, 2 * Math.PI);
 	ctx.stroke();
 
-    var thirdDivisionDelta = (c.width/2 * 2 * 3.14)/4/3/2;
-    var point1 = c.width - thirdDivisionDelta;
-    var point2 = c.width + thirdDivisionDelta;
-
+    var thirdDivisionDelta = (c.width * 3.14)/4/3/2;
+    console.log("divDelta:" + thirdDivisionDelta);
+    var point1 = c.width/2 - thirdDivisionDelta;
+    var point2 = c.width/2 + thirdDivisionDelta;
+    console.log("point1:" + point1);
 	//draw the note dividers
 	ctx.beginPath();
-	ctx.moveTo(180, 0);
-	ctx.lineTo(320, c.width);
+	ctx.moveTo(point1, 0);
+	ctx.lineTo(point2, c.width);
 	ctx.stroke();
 
 	ctx.beginPath();
-	ctx.moveTo(320, 0);
-	ctx.lineTo(180, c.width);
+	ctx.moveTo(point2, 0);
+	ctx.lineTo(point1, c.width);
 	ctx.stroke();
 
 	ctx.beginPath();
-	ctx.moveTo(0, 180);
-	ctx.lineTo(c.width, 320);
+	ctx.moveTo(0, point1);
+	ctx.lineTo(c.width, point2);
 	ctx.stroke();
  
 	ctx.beginPath();
-	ctx.moveTo(0, 320);
-	ctx.lineTo(c.width, 180);
+	ctx.moveTo(0, point2);
+	ctx.lineTo(c.width, point1);
 	ctx.stroke(); 
 
 	ctx.beginPath();
