@@ -3,8 +3,11 @@ var dominantMajorDeltaMap = [7,7,7,7,6,8,7,7];
 var dominantMinorDeltaMap = [7,7,7,7,6,8,7,7];
 var subdominantMajorDeltaMap = [4,4,2,5,3,4,4,4];
 var subdominantMinorDeltaMap = [3,3,1,4,2,3,3,3];
-var forthDeltaMap = [0,0,0,0,0,0,11,14];
+var forthChordNoteIntervalMap = [0,0,0,0,0,0,11,14];
 
+
+var CKey=['C','Dm','Em','F','G','Am','Bm'];
+var keys=[CKey];
 
 var noteMajorLabel=['C','G','D','A','E','B','F#','C#','G#','D#','A#','F'];
 var noteMajorCode=[12,19,14,21,16,23,18,13,20,15,22,17];
@@ -66,9 +69,6 @@ oscillatorArray[3].start();
 
 
 (function(window, document, undefined){
-
-// code that should be taken care of right away
-
 window.onload = init;
 
   function init(){
@@ -77,16 +77,26 @@ window.onload = init;
 	//register multitouch listener
 	console.log("init");
 	document.getElementById('circleCanvas').addEventListener('touchstart', function(event) {
-		  for (var i = 0; i < event.targetTouches.length; i++) {
-		    var touch = event.targetTouches[i];
-	            console.log("touch.x", touch.pageX, ",y:" + touch.pageY);
-                    canvasDownXY(touch.pageX,touch.pageY);
+		  event.preventDefault();
+		  audioCtx.resume();
+		  for (var i = 0; i < event.changedTouches.length; i++) {
+		    var touch = event.changedTouches[i];
+		    	var rect = document.getElementById('circleCanvas').getBoundingClientRect();
+                var x = touch.clientX - rect.left;
+                var y = touch.clientY - rect.top;
+            	console.log("touchstart.x", x, ",y:" + y);
+                canvasDownXY(x, y);
 		  }
 	}, false);
 	document.getElementById('circleCanvas').addEventListener('touchend', function(event) {
-		  for (var i = 0; i < event.targetTouches.length; i++) {
-		    var touch = event.targetTouches[i];
-                    canvasUpXY(touch.pageX,touch.pageY);
+	      event.preventDefault();
+		  for (var i = 0; i < event.changedTouches.length; i++) {
+		    var touch = event.changedTouches[i];
+		    	var rect = document.getElementById('circleCanvas').getBoundingClientRect();
+                var x = touch.clientX - rect.left;
+                var y = touch.clientY - rect.top;
+		    	console.log("touchend.x", x, ",y:" + y);
+                canvasUpXY(x,y);
 		  }
 	}, false);
 
@@ -98,6 +108,10 @@ window.onload = init;
   }
 
 })(window, document, undefined);
+
+// Get the position of a touch relative to the canvas
+function getTouchPos(canvasDom, touchEvent) {
+}
 
 
 function changeNoteLabelColor() {
@@ -130,6 +144,7 @@ function intersects(x,y, cx, cy, r) {
 }
 
 function canvasDown(e){
+   audioCtx.resume();
    canvasDownXY(e.offsetX, e.offsetY);
 }
 
@@ -138,8 +153,8 @@ function canvasDownXY(x,y){
    for(var i = 0; i < noteCode.length; i++) {
       for (var j = 0; j < noteCode[i].length; j++) {
 	      if (intersects(x,y,noteCircleX[i][j],noteCircleY[i][j],noteCircleRadius[i])) {
-		 down(noteCode[i][j], i);
-		 break;
+		    down(noteCode[i][j], i);
+		    break;
 	      }
       }
    }
@@ -152,8 +167,8 @@ function canvasUpXY(x,y) {
    for(var i = 0; i < noteCode.length; i++) {
       for (var j = 0; j < noteCode[i].length; j++) {
 	      if (intersects(x,y,noteCircleX[i][j],noteCircleY[i][j],noteCircleRadius[i])) {
-		 up(noteCode[i][j], i);
-		 break;
+		    up(noteCode[i][j], i);
+		    break;
 	      }
       }
    }
@@ -171,7 +186,7 @@ function renderCircle() {
 	ctx.arc(250, 250, 180, 0, 2 * Math.PI);
 	ctx.stroke();
 
-	//draw the note diveders
+	//draw the note dividers
 	ctx.beginPath();
 	ctx.moveTo(180, 0);
 	ctx.lineTo(320, 500);
@@ -313,7 +328,7 @@ function down(midiNote, ringLevel) {
 	oscillatorArray[2].connect(gainNode);
   }
   if (chordModeVal > 5) {
-	var forthDelta=forthDeltaMap[chordModeVal];
+	var forthDelta=forthChordNoteIntervalMap[chordModeVal];
 	var forthFreq = freq(midiNote + forthDelta) * Math.pow(2,octaveSelectVal);
 	console.log("forthFreq:" + forthFreq);
 	oscillatorArray[3].frequency.setValueAtTime(forthFreq,          audioCtx.currentTime); // value in hertz
@@ -325,7 +340,7 @@ function down(midiNote, ringLevel) {
 function up(midiNote, ringLevel) {
   var chordModeVal = document.getElementById('chordModeSelect').value;
 
-  console.log("midiNote:" + midiNote);
+  console.log("UP.midiNote:" + midiNote);
   drawNoteWithRing(midiNote,ringLevel, disabledNoteColor,0);
   oscillatorArray[0].disconnect(gainNode);
 
@@ -351,7 +366,7 @@ function up(midiNote, ringLevel) {
   }
   if (chordModeVal > 5) {
     oscillatorArray[3].disconnect(gainNode);
-    var forthDelta=forthDeltaMap[chordModeVal];
+    var forthDelta=forthChordNoteIntervalMap[chordModeVal];
     drawNoteWithRing(midiNote + forthDelta,ringLevel,disabledNoteColor,3);
   }
 
