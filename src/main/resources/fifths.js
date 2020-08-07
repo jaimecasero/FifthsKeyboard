@@ -7,13 +7,14 @@ var forthChordNoteIntervalMap = [0,0,0,0,0,0,11,14];
 
 
 var CKey=['C','Dm','Em','F','G','Am','Bm'];
-var keys=[CKey];
+var CSharpKey=['C#','D#m','Fm','F#','G#','A#m','Cm'];
+var keys=[CKey,CSharpKey];
 
 var noteMajorLabel=['C','G','D','A','E','B','F#','C#','G#','D#','A#','F'];
 var noteMajorCode=[12,19,14,21,16,23,18,13,20,15,22,17];
 var noteMajorCircleX=[248,357,433,461,430,357,247,135,71,38,64,142];
 var noteMajorCircleY=[29,63,146,249,359,437,464,432,364,256,148,67];
-var noteMajorCircleRadius=40;
+var noteMajorCircleRadius=35;
 
 
 var noteMinorLabel=['Am','Em','Bm','F#m','C#m','G#m','D#m','A#m','Fm','Cm','Gm','Dm'];
@@ -35,6 +36,7 @@ var tonicColor='blue';
 var dominantColor='green';
 var subdominantColor='yellow';
 var forthColor='salmon';
+var keyLineColor='orange';
 var noteColor=[tonicColor,subdominantColor,dominantColor,forthColor];
 
 // create web audio api context
@@ -105,6 +107,7 @@ window.onload = init;
 	document.addEventListener("keyup",keyUpHandler, false);
 	changeNoteLabelColor();
 	clearNoteLabels();
+	changeKey();
   }
 
 })(window, document, undefined);
@@ -134,6 +137,32 @@ function keyDownHandler(event) {
 }
 
 function keyUpHandler(event) {
+}
+
+function changeKey(){
+    var selectedKey = document.getElementById('keySelect').value;
+    var keyFormation = keys[selectedKey];
+    console.log("selectedKey:"+ keyFormation);
+	var c = document.getElementById("circleCanvas");
+	var ctx = c.getContext("2d");
+	var tonicIndex = noteMajorLabel.findIndex((element) => element === keyFormation[0]);
+	for (var i=1; i < keyFormation.length; i++)
+    {
+        ctx.beginPath();
+        ctx.strokeStyle=keyLineColor;
+        ctx.moveTo(noteMajorCircleX[tonicIndex], noteMajorCircleY[tonicIndex]);
+
+        if (keyFormation[i].includes("m")){
+            var nextNoteIndex = noteMinorLabel.findIndex((element) => element === keyFormation[i]);
+            ctx.lineTo(noteMinorCircleX[nextNoteIndex], noteMinorCircleY[nextNoteIndex]);
+
+        } else {
+            var nextNoteIndex = noteMajorLabel.findIndex((element) => element === keyFormation[i]);
+            ctx.lineTo(noteMajorCircleX[nextNoteIndex], noteMajorCircleY[nextNoteIndex]);
+        }
+        ctx.stroke();
+    }
+    ctx.strokeStyle='black';
 }
 
 
@@ -180,41 +209,45 @@ function renderCircle() {
 
 	//draw outer and inner circles
 	ctx.beginPath();
-	ctx.arc(250, 250, 250, 0, 2 * Math.PI);
+	ctx.arc(c.width/2, c.height/2, c.width/2, 0, 2 * Math.PI);
 	ctx.stroke(); 
 	ctx.beginPath();
-	ctx.arc(250, 250, 180, 0, 2 * Math.PI);
+	ctx.arc(c.width/2, c.height/2, c.width/2/4*3, 0, 2 * Math.PI);
 	ctx.stroke();
+
+    var thirdDivisionDelta = (c.width/2 * 2 * 3.14)/4/3/2;
+    var point1 = c.width - thirdDivisionDelta;
+    var point2 = c.width + thirdDivisionDelta;
 
 	//draw the note dividers
 	ctx.beginPath();
 	ctx.moveTo(180, 0);
-	ctx.lineTo(320, 500);
+	ctx.lineTo(320, c.width);
 	ctx.stroke();
 
 	ctx.beginPath();
 	ctx.moveTo(320, 0);
-	ctx.lineTo(180, 500);
+	ctx.lineTo(180, c.width);
 	ctx.stroke();
 
 	ctx.beginPath();
 	ctx.moveTo(0, 180);
-	ctx.lineTo(500, 320);
+	ctx.lineTo(c.width, 320);
 	ctx.stroke();
  
 	ctx.beginPath();
 	ctx.moveTo(0, 320);
-	ctx.lineTo(500, 180);
+	ctx.lineTo(c.width, 180);
 	ctx.stroke(); 
 
 	ctx.beginPath();
-	ctx.moveTo(500, 500);
+	ctx.moveTo(c.width, c.width);
 	ctx.lineTo(0, 0);
 	ctx.stroke();
 
 	ctx.beginPath();
-	ctx.moveTo(500, 0);
-	ctx.lineTo(0, 500);
+	ctx.moveTo(c.width, 0);
+	ctx.lineTo(0, c.width);
 	ctx.stroke();
 
 	//draw notes
@@ -249,14 +282,22 @@ function drawNoteWithRing(midiNote, ringLevel, color,chordNoteIndex) {
 		document.getElementById('noteText' + chordNoteIndex).value= noteLabel[ringLevel][noteIndex];
 		console.log("noteIndex:" + noteIndex);
 		drawNoteIndex(noteIndex,ringLevel,color);
-		drawNoteIndex(noteMinorIndex, 1, "light"+color);
+		var counterPartColor = "light"+color;
+		if (color === disabledNoteColor){
+		   counterPartColor = disabledNoteColor;
+		}
+		drawNoteIndex(noteMinorIndex, 1, counterPartColor);
 	} else {
 		var noteMinorIndex = findNoteIndex(midiNote,ringLevel);
 		var noteIndex = findNoteIndex(midiNote,0);
 		document.getElementById('noteText' + chordNoteIndex).value= noteLabel[ringLevel][noteIndex];
 		console.log("noteIndex:" + noteIndex);
 		drawNoteIndex(noteMinorIndex,ringLevel,color);
-		drawNoteIndex(noteIndex,0,"light"+color);
+		var counterPartColor = "light"+color;
+		if (color === disabledNoteColor){
+		   counterPartColor = disabledNoteColor;
+		}
+		drawNoteIndex(noteIndex,0,counterPartColor);
 	}
 }
 
@@ -272,7 +313,7 @@ function drawNoteIndex(noteIndex,ringLevel, style) {
 	ctx.stroke();
 
 	ctx.fillStyle='black';
-	ctx.font = "30px Arial";
+	ctx.font = "25px Arial";
 	//make coordinate correction so text is centered in the circle
 	ctx.fillText(noteLabel[ringLevel][noteIndex], noteCircleX[ringLevel][noteIndex]- 20,noteCircleY[ringLevel][noteIndex]+10); 
 
