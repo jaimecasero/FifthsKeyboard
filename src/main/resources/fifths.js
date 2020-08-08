@@ -8,22 +8,16 @@ var forthChordNoteIntervalMap = [0,0,0,0,0,0,11,14];
 
 var noteMajorLabel=['C','G','D','A','E','B','F#','C#','G#','D#','A#','F'];
 var noteMajorCode=[12,19,14,21,16,23,18,13,20,15,22,17];
-var noteMajorCircleX=[248,357,433,461,430,357,247,135,71,38,64,142];
-var noteMajorCircleY=[29,63,146,249,359,437,464,432,364,256,148,67];
 var noteMajorCircleRadius=35;
 
 
 var noteMinorLabel=['Am','Em','Bm','F#m','C#m','G#m','D#m','A#m','Fm','Cm','Gm','Dm'];
 var noteMinorCode=[21,16,23,18,13,20,15,22,17,12,19,14];
-var noteMinorCircleX=[248,323,373,391,365,325,250,174,127,101,128,181];
-var noteMinorCircleY=[112,125,176,255,323,377,397,369,325,243,176,130];
 var noteMinorCircleRadius=30;
 var noteMinorPositionDelta=40;
 
 var noteLabel=[noteMajorLabel, noteMinorLabel];
 var noteCode=[noteMajorCode, noteMinorCode];
-var noteCircleX=[noteMajorCircleX, noteMinorCircleX];
-var noteCircleY=[noteMajorCircleY, noteMinorCircleY];
 var noteCircleRadius=[noteMajorCircleRadius, noteMinorCircleRadius];
 
 
@@ -175,6 +169,8 @@ function changeKey(){
     var selectedKey = document.getElementById('keySelect').value;
 	var c = document.getElementById("circleCanvas");
 	var ctx = c.getContext("2d");
+	//clear all canvas to remove previous key lines
+	ctx.clearRect(0, 0, c.width, c.height);
 	var tonicIndex = noteMajorLabel.findIndex((element) => element === selectedKey);
     var keyFormation = generateKeyArray(tonicIndex);
     console.log("selectedKey:"+ keyFormation);
@@ -199,6 +195,8 @@ function changeKey(){
     }
     //revert back stroke style
     ctx.strokeStyle='black';
+    //draw all circle again
+    renderCircle();
 }
 
 
@@ -218,6 +216,7 @@ function canvasDown(e){
 
 function canvasDownXY(x,y){
    console.log("down:" + x + "," + y);
+   var c = document.getElementById("circleCanvas");
    for(var i = 0; i < noteCode.length; i++) {
       for (var j = 0; j < noteCode[i].length; j++) {
           var noteCenterPoint = calculateNoteCenter(j, majorNoteRadius());
@@ -236,9 +235,14 @@ function canvasUp(e) {
 	canvasUpXY(e.offsetX, e.offsetY);
 }
 function canvasUpXY(x,y) {
+   var c = document.getElementById("circleCanvas");
    for(var i = 0; i < noteCode.length; i++) {
       for (var j = 0; j < noteCode[i].length; j++) {
-	      if (intersects(x,y,noteCircleX[i][j],noteCircleY[i][j],noteCircleRadius[i])) {
+          var noteCenterPoint = calculateNoteCenter(j, majorNoteRadius());
+          if (i > 0 ) {
+            noteCenterPoint = calculateNoteCenter(j, innerRingRadius(c.width) - noteMinorPositionDelta);
+          }
+	      if (intersects(x,y,noteCenterPoint.x,noteCenterPoint.y,noteCircleRadius[i])) {
 		    up(noteCode[i][j], i);
 		    break;
 	      }
@@ -361,17 +365,20 @@ function drawNoteWithRing(midiNote, ringLevel, color,chordNoteIndex) {
 function drawNoteIndex(noteIndex,ringLevel, style) {
 	var c = document.getElementById("circleCanvas");
 	var ctx = c.getContext("2d");
-
+    var noteCenterPoint = calculateNoteCenter(noteIndex, majorNoteRadius());
+    if (ringLevel > 0 ) {
+    noteCenterPoint = calculateNoteCenter(noteIndex, innerRingRadius(c.width) - noteMinorPositionDelta);
+    }
 	ctx.beginPath();
 	ctx.fillStyle=style;
-	ctx.arc(noteCircleX[ringLevel][noteIndex],noteCircleY[ringLevel][noteIndex],noteCircleRadius[ringLevel], 0, 2 * Math.PI);
+	ctx.arc(noteCenterPoint.x,noteCenterPoint.y,noteCircleRadius[ringLevel], 0, 2 * Math.PI);
 	ctx.fill(); 
 	ctx.stroke();
 
 	ctx.fillStyle='black';
 	ctx.font = "25px Arial";
 	//make coordinate correction so text is centered in the circle
-	ctx.fillText(noteLabel[ringLevel][noteIndex], noteCircleX[ringLevel][noteIndex]- 20,noteCircleY[ringLevel][noteIndex]+10); 
+	ctx.fillText(noteLabel[ringLevel][noteIndex], noteCenterPoint.x- 20,noteCenterPoint.y+10);
 
 	
 }
