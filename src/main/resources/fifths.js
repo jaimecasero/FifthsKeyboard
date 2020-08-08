@@ -142,6 +142,21 @@ function keyDownHandler(event) {
 function keyUpHandler(event) {
 }
 
+
+function calculateNoteCenter(noteIndex, radius) {
+	var c = document.getElementById("circleCanvas");
+	//calculate note position based on angle
+   //divide by 12, the possible notes based on noteindex[0,11]
+   //use PI/2*3 to translate to canvas coordinates, where +y goes down
+   var noteAngle = ((((2 * Math.PI) / 12) * noteIndex)  + Math.PI/2*3);
+   //noteAngle= noteAngle / (noteAngle % Math.PI);
+   //apply polar coordinates to calculate note position in the ring
+   //add the canvas half to move the circle center in the center of canvas
+   var x = radius * Math.cos(noteAngle) + (c.width/2);
+   var y = radius * Math.sin(noteAngle) + (c.width/2);
+   return {x,y};
+}
+
 function changeKey(){
     var selectedKey = document.getElementById('keySelect').value;
     var keyFormation = keys[selectedKey];
@@ -149,24 +164,31 @@ function changeKey(){
 	var c = document.getElementById("circleCanvas");
 	var ctx = c.getContext("2d");
 	var tonicIndex = noteMajorLabel.findIndex((element) => element === keyFormation[0]);
+    ctx.strokeStyle=keyLineColor;
+    var tonicPoint = calculateNoteCenter(tonicIndex, c.width/2 - ((c.width/2-innerRingRadius(c.width))/2));
 	for (var i=1; i < keyFormation.length; i++)
     {
         ctx.beginPath();
-        ctx.strokeStyle=keyLineColor;
-        ctx.moveTo(noteMajorCircleX[tonicIndex], noteMajorCircleY[tonicIndex]);
-
+        ctx.moveTo(tonicPoint.x, tonicPoint.y);
         if (keyFormation[i].includes("m")){
             var nextNoteIndex = noteMinorLabel.findIndex((element) => element === keyFormation[i]);
-            ctx.lineTo(noteMinorCircleX[nextNoteIndex], noteMinorCircleY[nextNoteIndex]);
+            var nextMinorNotePoint = calculateNoteCenter(nextNoteIndex,innerRingRadius(c.width)-40);
+            ctx.lineTo(nextMinorNotePoint.x, nextMinorNotePoint.y);
 
         } else {
             var nextNoteIndex = noteMajorLabel.findIndex((element) => element === keyFormation[i]);
-            ctx.lineTo(noteMajorCircleX[nextNoteIndex], noteMajorCircleY[nextNoteIndex]);
+            var nextMajorNotePoint = calculateNoteCenter(nextNoteIndex,c.width/2 - ((c.width/2-innerRingRadius(c.width))/2));
+            ctx.lineTo(nextMajorNotePoint.x, nextMajorNotePoint.y);
+
         }
         ctx.stroke();
     }
+    //revert back stroke style
     ctx.strokeStyle='black';
 }
+
+
+
 
 
 function intersects(x,y, cx, cy, r) {
@@ -206,6 +228,12 @@ function canvasUpXY(x,y) {
    }
 }
 
+
+function innerRingRadius(canvasWidth) {
+	//inner ring at 3/4 of total radius
+    return canvasWidth/2/4*3;
+}
+
 function renderCircle() {
 	var c = document.getElementById("circleCanvas");
 	var ctx = c.getContext("2d");
@@ -215,8 +243,8 @@ function renderCircle() {
 	ctx.arc(c.width/2, c.height/2, c.width/2, 0, 2 * Math.PI);
 	ctx.stroke(); 
 	ctx.beginPath();
-	//inner ring at 3/4 of total radius
-	ctx.arc(c.width/2, c.height/2, c.width/2/4*3, 0, 2 * Math.PI);
+
+	ctx.arc(c.width/2, c.height/2, innerRingRadius(c.width), 0, 2 * Math.PI);
 	ctx.stroke();
 
 	//dividers needs to split the quarter of the whole circumference in three.
