@@ -6,10 +6,6 @@ var subdominantMinorDeltaMap = [3,3,1,4,2,3,3,3];
 var forthChordNoteIntervalMap = [0,0,0,0,0,0,11,14];
 
 
-var CKey=['C','Dm','Em','F','G','Am','Bm'];
-var CSharpKey=['C#','D#m','Fm','F#','G#','A#m','Cm'];
-var keys=[CKey,CSharpKey];
-
 var noteMajorLabel=['C','G','D','A','E','B','F#','C#','G#','D#','A#','F'];
 var noteMajorCode=[12,19,14,21,16,23,18,13,20,15,22,17];
 var noteMajorCircleX=[248,357,433,461,430,357,247,135,71,38,64,142];
@@ -22,6 +18,7 @@ var noteMinorCode=[21,16,23,18,13,20,15,22,17,12,19,14];
 var noteMinorCircleX=[248,323,373,391,365,325,250,174,127,101,128,181];
 var noteMinorCircleY=[112,125,176,255,323,377,397,369,325,243,176,130];
 var noteMinorCircleRadius=30;
+var noteMinorPositionDelta=40;
 
 var noteLabel=[noteMajorLabel, noteMinorLabel];
 var noteCode=[noteMajorCode, noteMinorCode];
@@ -143,6 +140,18 @@ function keyUpHandler(event) {
 }
 
 
+function generateKeyArray(noteIndex) {
+    var key = [];
+    key[0] = noteMajorLabel[noteIndex];
+    key[1] = noteMajorLabel[(noteIndex + 1) % 12];
+    key[2] = noteMajorLabel[(noteIndex + 2) % 12] + 'm';
+    key[3] = noteMajorLabel[(noteIndex + 3) % 12] + 'm';
+    key[4] = noteMajorLabel[(noteIndex + 4) % 12] + 'm';
+    key[5] = noteMajorLabel[(noteIndex + 5) % 12] + 'm';
+    key[6] = noteMajorLabel[(noteIndex + 11) % 12];
+    return key;
+}
+
 function calculateNoteCenter(noteIndex, radius) {
 	var c = document.getElementById("circleCanvas");
 	//calculate note position based on angle
@@ -157,27 +166,32 @@ function calculateNoteCenter(noteIndex, radius) {
    return {x,y};
 }
 
+function majorNoteRadius() {
+    var c = document.getElementById("circleCanvas");
+    return c.width/2 - ((c.width/2-innerRingRadius(c.width))/2);
+}
+
 function changeKey(){
     var selectedKey = document.getElementById('keySelect').value;
-    var keyFormation = keys[selectedKey];
-    console.log("selectedKey:"+ keyFormation);
 	var c = document.getElementById("circleCanvas");
 	var ctx = c.getContext("2d");
-	var tonicIndex = noteMajorLabel.findIndex((element) => element === keyFormation[0]);
+	var tonicIndex = noteMajorLabel.findIndex((element) => element === selectedKey);
+    var keyFormation = generateKeyArray(tonicIndex);
+    console.log("selectedKey:"+ keyFormation);
     ctx.strokeStyle=keyLineColor;
-    var tonicPoint = calculateNoteCenter(tonicIndex, c.width/2 - ((c.width/2-innerRingRadius(c.width))/2));
+    var tonicPoint = calculateNoteCenter(tonicIndex, majorNoteRadius());
 	for (var i=1; i < keyFormation.length; i++)
     {
         ctx.beginPath();
         ctx.moveTo(tonicPoint.x, tonicPoint.y);
         if (keyFormation[i].includes("m")){
             var nextNoteIndex = noteMinorLabel.findIndex((element) => element === keyFormation[i]);
-            var nextMinorNotePoint = calculateNoteCenter(nextNoteIndex,innerRingRadius(c.width)-40);
+            var nextMinorNotePoint = calculateNoteCenter(nextNoteIndex,innerRingRadius(c.width)-noteMinorPositionDelta);
             ctx.lineTo(nextMinorNotePoint.x, nextMinorNotePoint.y);
 
         } else {
             var nextNoteIndex = noteMajorLabel.findIndex((element) => element === keyFormation[i]);
-            var nextMajorNotePoint = calculateNoteCenter(nextNoteIndex,c.width/2 - ((c.width/2-innerRingRadius(c.width))/2));
+            var nextMajorNotePoint = calculateNoteCenter(nextNoteIndex, majorNoteRadius());
             ctx.lineTo(nextMajorNotePoint.x, nextMajorNotePoint.y);
 
         }
@@ -206,7 +220,11 @@ function canvasDownXY(x,y){
    console.log("down:" + x + "," + y);
    for(var i = 0; i < noteCode.length; i++) {
       for (var j = 0; j < noteCode[i].length; j++) {
-	      if (intersects(x,y,noteCircleX[i][j],noteCircleY[i][j],noteCircleRadius[i])) {
+          var noteCenterPoint = calculateNoteCenter(j, majorNoteRadius());
+          if (i > 0 ) {
+            noteCenterPoint = calculateNoteCenter(j, innerRingRadius(c.width) - noteMinorPositionDelta);
+          }
+	      if (intersects(x,y,noteCenterPoint.x,noteCenterPoint.y,noteCircleRadius[i])) {
 		    down(noteCode[i][j], i);
 		    break;
 	      }
