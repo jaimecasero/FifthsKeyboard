@@ -21,7 +21,7 @@ var noteMinorLabel=['Am','Em','Bm','F#m','C#m','G#m','D#m','A#m','Fm','Cm','Gm',
 var noteMinorCode=[21,16,23,18,13,20,15,22,17,12,19,14];
 var noteMinorCircleX=[248,323,373,391,365,325,250,174,127,101,128,181];
 var noteMinorCircleY=[112,125,176,255,323,377,397,369,325,243,176,130];
-var noteMinorCircleRadius=35;
+var noteMinorCircleRadius=30;
 
 var noteLabel=[noteMajorLabel, noteMinorLabel];
 var noteCode=[noteMajorCode, noteMinorCode];
@@ -102,12 +102,15 @@ window.onload = init;
 		  }
 	}, false);
 
-	renderCircle();
-	document.addEventListener("keydown",keyDownHandler, false);	
+    //register key handlers
+	document.addEventListener("keydown",keyDownHandler, false);
 	document.addEventListener("keyup",keyUpHandler, false);
+
+	changeKey();
+	renderCircle();
 	changeNoteLabelColor();
 	clearNoteLabels();
-	changeKey();
+
   }
 
 })(window, document, undefined);
@@ -212,11 +215,17 @@ function renderCircle() {
 	ctx.arc(c.width/2, c.height/2, c.width/2, 0, 2 * Math.PI);
 	ctx.stroke(); 
 	ctx.beginPath();
+	//inner ring at 3/4 of total radius
 	ctx.arc(c.width/2, c.height/2, c.width/2/4*3, 0, 2 * Math.PI);
 	ctx.stroke();
 
+	//dividers needs to split the quarter of the whole circumference in three.
+	//calculate circumference. divide by 4 parts
+	//divide by 3 to get the 2 lines per quarter
+	//divide by 2 to calculate delta from square center
     var thirdDivisionDelta = (c.width * 3.14)/4/3/2;
     console.log("divDelta:" + thirdDivisionDelta);
+    //apply delta to the square center
     var point1 = c.width/2 - thirdDivisionDelta;
     var point2 = c.width/2 + thirdDivisionDelta;
     console.log("point1:" + point1);
