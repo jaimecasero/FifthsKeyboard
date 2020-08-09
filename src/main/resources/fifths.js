@@ -224,13 +224,15 @@ function canvasDownXY(x,y, force){
    var canvas = document.getElementById("circleCanvas");
    for(var i = 0; i < noteCode.length; i++) {
       for (var j = 0; j < noteCode[i].length; j++) {
-          var noteCenterPoint = calculateNoteCenter(j, majorNoteRadius());
-          if (i > 0 ) {
-            noteCenterPoint = calculateNoteCenter(j, innerRingRadius(canvas.width) - noteMinorPositionDelta);
-          }
+          var noteCenterPoint;
+           if (i == 0) {
+              noteCenterPoint = calculateNoteCenter(j, majorNoteRadius());
+           } else {
+              noteCenterPoint = calculateNoteCenter(j, innerRingRadius(canvas.width) - noteMinorPositionDelta);
+           }
 	      if (intersects(x,y,noteCenterPoint.x,noteCenterPoint.y,noteCircleRadius[i])) {
 		    down(noteCode[i][j], i, force);
-		    break;
+		    break;//note found no need to go on
 	      }
       }
    }
@@ -243,8 +245,10 @@ function canvasUpXY(x,y) {
    var canvas = document.getElementById("circleCanvas");
    for(var i = 0; i < noteCode.length; i++) {
       for (var j = 0; j < noteCode[i].length; j++) {
-          var noteCenterPoint = calculateNoteCenter(j, majorNoteRadius());
-          if (i > 0 ) {
+          var noteCenterPoint;
+          if (i == 0) {
+            noteCenterPoint = calculateNoteCenter(j, majorNoteRadius());
+          } else {
             noteCenterPoint = calculateNoteCenter(j, innerRingRadius(canvas.width) - noteMinorPositionDelta);
           }
 	      if (intersects(x,y,noteCenterPoint.x,noteCenterPoint.y,noteCircleRadius[i])) {
@@ -351,7 +355,7 @@ function drawNoteWithRing(midiNote, ringLevel, color,chordNoteIndex) {
 	} else {
 		var noteMinorIndex = findNoteIndex(midiNote,ringLevel);
 		var noteIndex = findNoteIndex(midiNote,0);
-		document.getElementById('noteText' + chordNoteIndex).value= noteLabel[ringLevel][noteIndex];
+		document.getElementById('noteText' + chordNoteIndex).value= noteLabel[ringLevel][noteMinorIndex];
 		console.log("noteIndex:" + noteIndex);
 		drawNoteIndex(noteMinorIndex,ringLevel,color);
 		drawNoteIndex(noteIndex,0,color);
