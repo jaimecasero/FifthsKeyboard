@@ -397,24 +397,7 @@ function down(midiNote, ringLevel, force) {
   var midiNoteDelta = 0;
   for (var i = 0; i < 4 ; i++) {
       //calculate note delta depending on ringlevel
-      if (i == 1) {
-        if(ringLevel== 0){
-            midiNoteDelta = subdominantMajorDeltaMap[chordModeVal];//this is the same for major and minor chords
-        } else {
-            midiNoteDelta = subdominantMinorDeltaMap[chordModeVal];//this is the same for major and minor chords
-        }
-
-      }
-      if (i == 2){
-        if(ringLevel== 0){
-           midiNoteDelta = dominantMajorDeltaMap[chordModeVal];//this is the same for major and minor chords
-        } else {
-           midiNoteDelta = dominantMinorDeltaMap[chordModeVal];//this is the same for major and minor chords
-        }
-      }
-      if (i == 3){
-    	midiNoteDelta = forthChordNoteIntervalMap[chordModeVal];
-      }
+      midiNoteDelta = calculateNoteDelta(midiNote, ringLevel,chordModeVal, i);
       var adjustedMidiNote = midiNote + midiNoteDelta;
       var noteFreq = freq(adjustedMidiNote) * Math.pow(2,octaveSelectVal);
       console.log("biteFreq" + i + ":" + noteFreq);
@@ -435,33 +418,48 @@ function down(midiNote, ringLevel, force) {
 
 }
 
+
+function calculateNoteDelta(midiNote,ringLevel,chordModeVal,i) {
+   var midiNoteDelta = 0;
+      //calculate note delta depending on ringlevel
+      if (i == 1) {
+        if(ringLevel== 0){
+            midiNoteDelta = subdominantMajorDeltaMap[chordModeVal];//this is the same for major and minor chords
+        } else {
+            midiNoteDelta = subdominantMinorDeltaMap[chordModeVal];//this is the same for major and minor chords
+        }
+
+      }
+      if (i == 2){
+        if(ringLevel== 0){
+           midiNoteDelta = dominantMajorDeltaMap[chordModeVal];//this is the same for major and minor chords
+        } else {
+           midiNoteDelta = dominantMinorDeltaMap[chordModeVal];//this is the same for major and minor chords
+        }
+      }
+      if (i == 3){
+    	midiNoteDelta = forthChordNoteIntervalMap[chordModeVal];
+      }
+
+      return midiNoteDelta;
+}
+
 function up(midiNote, ringLevel) {
   var chordModeVal = document.getElementById('chordModeSelect').value;
-
   console.log("UP.midiNote:" + midiNote);
-  drawNoteWithRing(midiNote,ringLevel, disabledNoteColor,0);
+  var midiNoteDelta = 0;
+  for (var i = 0; i < 4 ; i++) {
+        midiNoteDelta = calculateNoteDelta(midiNote, ringLevel,chordModeVal, i);
+        drawNoteWithRing(midiNote + midiNoteDelta,ringLevel, disabledNoteColor,i);
 
-  if (chordModeVal > 0) {
-	var dominantDelta=0;
-	if(ringLevel== 0){
-		dominantDelta = dominantMajorDeltaMap[chordModeVal];
-	} else {
-		dominantDelta = dominantMinorDeltaMap[chordModeVal];
-	}
-	drawNoteWithRing(midiNote + dominantDelta,ringLevel,disabledNoteColor,2);
-
-
-	var subdominantDelta=0;
-	if(ringLevel== 0){
-		subdominantDelta = subdominantMajorDeltaMap[chordModeVal];
-	} else {
-		subdominantDelta = subdominantMinorDeltaMap[chordModeVal];
-	}
-	drawNoteWithRing(midiNote + subdominantDelta,ringLevel,disabledNoteColor,1);
-  }
-  if (chordModeVal > 5) {
-    var forthDelta=forthChordNoteIntervalMap[chordModeVal];
-    drawNoteWithRing(midiNote + forthDelta,ringLevel,disabledNoteColor,3);
-  }
+      if (chordModeVal == 0) {
+        //single note mode, break loop here
+        break;
+      }
+      if (chordModeVal < 6 && i >= 2) {
+        //this is 3 note chord mode, stop on third iteration
+        break;
+      }
+   }
 
 }
