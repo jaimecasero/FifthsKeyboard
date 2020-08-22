@@ -495,7 +495,11 @@ var outputs;
 var midiOut;
 
 function midiInit() {
-    navigator.requestMIDIAccess().then(onMIDISuccess, onMIDIFailure);
+   if (navigator.requestMIDIAccess){
+        navigator.requestMIDIAccess().then(onMIDISuccess, onMIDIFailure);
+   } else {
+    console.log("no midi support");
+   }
 }
 function onMIDISuccess(midiAccess) {
     console.log(midiAccess);
