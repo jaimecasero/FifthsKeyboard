@@ -37,25 +37,10 @@ var noteColor=[tonicColor,subdominantColor,dominantColor,forthColor];
 // create web audio api context
 const audioCtx = new (window.AudioContext || window.webkitAudioContext);
 
-
-// create Oscillators node,
-const oscillatorArray = [];
-const gainArray = [];
-function initOscillators() {
-    //one oscillator for each possible 4 notes in a chord
-    for (var i=0; i< 4 ; i++){
-        oscillatorArray[i] = audioCtx.createOscillator();
-        oscillatorArray[i].type = 'triangle';
-        oscillatorArray[i].frequency.setValueAtTime(440, audioCtx.currentTime); // value in hertz
-        oscillatorArray[i].start();
-        gainArray[i] = audioCtx.createGain();
-        gainArray[i].gain.setValueAtTime(0.0001, audioCtx.currentTime);
-        gainArray[i].connect(audioCtx.destination);
-        oscillatorArray[i].connect(gainArray[i]);
-    }
-}
-
-
+var canvas;
+var chordModeSelect;
+var octaveSelect;
+var outputSelect;
 
 (function(window, document, undefined){
 window.onload = init;
@@ -65,13 +50,21 @@ window.onload = init;
     // #document has its nodes
 	console.log("init");
 	initOscillators();
+    midiInit();
+	//cache DOM elements for better performance
+	canvas = document.getElementById('circleCanvas');
+    chordModeSelect = document.getElementById('chordModeSelect');
+    octaveSelect = document.getElementById('octaveSelect');
+    outputSelect = document.getElementById('outputSelect');
+
 	//register multitouch listener
-	document.getElementById('circleCanvas').addEventListener('touchstart', function(event) {
+	canvas.addEventListener('touchstart', function(event) {
 		  event.preventDefault();
+		  //resume audiocontext on canvas touch
 		  audioCtx.resume();
 		  for (var i = 0; i < event.changedTouches.length; i++) {
 		    var touch = event.changedTouches[i];
-		    	var rect = document.getElementById('circleCanvas').getBoundingClientRect();
+		    	var rect = canvas.getBoundingClientRect();
 		    	//transpose touch coordinates to canvas
                 var x = touch.clientX - rect.left;
                 var y = touch.clientY - rect.top;
@@ -83,11 +76,11 @@ window.onload = init;
                 canvasDownXY(x, y, force);
 		  }
 	}, false);
-	document.getElementById('circleCanvas').addEventListener('touchend', function(event) {
+	canvas.addEventListener('touchend', function(event) {
 	      event.preventDefault();
 		  for (var i = 0; i < event.changedTouches.length; i++) {
 		    var touch = event.changedTouches[i];
-		    	var rect = document.getElementById('circleCanvas').getBoundingClientRect();
+		    	var rect = canvas.getBoundingClientRect();
 		    	//transpose touch coordinates to canvas
                 var x = touch.clientX - rect.left;
                 var y = touch.clientY - rect.top;
@@ -129,7 +122,7 @@ function clearNoteLabels() {
 function keyDownHandler(event) {
 	var keyPressed = String.fromCharCode(event.keyCode);
     if (event.keyCode >= 48 && event.keyCode <= 57) {
-		document.getElementById("octaveSelect").selectedIndex = keyPressed;
+		octaveSelect.selectedIndex = keyPressed;
 	}
 }
 
@@ -152,7 +145,6 @@ function generateKeyArray(noteIndex) {
 }
 
 function calculateNoteCenter(noteIndex, radius) {
-	var canvas = document.getElementById("circleCanvas");
 	//calculate note position based on angle
    //divide by 12, the possible notes based on noteindex[0,11]
    //use PI/2*3 to translate to canvas coordinates, where +y goes down
@@ -166,13 +158,11 @@ function calculateNoteCenter(noteIndex, radius) {
 }
 
 function majorNoteRadius() {
-    var canvas = document.getElementById("circleCanvas");
     return canvas.width/2 - ((canvas.width/2-innerRingRadius(canvas.width))/2);
 }
 
 function changeKey(){
     var selectedKey = document.getElementById('keySelect').value;
-	var canvas = document.getElementById("circleCanvas");
 	var ctx = canvas.getContext("2d");
 	//clear all canvas to remove previous key lines
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -215,13 +205,13 @@ function intersects(x,y, cx, cy, r) {
 }
 
 function canvasDown(e){
+   //resume audiocontext on canvas mousedown
    audioCtx.resume();
    canvasDownXY(e.offsetX, e.offsetY, 1.0);
 }
 
 function canvasDownXY(x,y, force){
    console.log("down:" + x + "," + y);
-   var canvas = document.getElementById("circleCanvas");
    for(var i = 0; i < noteCode.length; i++) {
       for (var j = 0; j < noteCode[i].length; j++) {
           var noteCenterPoint;
@@ -242,7 +232,6 @@ function canvasUp(e) {
 	canvasUpXY(e.offsetX, e.offsetY);
 }
 function canvasUpXY(x,y) {
-   var canvas = document.getElementById("circleCanvas");
    for(var i = 0; i < noteCode.length; i++) {
       for (var j = 0; j < noteCode[i].length; j++) {
           var noteCenterPoint;
@@ -266,7 +255,6 @@ function innerRingRadius(canvasWidth) {
 }
 
 function renderCircle() {
-	var canvas = document.getElementById("circleCanvas");
 	var ctx = canvas.getContext("2d");
 
 	//draw outer and inner circles
@@ -364,7 +352,6 @@ function drawNoteWithRing(midiNote, ringLevel, color,chordNoteIndex) {
 
 
 function drawNoteIndex(noteIndex,ringLevel, style) {
-	var canvas = document.getElementById("circleCanvas");
 	var ctx = canvas.getContext("2d");
     var noteCenterPoint;
     if (ringLevel == 0 ) {
@@ -391,11 +378,12 @@ function down(midiNote, ringLevel, force) {
   console.log("midiNote:" + midiNote);
   console.log("freqMidi:" + freq(midiNote));
 
+
   clearNoteLabels();
 
-  var chordModeVal = document.getElementById('chordModeSelect').value;
+  var chordModeVal = chordModeSelect.value;
   console.log ("chordMode:"+ chordModeVal);
-  var octaveSelectVal = document.getElementById('octaveSelect').value;
+  var octaveSelectVal = octaveSelect.value;
   console.log("octave:" + octaveSelectVal);
 
   var midiNoteDelta = 0;
@@ -403,12 +391,11 @@ function down(midiNote, ringLevel, force) {
       //calculate note delta depending on ringlevel
       midiNoteDelta = calculateNoteDelta(midiNote, ringLevel,chordModeVal, i);
       var adjustedMidiNote = midiNote + midiNoteDelta;
-      var noteFreq = freq(adjustedMidiNote) * Math.pow(2,octaveSelectVal);
-      console.log("biteFreq" + i + ":" + noteFreq);
-      oscillatorArray[0].frequency.setValueAtTime(noteFreq, audioCtx.currentTime); // value in hertz
-      gainArray[0].gain.cancelScheduledValues(audioCtx.currentTime);
-      gainArray[0].gain.exponentialRampToValueAtTime(NOTE_PRESS_GAIN * force, audioCtx.currentTime + 0.1);
-      gainArray[0].gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + (NOTE_PRESS_SUSTAIN * force) + 0.1);
+      if (outputSelect.value === "0") {
+        playOscillatorNote(i,adjustedMidiNote,octaveSelectVal,force);
+      } else {
+        playMidiNote(adjustedMidiNote);
+      }
       drawNoteWithRing(adjustedMidiNote,ringLevel, noteColor[i],i);
       if (chordModeVal == 0) {
         //single note mode, break loop here
@@ -455,7 +442,7 @@ function up(midiNote, ringLevel) {
   for (var i = 0; i < 4 ; i++) {
         midiNoteDelta = calculateNoteDelta(midiNote, ringLevel,chordModeVal, i);
         drawNoteWithRing(midiNote + midiNoteDelta,ringLevel, disabledNoteColor,i);
-
+        playMidiNoteOff(midiNoteDelta);
       if (chordModeVal == 0) {
         //single note mode, break loop here
         break;
@@ -466,4 +453,71 @@ function up(midiNote, ringLevel) {
       }
    }
 
+}
+
+////////////////////// OSCILLATOR OUTPUT //////////////////////
+// create Oscillators node,
+const oscillatorArray = [];
+const gainArray = [];
+const A4_FREQ = 440;
+
+
+function initOscillators() {
+    //one oscillator for each possible 4 notes in a chord
+    for (var i=0; i< 4 ; i++){
+        oscillatorArray[i] = audioCtx.createOscillator();
+        oscillatorArray[i].type = 'triangle';
+        //use A4 as initial note
+        oscillatorArray[i].frequency.setValueAtTime(A4_FREQ, audioCtx.currentTime); // value in hertz
+        oscillatorArray[i].start();
+        gainArray[i] = audioCtx.createGain();
+        //set a very low gain value to  make it as quiet as possible
+        gainArray[i].gain.setValueAtTime(0.0001, audioCtx.currentTime);
+        gainArray[i].connect(audioCtx.destination);
+        oscillatorArray[i].connect(gainArray[i]);
+    }
+}
+
+
+function playOscillatorNote(i,adjustedMidiNote, octaveSelectVal, force){
+      var noteFreq = freq(adjustedMidiNote) * Math.pow(2,octaveSelectVal);
+      console.log("biteFreq" + i + ":" + noteFreq);
+      oscillatorArray[0].frequency.setValueAtTime(noteFreq, audioCtx.currentTime); // value in hertz
+      gainArray[0].gain.cancelScheduledValues(audioCtx.currentTime);
+      gainArray[0].gain.exponentialRampToValueAtTime(NOTE_PRESS_GAIN * force, audioCtx.currentTime + 0.1);
+      gainArray[0].gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + (NOTE_PRESS_SUSTAIN * force) + 0.1);
+}
+
+/////////////////////////////MIDI OUTPUT//////////////////////
+const NOTE_ON = 0x90;
+const NOTE_OFF = 0x80;
+var outputs;
+var midiOut;
+
+function midiInit() {
+    navigator.requestMIDIAccess().then(onMIDISuccess, onMIDIFailure);
+}
+function onMIDISuccess(midiAccess) {
+    console.log(midiAccess);
+    outputs = midiAccess.outputs.values();
+    for (var output of midiAccess.outputs.values()) {
+        midiOut = output;
+        break;
+    }
+}
+
+function playMidiNote(midiNote) {
+   for (var output of outputs) {
+       output.send( [NOTE_ON, 60, 100] );
+    }
+}
+function playMidiNoteOff(midiNote) {
+   for (var output of outputs) {
+       output.send( [NOTE_OFF, 60, 100], Date.now() + 1000 );
+    }
+
+}
+
+function onMIDIFailure() {
+    console.log('Could not access your MIDI devices.');
 }
