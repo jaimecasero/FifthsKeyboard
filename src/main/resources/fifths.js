@@ -50,7 +50,6 @@ window.onload = init;
     // #document has its nodes
 	console.log("init");
 	initOscillators();
-    midiInit();
 	//cache DOM elements for better performance
 	canvas = document.getElementById('circleCanvas');
     chordModeSelect = document.getElementById('chordModeSelect');
@@ -159,6 +158,14 @@ function calculateNoteCenter(noteIndex, radius) {
 
 function majorNoteRadius() {
     return canvas.width/2 - ((canvas.width/2-innerRingRadius(canvas.width))/2);
+}
+
+function changeOutput(){
+    var selectedOutput = document.getElementById('outputSelect').value;
+    if (selectedOutput === "0") {
+    } else {
+       initMidi();
+    }
 }
 
 function changeKey(){
@@ -394,7 +401,8 @@ function down(midiNote, ringLevel, force) {
       if (outputSelect.value === "0") {
         playOscillatorNote(i,adjustedMidiNote,octaveSelectVal,force);
       } else {
-        playMidiNote(adjustedMidiNote);
+        actualMidiNote = adjustedMidiNote + octaveSelectVal * 12;
+        playMidiNote(actualMidiNote);
       }
       drawNoteWithRing(adjustedMidiNote,ringLevel, noteColor[i],i);
       if (chordModeVal == 0) {
@@ -442,7 +450,11 @@ function up(midiNote, ringLevel) {
   for (var i = 0; i < 4 ; i++) {
         midiNoteDelta = calculateNoteDelta(midiNote, ringLevel,chordModeVal, i);
         drawNoteWithRing(midiNote + midiNoteDelta,ringLevel, disabledNoteColor,i);
+      if (outputSelect.value === "1") {
+        var octaveSelectVal = octaveSelect.value;
+        midiNoteDelta = midiNote + midiNoteDelta + octaveSelectVal * 12;
         playMidiNoteOff(midiNoteDelta);
+      }
       if (chordModeVal == 0) {
         //single note mode, break loop here
         break;
@@ -493,33 +505,46 @@ const NOTE_ON = 0x90;
 const NOTE_OFF = 0x80;
 var outputs;
 var midiOut;
+var midiVelocity= 100;
+var midiChannel=0;
 
-function midiInit() {
+function initMidi() {
    if (navigator.requestMIDIAccess){
-        navigator.requestMIDIAccess().then(onMIDISuccess, onMIDIFailure);
+        navigator.requestMIDIAccess({sysex: true}).then(onMIDISuccess, onMIDIFailure);
    } else {
     console.log("no midi support");
    }
 }
 function onMIDISuccess(midiAccess) {
     console.log(midiAccess);
-    outputs = midiAccess.outputs.values();
-    for (var output of midiAccess.outputs.values()) {
+    outputs = midiAccess.outputs;
+    var midiOutputSelect = document.getElementById('midiOutputSelect');
+    for (var output of outputs.values()) {
+        var opt = document.createElement('option');
+        opt.value = output.id;
+        opt.innerHTML = output.name;
+        midiOutputSelect.appendChild(opt);
         midiOut = output;
-        break;
+    }
+}
+
+function changeMidiOutput() {
+    var midiOutputSelect = document.getElementById('midiOutputSelect');
+    for (var output of outputs.values()) {
+        if (output.id === midiOutputSelect.value){
+          midiOut = output;
+          break;
+        }
     }
 }
 
 function playMidiNote(midiNote) {
-   for (var output of outputs) {
-       output.send( [NOTE_ON, 60, 100] );
-    }
+   console.log("turn on:" + midiNote);
+       midiOut.send( [NOTE_ON, midiNote, midiVelocity]);
 }
 function playMidiNoteOff(midiNote) {
-   for (var output of outputs) {
-       output.send( [NOTE_OFF, 60, 100], Date.now() + 1000 );
-    }
-
+   console.log("turn off:" + midiNote);
+       midiOut.send( [NOTE_OFF, midiNote, midiVelocity] );
 }
 
 function onMIDIFailure() {

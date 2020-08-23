@@ -49,10 +49,14 @@
 
 	<label for="outputSelect">Output:</label>
 
-	<select id="outputSelect">
+	<select id="outputSelect" onchange="changeOutput();">
 	  <option value="0" selected="selected">oscillator</option>
 	  <option value="1">midi</option>
 	</select>
+
+	  <label for="midiOutputSelect">Midi:</label>
+	  <select id="midiOutputSelect" onchange="changeMidiOutput();">
+	  </select>
 
 
   </form>
