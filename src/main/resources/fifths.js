@@ -1,4 +1,4 @@
-//model
+////////////////////////MODEL //////////////////////////////////////
 const NUM_NOTES=12;
 const NOTE_PRESS_GAIN = 0.1;//the gain applied when note is pressed
 const NOTE_PRESS_SUSTAIN = 2;//number of seconds the note will be sustained
@@ -34,9 +34,32 @@ const forthColor='salmon';
 const keyLineColor='orange';
 var noteColor=[tonicColor,subdominantColor,dominantColor,forthColor];
 
-// create web audio api context
-const audioCtx = new (window.AudioContext || window.webkitAudioContext);
+function findNoteIndex(midiNote, ringLevel) {
+   var normalizedMidiNote = midiNote;
+   if (midiNote > 23) {
+        //we work assuming octave is 1, this note went beyond this, so we need normalization
+	normalizedMidiNote = midiNote - NUM_NOTES;//down tune note one octave
+	console.log("Normalized Note:" + midiNote + "," + normalizedMidiNote);
+   }
+   return noteCode[ringLevel].findIndex((element) => element === normalizedMidiNote);
+}
 
+
+function generateKeyArray(noteIndex) {
+    var key = [];
+    //calculate the 7 notes in the key based on intervals 1,2,3,4,5,11
+    key[0] = noteMajorLabel[noteIndex];
+    key[1] = noteMajorLabel[(noteIndex + 1) % NUM_NOTES];
+    //add 'm' for minor chords
+    key[2] = noteMajorLabel[(noteIndex + 2) % NUM_NOTES] + 'm';
+    key[3] = noteMajorLabel[(noteIndex + 3) % NUM_NOTES] + 'm';
+    key[4] = noteMajorLabel[(noteIndex + 4) % NUM_NOTES] + 'm';
+    key[5] = noteMajorLabel[(noteIndex + 5) % NUM_NOTES] + 'm';
+    key[6] = noteMajorLabel[(noteIndex + 11) % NUM_NOTES];
+    return key;
+}
+
+////////DOM CACHING//////////////////
 var canvas;
 var chordModeSelect;
 var octaveSelect;
@@ -107,16 +130,14 @@ window.onload = init;
 
 })(window, document, undefined);
 
-// Get the position of a touch relative to the canvas
-function getTouchPos(canvasDom, touchEvent) {
-}
-
 
 function clearNoteLabels() {
 	for (var i = 0; i < noteColor.length; i++) {
 	        document.getElementById('noteText' + i).value= "";
 	}
 }
+
+///////////////INPUT HANDLING/////////////////////////////////////////
 
 function keyDownHandler(event) {
 	var keyPressed = String.fromCharCode(event.keyCode);
@@ -126,89 +147,6 @@ function keyDownHandler(event) {
 }
 
 function keyUpHandler(event) {
-}
-
-
-function generateKeyArray(noteIndex) {
-    var key = [];
-    //calculate the 7 notes in the key based on intervals 1,2,3,4,5,11
-    key[0] = noteMajorLabel[noteIndex];
-    key[1] = noteMajorLabel[(noteIndex + 1) % NUM_NOTES];
-    //add 'm' for minor chords
-    key[2] = noteMajorLabel[(noteIndex + 2) % NUM_NOTES] + 'm';
-    key[3] = noteMajorLabel[(noteIndex + 3) % NUM_NOTES] + 'm';
-    key[4] = noteMajorLabel[(noteIndex + 4) % NUM_NOTES] + 'm';
-    key[5] = noteMajorLabel[(noteIndex + 5) % NUM_NOTES] + 'm';
-    key[6] = noteMajorLabel[(noteIndex + 11) % NUM_NOTES];
-    return key;
-}
-
-function calculateNoteCenter(noteIndex, radius) {
-	//calculate note position based on angle
-   //divide by 12, the possible notes based on noteindex[0,11]
-   //use PI/2*3 to translate to canvas coordinates, where +y goes down
-   var noteAngle = ((((2 * Math.PI) / NUM_NOTES) * noteIndex)  + Math.PI/2*3);
-   //noteAngle= noteAngle / (noteAngle % Math.PI);
-   //apply polar coordinates to calculate note position in the ring
-   //add the canvas half to move the circle center in the center of canvas
-   var x = radius * Math.cos(noteAngle) + (canvas.width/2);
-   var y = radius * Math.sin(noteAngle) + (canvas.width/2);
-   return {x,y};
-}
-
-function majorNoteRadius() {
-    return canvas.width/2 - ((canvas.width/2-innerRingRadius(canvas.width))/2);
-}
-
-function changeOutput(){
-    var selectedOutput = document.getElementById('outputSelect').value;
-    if (selectedOutput === "0") {
-    } else {
-       initMidi();
-    }
-}
-
-function changeKey(){
-    var selectedKey = document.getElementById('keySelect').value;
-	var ctx = canvas.getContext("2d");
-	//clear all canvas to remove previous key lines
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	var tonicIndex = noteMajorLabel.findIndex((element) => element === selectedKey);
-    var keyFormation = generateKeyArray(tonicIndex);
-    console.log("selectedKey:"+ keyFormation);
-    ctx.strokeStyle=keyLineColor;
-    var tonicPoint = calculateNoteCenter(tonicIndex, majorNoteRadius());
-	for (var i=1; i < keyFormation.length; i++)
-    {
-        ctx.beginPath();
-        ctx.moveTo(tonicPoint.x, tonicPoint.y);
-        if (keyFormation[i].includes("m")){
-            var nextNoteIndex = noteMinorLabel.findIndex((element) => element === keyFormation[i]);
-            var nextMinorNotePoint = calculateNoteCenter(nextNoteIndex,innerRingRadius(canvas.width)-noteMinorPositionDelta);
-            ctx.lineTo(nextMinorNotePoint.x, nextMinorNotePoint.y);
-
-        } else {
-            var nextNoteIndex = noteMajorLabel.findIndex((element) => element === keyFormation[i]);
-            var nextMajorNotePoint = calculateNoteCenter(nextNoteIndex, majorNoteRadius());
-            ctx.lineTo(nextMajorNotePoint.x, nextMajorNotePoint.y);
-
-        }
-        ctx.stroke();
-    }
-    //revert back stroke style
-    ctx.strokeStyle='black';
-    //draw all circle again
-    renderCircle();
-}
-
-
-
-
-
-function intersects(x,y, cx, cy, r) {
-    var dx = x - cx;
-    var dy = y - cy;
-    return dx*dx+dy*dy <= r*r;
 }
 
 function canvasDown(e){
@@ -253,6 +191,162 @@ function canvasUpXY(x,y) {
 	      }
       }
    }
+}
+
+function down(midiNote, ringLevel, force) {
+  console.log("midiNote:" + midiNote);
+  console.log("freqMidi:" + freq(midiNote));
+
+
+  clearNoteLabels();
+
+  var chordModeVal = chordModeSelect.value;
+  console.log ("chordMode:"+ chordModeVal);
+  var octaveSelectVal = octaveSelect.value;
+  console.log("octave:" + octaveSelectVal);
+
+  var midiNoteDelta = 0;
+  for (var i = 0; i < 4 ; i++) {
+      //calculate note delta depending on ringlevel
+      midiNoteDelta = calculateNoteDelta(midiNote, ringLevel,chordModeVal, i);
+      var adjustedMidiNote = midiNote + midiNoteDelta;
+      if (outputSelect.value === "0") {
+        playOscillatorNote(i,adjustedMidiNote,octaveSelectVal,force);
+      } else {
+        actualMidiNote = adjustedMidiNote + octaveSelectVal * 12;
+        playMidiNote(actualMidiNote, force);
+      }
+      drawNoteWithRing(adjustedMidiNote,ringLevel, noteColor[i],i);
+      if (chordModeVal == 0) {
+        //single note mode, break loop here
+        break;
+      }
+      if (chordModeVal < 6 && i >= 2) {
+        //this is 3 note chord mode, stop on third iteration
+        break;
+      }
+  }
+
+}
+
+
+function calculateNoteDelta(midiNote,ringLevel,chordModeVal,i) {
+   var midiNoteDelta = 0;
+      //calculate note delta depending on ringlevel
+      if (i == 1) {
+        if(ringLevel== 0){
+            midiNoteDelta = subdominantMajorDeltaMap[chordModeVal];//this is the same for major and minor chords
+        } else {
+            midiNoteDelta = subdominantMinorDeltaMap[chordModeVal];//this is the same for major and minor chords
+        }
+
+      }
+      if (i == 2){
+        if(ringLevel== 0){
+           midiNoteDelta = dominantMajorDeltaMap[chordModeVal];//this is the same for major and minor chords
+        } else {
+           midiNoteDelta = dominantMinorDeltaMap[chordModeVal];//this is the same for major and minor chords
+        }
+      }
+      if (i == 3){
+    	midiNoteDelta = forthChordNoteIntervalMap[chordModeVal];
+      }
+
+      return midiNoteDelta;
+}
+
+function up(midiNote, ringLevel) {
+  var chordModeVal = document.getElementById('chordModeSelect').value;
+  console.log("UP.midiNote:" + midiNote);
+  var midiNoteDelta = 0;
+  for (var i = 0; i < 4 ; i++) {
+        midiNoteDelta = calculateNoteDelta(midiNote, ringLevel,chordModeVal, i);
+        drawNoteWithRing(midiNote + midiNoteDelta,ringLevel, disabledNoteColor,i);
+      if (outputSelect.value === "1") {
+        var octaveSelectVal = octaveSelect.value;
+        midiNoteDelta = midiNote + midiNoteDelta + octaveSelectVal * 12;
+        playMidiNoteOff(midiNoteDelta);
+      }
+      if (chordModeVal == 0) {
+        //single note mode, break loop here
+        break;
+      }
+      if (chordModeVal < 6 && i >= 2) {
+        //this is 3 note chord mode, stop on third iteration
+        break;
+      }
+   }
+
+}
+
+
+//////////////////////////// CONFIGURATION ////////////////////////////
+function changeOutput(){
+    var selectedOutput = document.getElementById('outputSelect').value;
+    if (selectedOutput === "0") {
+    } else {
+       initMidi();
+    }
+}
+
+function changeKey(){
+    var selectedKey = document.getElementById('keySelect').value;
+	var ctx = canvas.getContext("2d");
+	//clear all canvas to remove previous key lines
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	var tonicIndex = noteMajorLabel.findIndex((element) => element === selectedKey);
+    var keyFormation = generateKeyArray(tonicIndex);
+    console.log("selectedKey:"+ keyFormation);
+    ctx.strokeStyle=keyLineColor;
+    var tonicPoint = calculateNoteCenter(tonicIndex, majorNoteRadius());
+	for (var i=1; i < keyFormation.length; i++)
+    {
+        ctx.beginPath();
+        ctx.moveTo(tonicPoint.x, tonicPoint.y);
+        if (keyFormation[i].includes("m")){
+            var nextNoteIndex = noteMinorLabel.findIndex((element) => element === keyFormation[i]);
+            var nextMinorNotePoint = calculateNoteCenter(nextNoteIndex,innerRingRadius(canvas.width)-noteMinorPositionDelta);
+            ctx.lineTo(nextMinorNotePoint.x, nextMinorNotePoint.y);
+
+        } else {
+            var nextNoteIndex = noteMajorLabel.findIndex((element) => element === keyFormation[i]);
+            var nextMajorNotePoint = calculateNoteCenter(nextNoteIndex, majorNoteRadius());
+            ctx.lineTo(nextMajorNotePoint.x, nextMajorNotePoint.y);
+
+        }
+        ctx.stroke();
+    }
+    //revert back stroke style
+    ctx.strokeStyle='black';
+    //draw all circle again
+    renderCircle();
+}
+
+
+
+////////////////// CANVAS RENDERING ///////////////////////
+
+function intersects(x,y, cx, cy, r) {
+    var dx = x - cx;
+    var dy = y - cy;
+    return dx*dx+dy*dy <= r*r;
+}
+
+function calculateNoteCenter(noteIndex, radius) {
+	//calculate note position based on angle
+   //divide by 12, the possible notes based on noteindex[0,11]
+   //use PI/2*3 to translate to canvas coordinates, where +y goes down
+   var noteAngle = ((((2 * Math.PI) / NUM_NOTES) * noteIndex)  + Math.PI/2*3);
+   //noteAngle= noteAngle / (noteAngle % Math.PI);
+   //apply polar coordinates to calculate note position in the ring
+   //add the canvas half to move the circle center in the center of canvas
+   var x = radius * Math.cos(noteAngle) + (canvas.width/2);
+   var y = radius * Math.sin(noteAngle) + (canvas.width/2);
+   return {x,y};
+}
+
+function majorNoteRadius() {
+    return canvas.width/2 - ((canvas.width/2-innerRingRadius(canvas.width))/2);
 }
 
 
@@ -322,23 +416,6 @@ function renderCircle() {
 	}
 }
 
-
-function freq (midi) {
-	tuning = 440;
-	return midi === 0 || (midi > 0 && midi < 128) ? Math.pow(2, (midi - 69) / 12) * tuning : null
-}
-
-function findNoteIndex(midiNote, ringLevel) {
-   var normalizedMidiNote = midiNote;
-   if (midiNote > 23) {
-        //we work assuming octave is 1, this note went beyond this, so we need normalization
-	normalizedMidiNote = midiNote - NUM_NOTES;//down tune note one octave
-	console.log("Normalized Note:" + midiNote + "," + normalizedMidiNote);
-   }
-   return noteCode[ringLevel].findIndex((element) => element === normalizedMidiNote);
-}
-
-
 function drawNoteWithRing(midiNote, ringLevel, color,chordNoteIndex) {
 	if(ringLevel== 0){
 		var noteMinorIndex = findNoteIndex(midiNote,1);
@@ -381,97 +458,15 @@ function drawNoteIndex(noteIndex,ringLevel, style) {
 }
 
 
-function down(midiNote, ringLevel, force) {
-  console.log("midiNote:" + midiNote);
-  console.log("freqMidi:" + freq(midiNote));
-
-
-  clearNoteLabels();
-
-  var chordModeVal = chordModeSelect.value;
-  console.log ("chordMode:"+ chordModeVal);
-  var octaveSelectVal = octaveSelect.value;
-  console.log("octave:" + octaveSelectVal);
-
-  var midiNoteDelta = 0;
-  for (var i = 0; i < 4 ; i++) {
-      //calculate note delta depending on ringlevel
-      midiNoteDelta = calculateNoteDelta(midiNote, ringLevel,chordModeVal, i);
-      var adjustedMidiNote = midiNote + midiNoteDelta;
-      if (outputSelect.value === "0") {
-        playOscillatorNote(i,adjustedMidiNote,octaveSelectVal,force);
-      } else {
-        actualMidiNote = adjustedMidiNote + octaveSelectVal * 12;
-        playMidiNote(actualMidiNote);
-      }
-      drawNoteWithRing(adjustedMidiNote,ringLevel, noteColor[i],i);
-      if (chordModeVal == 0) {
-        //single note mode, break loop here
-        break;
-      }
-      if (chordModeVal < 6 && i >= 2) {
-        //this is 3 note chord mode, stop on third iteration
-        break;
-      }
-  }
-
-}
-
-
-function calculateNoteDelta(midiNote,ringLevel,chordModeVal,i) {
-   var midiNoteDelta = 0;
-      //calculate note delta depending on ringlevel
-      if (i == 1) {
-        if(ringLevel== 0){
-            midiNoteDelta = subdominantMajorDeltaMap[chordModeVal];//this is the same for major and minor chords
-        } else {
-            midiNoteDelta = subdominantMinorDeltaMap[chordModeVal];//this is the same for major and minor chords
-        }
-
-      }
-      if (i == 2){
-        if(ringLevel== 0){
-           midiNoteDelta = dominantMajorDeltaMap[chordModeVal];//this is the same for major and minor chords
-        } else {
-           midiNoteDelta = dominantMinorDeltaMap[chordModeVal];//this is the same for major and minor chords
-        }
-      }
-      if (i == 3){
-    	midiNoteDelta = forthChordNoteIntervalMap[chordModeVal];
-      }
-
-      return midiNoteDelta;
-}
-
-function up(midiNote, ringLevel) {
-  var chordModeVal = document.getElementById('chordModeSelect').value;
-  console.log("UP.midiNote:" + midiNote);
-  var midiNoteDelta = 0;
-  for (var i = 0; i < 4 ; i++) {
-        midiNoteDelta = calculateNoteDelta(midiNote, ringLevel,chordModeVal, i);
-        drawNoteWithRing(midiNote + midiNoteDelta,ringLevel, disabledNoteColor,i);
-      if (outputSelect.value === "1") {
-        var octaveSelectVal = octaveSelect.value;
-        midiNoteDelta = midiNote + midiNoteDelta + octaveSelectVal * 12;
-        playMidiNoteOff(midiNoteDelta);
-      }
-      if (chordModeVal == 0) {
-        //single note mode, break loop here
-        break;
-      }
-      if (chordModeVal < 6 && i >= 2) {
-        //this is 3 note chord mode, stop on third iteration
-        break;
-      }
-   }
-
-}
 
 ////////////////////// OSCILLATOR OUTPUT //////////////////////
 // create Oscillators node,
 const oscillatorArray = [];
 const gainArray = [];
 const A4_FREQ = 440;
+
+// create web audio api context
+const audioCtx = new (window.AudioContext || window.webkitAudioContext);
 
 
 function initOscillators() {
@@ -490,6 +485,10 @@ function initOscillators() {
     }
 }
 
+function freq (midi) {
+	tuning = 440;
+	return midi === 0 || (midi > 0 && midi < 128) ? Math.pow(2, (midi - 69) / 12) * tuning : null
+}
 
 function playOscillatorNote(i,adjustedMidiNote, octaveSelectVal, force){
       var noteFreq = freq(adjustedMidiNote) * Math.pow(2,octaveSelectVal);
@@ -505,7 +504,7 @@ const NOTE_ON = 0x90;
 const NOTE_OFF = 0x80;
 var outputs;
 var midiOut;
-var midiVelocity= 100;
+var midiVelocity= 127;
 var midiChannel=0;
 
 function initMidi() {
@@ -538,9 +537,9 @@ function changeMidiOutput() {
     }
 }
 
-function playMidiNote(midiNote) {
+function playMidiNote(midiNote, force) {
    console.log("turn on:" + midiNote);
-       midiOut.send( [NOTE_ON, midiNote, midiVelocity]);
+       midiOut.send( [NOTE_ON, midiNote, midiVelocity * force]);
 }
 function playMidiNoteOff(midiNote) {
    console.log("turn off:" + midiNote);
