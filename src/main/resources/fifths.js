@@ -20,9 +20,14 @@ const noteMinorCode=[21,16,23,18,13,20,15,22,17,12,19,14];
 const noteMinorCircleRadius=25;
 const noteMinorPositionDelta=30;
 
-const noteLabel=[noteMajorLabel, noteMinorLabel];
-const noteCode=[noteMajorCode, noteMinorCode];
-const noteCircleRadius=[noteMajorCircleRadius, noteMinorCircleRadius];
+const noteDimLabel=['Bdim','F#dim','C#dim','G#dim','D#dim','A#dim','Fdim','Cdim','Gdim','Ddim','Adim','Edim'];
+const noteDimCode=[23,18,13,20,15,22,17,12,19,14,21,16];
+const noteDimCircleRadius=20;
+const noteDimPositionDelta=30;
+
+const noteLabel=[noteMajorLabel, noteMinorLabel, noteDimLabel];
+const noteCode=[noteMajorCode, noteMinorCode, noteDimCode];
+const noteCircleRadius=[noteMajorCircleRadius, noteMinorCircleRadius, noteDimCircleRadius];
 
 
 
@@ -54,7 +59,7 @@ function generateKeyArray(noteIndex) {
     key[2] = noteMajorLabel[(noteIndex + 2) % NUM_NOTES] + 'm';
     key[3] = noteMajorLabel[(noteIndex + 3) % NUM_NOTES] + 'm';
     key[4] = noteMajorLabel[(noteIndex + 4) % NUM_NOTES] + 'm';
-    key[5] = noteMajorLabel[(noteIndex + 5) % NUM_NOTES] + 'm';
+    key[5] = noteMajorLabel[(noteIndex + 5) % NUM_NOTES] + 'dim';
     key[6] = noteMajorLabel[(noteIndex + 11) % NUM_NOTES];
     return key;
 }
@@ -289,6 +294,10 @@ function changeOutput(){
     }
 }
 
+function changeKeyMode(){
+
+}
+
 function changeKey(){
     var selectedKey = document.getElementById('keySelect').value;
 	var ctx = canvas.getContext("2d");
@@ -303,16 +312,21 @@ function changeKey(){
     {
         ctx.beginPath();
         ctx.moveTo(tonicPoint.x, tonicPoint.y);
-        if (keyFormation[i].includes("m")){
-            var nextNoteIndex = noteMinorLabel.findIndex((element) => element === keyFormation[i]);
-            var nextMinorNotePoint = calculateNoteCenter(nextNoteIndex,innerRingRadius(canvas.width)-noteMinorPositionDelta);
-            ctx.lineTo(nextMinorNotePoint.x, nextMinorNotePoint.y);
-
+        if (keyFormation[i].includes("dim")){
+            var nextNoteIndex = noteDimLabel.findIndex((element) => element === keyFormation[i]);
+            var nextDimNotePoint = calculateNoteCenter(nextNoteIndex,dimRingRadius(canvas.width)-noteDimPositionDelta);
+            ctx.lineTo(nextDimNotePoint.x, nextDimNotePoint.y);
         } else {
-            var nextNoteIndex = noteMajorLabel.findIndex((element) => element === keyFormation[i]);
-            var nextMajorNotePoint = calculateNoteCenter(nextNoteIndex, majorNoteRadius());
-            ctx.lineTo(nextMajorNotePoint.x, nextMajorNotePoint.y);
+            if (keyFormation[i].includes("m")){
+                var nextNoteIndex = noteMinorLabel.findIndex((element) => element === keyFormation[i]);
+                var nextMinorNotePoint = calculateNoteCenter(nextNoteIndex,innerRingRadius(canvas.width)-noteMinorPositionDelta);
+                ctx.lineTo(nextMinorNotePoint.x, nextMinorNotePoint.y);
 
+            } else {
+                var nextNoteIndex = noteMajorLabel.findIndex((element) => element === keyFormation[i]);
+                var nextMajorNotePoint = calculateNoteCenter(nextNoteIndex, majorNoteRadius());
+                ctx.lineTo(nextMajorNotePoint.x, nextMajorNotePoint.y);
+            }
         }
         ctx.stroke();
     }
@@ -355,6 +369,11 @@ function innerRingRadius(canvasWidth) {
     return canvasWidth/2/4*3;
 }
 
+function dimRingRadius(canvasWidth) {
+	//dim ring at 1/4 of total radius
+    return canvasWidth/2/4*2;
+}
+
 function renderCircle() {
 	var ctx = canvas.getContext("2d");
 
@@ -365,6 +384,9 @@ function renderCircle() {
 	ctx.beginPath();
 
 	ctx.arc(canvas.width/2, canvas.height/2, innerRingRadius(canvas.width), 0, 2 * Math.PI);
+	ctx.stroke();
+
+	ctx.arc(canvas.width/2, canvas.height/2, dimRingRadius(canvas.width), 0, 2 * Math.PI);
 	ctx.stroke();
 
 	//dividers needs to split the quarter of the whole circumference in three.
@@ -425,12 +447,14 @@ function drawNoteWithRing(midiNote, ringLevel, color,chordNoteIndex) {
 		drawNoteIndex(noteIndex,ringLevel,color);
 		drawNoteIndex(noteMinorIndex, 1, color);
 	} else {
-		var noteMinorIndex = findNoteIndex(midiNote,ringLevel);
-		var noteIndex = findNoteIndex(midiNote,0);
-		document.getElementById('noteText' + chordNoteIndex).value= noteLabel[ringLevel][noteMinorIndex];
-		console.log("noteIndex:" + noteIndex);
-		drawNoteIndex(noteMinorIndex,ringLevel,color);
-		drawNoteIndex(noteIndex,0,color);
+	    if (ringLevel == 1) {
+            var noteMinorIndex = findNoteIndex(midiNote,ringLevel);
+            var noteIndex = findNoteIndex(midiNote,0);
+            document.getElementById('noteText' + chordNoteIndex).value= noteLabel[ringLevel][noteMinorIndex];
+            console.log("noteIndex:" + noteIndex);
+            drawNoteIndex(noteMinorIndex,ringLevel,color);
+            drawNoteIndex(noteIndex,0,color);
+        }
 	}
 }
 
@@ -441,7 +465,11 @@ function drawNoteIndex(noteIndex,ringLevel, style) {
     if (ringLevel == 0 ) {
         noteCenterPoint = calculateNoteCenter(noteIndex, majorNoteRadius());
     } else {
-        noteCenterPoint = calculateNoteCenter(noteIndex, innerRingRadius(canvas.width) - noteMinorPositionDelta);
+        if (ringLevel == 1 ) {
+            noteCenterPoint = calculateNoteCenter(noteIndex, innerRingRadius(canvas.width) - noteMinorPositionDelta);
+        } else {
+            noteCenterPoint = calculateNoteCenter(noteIndex, dimRingRadius(canvas.width) - noteDimPositionDelta);
+        }
     }
 	ctx.beginPath();
 	ctx.fillStyle=style;

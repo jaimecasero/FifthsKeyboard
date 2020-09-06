@@ -21,6 +21,17 @@
 	   <option >B</option>
 	  </select>
 
+	  <label for="modeSelect">Mode:</label>
+	  <select id="modeSelect" onchange="changeKeyMode();">
+		  <option value ="0" selected="selected">Ionian</option>
+		  <option value="1">Dorian</option>
+		  <option value="2">Phrygian</option>
+		  <option value="3">Lydian</option>
+		  <option value="4">Mixolydian</option>
+		  <option value="5">Aeolian</option>
+		  <option value="6">Locrian</option>
+	  </select>
+
 	<label for="chordModeSelect">Chord Mode:</label>
 	<select id="chordModeSelect">
 	   <option value="0" selected="selected">None</option>
