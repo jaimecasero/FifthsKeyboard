@@ -2,11 +2,15 @@
 const NUM_NOTES=12;
 const NOTE_PRESS_GAIN = 0.1;//the gain applied when note is pressed
 const NOTE_PRESS_SUSTAIN = 2;//number of seconds the note will be sustained
+const DIM_NOTATION="\xBA";
+const MINOR_NOTATION="m";
 
 const dominantMajorDeltaMap = [7,7,7,7,6,8,7,7];
 const dominantMinorDeltaMap = [7,7,7,7,6,8,7,7];
+const dominantDimDeltaMap = [6,6,6,6,5,7,6,6];
 const subdominantMajorDeltaMap = [4,4,2,5,3,4,4,4];
 const subdominantMinorDeltaMap = [3,3,1,4,2,3,3,3];
+const subdominantDimDeltaMap = [3,3,3,3,3,3,3,3];
 const forthChordNoteIntervalMap = [0,0,0,0,0,0,11,14];
 
 
@@ -20,7 +24,7 @@ const noteMinorCode=[21,16,23,18,13,20,15,22,17,12,19,14];
 const noteMinorCircleRadius=25;
 const noteMinorPositionDelta=30;
 
-const noteDimLabel=['Bdim','F#dim','C#dim','G#dim','D#dim','A#dim','Fdim','Cdim','Gdim','Ddim','Adim','Edim'];
+const noteDimLabel=["B\xBA",'F#\xBA','C#\xBA','G#\xBA','D#\xBA','A#\xBA','F\xBA','C\xBA','G\xBA','D\xBA','A\xBA','E\xBA'];
 const noteDimCode=[23,18,13,20,15,22,17,12,19,14,21,16];
 const noteDimCircleRadius=20;
 const noteDimPositionDelta=30;
@@ -56,10 +60,10 @@ function generateKeyArray(noteIndex) {
     key[0] = noteMajorLabel[noteIndex];
     key[1] = noteMajorLabel[(noteIndex + 1) % NUM_NOTES];
     //add 'm' for minor chords
-    key[2] = noteMajorLabel[(noteIndex + 2) % NUM_NOTES] + 'm';
-    key[3] = noteMajorLabel[(noteIndex + 3) % NUM_NOTES] + 'm';
-    key[4] = noteMajorLabel[(noteIndex + 4) % NUM_NOTES] + 'm';
-    key[5] = noteMajorLabel[(noteIndex + 5) % NUM_NOTES] + 'dim';
+    key[2] = noteMajorLabel[(noteIndex + 2) % NUM_NOTES] + MINOR_NOTATION;
+    key[3] = noteMajorLabel[(noteIndex + 3) % NUM_NOTES] + MINOR_NOTATION;
+    key[4] = noteMajorLabel[(noteIndex + 4) % NUM_NOTES] + MINOR_NOTATION;
+    key[5] = noteMajorLabel[(noteIndex + 5) % NUM_NOTES] + DIM_NOTATION;
     key[6] = noteMajorLabel[(noteIndex + 11) % NUM_NOTES];
     return key;
 }
@@ -168,7 +172,11 @@ function canvasDownXY(x,y, force){
            if (i == 0) {
               noteCenterPoint = calculateNoteCenter(j, majorNoteRadius());
            } else {
-              noteCenterPoint = calculateNoteCenter(j, innerRingRadius(canvas.width) - noteMinorPositionDelta);
+              if ( i == 1) {
+                noteCenterPoint = calculateNoteCenter(j, innerRingRadius(canvas.width) - noteMinorPositionDelta);
+              } else {
+                noteCenterPoint = calculateNoteCenter(j, dimRingRadius(canvas.width) - noteDimPositionDelta);
+              }
            }
 	      if (intersects(x,y,noteCenterPoint.x,noteCenterPoint.y,noteCircleRadius[i])) {
 		    down(noteCode[i][j], i, force);
@@ -188,7 +196,11 @@ function canvasUpXY(x,y) {
           if (i == 0) {
             noteCenterPoint = calculateNoteCenter(j, majorNoteRadius());
           } else {
-            noteCenterPoint = calculateNoteCenter(j, innerRingRadius(canvas.width) - noteMinorPositionDelta);
+              if ( i == 1) {
+                noteCenterPoint = calculateNoteCenter(j, innerRingRadius(canvas.width) - noteMinorPositionDelta);
+              } else {
+                noteCenterPoint = calculateNoteCenter(j, dimRingRadius(canvas.width) - noteDimPositionDelta);
+              }
           }
 	      if (intersects(x,y,noteCenterPoint.x,noteCenterPoint.y,noteCircleRadius[i])) {
 		    up(noteCode[i][j], i);
@@ -236,28 +248,35 @@ function down(midiNote, ringLevel, force) {
 
 
 function calculateNoteDelta(midiNote,ringLevel,chordModeVal,i) {
-   var midiNoteDelta = 0;
-      //calculate note delta depending on ringlevel
-      if (i == 1) {
+    var midiNoteDelta = 0;
+    //calculate note delta depending on ringlevel
+    if (i == 1) {
         if(ringLevel== 0){
-            midiNoteDelta = subdominantMajorDeltaMap[chordModeVal];//this is the same for major and minor chords
+            midiNoteDelta = subdominantMajorDeltaMap[chordModeVal];
         } else {
-            midiNoteDelta = subdominantMinorDeltaMap[chordModeVal];//this is the same for major and minor chords
+            if (ringLevel == 1) {
+                midiNoteDelta = subdominantMinorDeltaMap[chordModeVal];
+            } else {
+                midiNoteDelta = subdominantDimDeltaMap[chordModeVal];
+            }
         }
-
-      }
-      if (i == 2){
+    }
+    if (i == 2){
         if(ringLevel== 0){
-           midiNoteDelta = dominantMajorDeltaMap[chordModeVal];//this is the same for major and minor chords
+           midiNoteDelta = dominantMajorDeltaMap[chordModeVal];
         } else {
-           midiNoteDelta = dominantMinorDeltaMap[chordModeVal];//this is the same for major and minor chords
+           if (ringLevel == 1) {
+            midiNoteDelta = dominantMinorDeltaMap[chordModeVal];
+           } else {
+            midiNoteDelta = dominantDimDeltaMap[chordModeVal];
+           }
         }
-      }
-      if (i == 3){
-    	midiNoteDelta = forthChordNoteIntervalMap[chordModeVal];
-      }
+    }
+    if (i == 3){
+        midiNoteDelta = forthChordNoteIntervalMap[chordModeVal];
+    }
 
-      return midiNoteDelta;
+    return midiNoteDelta;
 }
 
 function up(midiNote, ringLevel) {
@@ -312,12 +331,12 @@ function changeKey(){
     {
         ctx.beginPath();
         ctx.moveTo(tonicPoint.x, tonicPoint.y);
-        if (keyFormation[i].includes("dim")){
+        if (keyFormation[i].includes(DIM_NOTATION)){
             var nextNoteIndex = noteDimLabel.findIndex((element) => element === keyFormation[i]);
             var nextDimNotePoint = calculateNoteCenter(nextNoteIndex,dimRingRadius(canvas.width)-noteDimPositionDelta);
             ctx.lineTo(nextDimNotePoint.x, nextDimNotePoint.y);
         } else {
-            if (keyFormation[i].includes("m")){
+            if (keyFormation[i].includes(MINOR_NOTATION)){
                 var nextNoteIndex = noteMinorLabel.findIndex((element) => element === keyFormation[i]);
                 var nextMinorNotePoint = calculateNoteCenter(nextNoteIndex,innerRingRadius(canvas.width)-noteMinorPositionDelta);
                 ctx.lineTo(nextMinorNotePoint.x, nextMinorNotePoint.y);
@@ -439,21 +458,23 @@ function renderCircle() {
 }
 
 function drawNoteWithRing(midiNote, ringLevel, color,chordNoteIndex) {
+    var noteDimIndex = findNoteIndex(midiNote,2);
+    var noteMinorIndex = findNoteIndex(midiNote,1);
+    var noteMajorIndex = findNoteIndex(midiNote,0);
+    drawNoteIndex(noteMajorIndex,0,color);
+    drawNoteIndex(noteMinorIndex, 1, color);
+    drawNoteIndex(noteDimIndex, 2, color);
+
 	if(ringLevel== 0){
-		var noteMinorIndex = findNoteIndex(midiNote,1);
-		var noteIndex = findNoteIndex(midiNote,ringLevel);
-		document.getElementById('noteText' + chordNoteIndex).value= noteLabel[ringLevel][noteIndex];
-		console.log("noteIndex:" + noteIndex);
-		drawNoteIndex(noteIndex,ringLevel,color);
-		drawNoteIndex(noteMinorIndex, 1, color);
+		document.getElementById('noteText' + chordNoteIndex).value= noteLabel[ringLevel][noteMajorIndex];
+		console.log("noteIndex:" + noteMajorIndex);
 	} else {
 	    if (ringLevel == 1) {
-            var noteMinorIndex = findNoteIndex(midiNote,ringLevel);
-            var noteIndex = findNoteIndex(midiNote,0);
             document.getElementById('noteText' + chordNoteIndex).value= noteLabel[ringLevel][noteMinorIndex];
-            console.log("noteIndex:" + noteIndex);
-            drawNoteIndex(noteMinorIndex,ringLevel,color);
-            drawNoteIndex(noteIndex,0,color);
+            console.log("noteIndex:" + noteMinorIndex);
+        } else {
+            document.getElementById('noteText' + chordNoteIndex).value= noteLabel[ringLevel][noteDimIndex];
+            console.log("noteIndex:" + noteDimIndex);
         }
 	}
 }
