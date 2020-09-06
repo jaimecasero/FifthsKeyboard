@@ -4,6 +4,30 @@ const NOTE_PRESS_GAIN = 0.1;//the gain applied when note is pressed
 const NOTE_PRESS_SUSTAIN = 2;//number of seconds the note will be sustained
 const DIM_NOTATION="\xBA";
 const MINOR_NOTATION="m";
+const MAJOR_NOTATION="";
+
+const NOTE_LABEL= ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+
+const KEY_MODE_ROOT_RING = [0,1,1,0,0,1,2];
+const KEY_MODE_ROOT_NOTATION = [MAJOR_NOTATION,MINOR_NOTATION,MINOR_NOTATION,MAJOR_NOTATION,MAJOR_NOTATION,MINOR_NOTATION,DIM_NOTATION];
+
+const IONIAN_INTERVAL= [0,2,4,5,7,9,11];
+const IONIAN_CHORD=[MAJOR_NOTATION,MINOR_NOTATION,MINOR_NOTATION, MAJOR_NOTATION,MAJOR_NOTATION, MINOR_NOTATION, DIM_NOTATION];
+const DORIAN_INTERVAL= [0,2,3,5,7,9,10];
+const DORIAN_CHORD=[MINOR_NOTATION,MINOR_NOTATION,MAJOR_NOTATION,MAJOR_NOTATION,MINOR_NOTATION,DIM_NOTATION,MAJOR_NOTATION];
+const PRHYGIAN_INTERVAL= [0,1,3,5,7,8,10];
+const PRHYGIAN_CHORD=[MINOR_NOTATION,MAJOR_NOTATION,MAJOR_NOTATION,MINOR_NOTATION, DIM_NOTATION, MAJOR_NOTATION, MINOR_NOTATION];
+const LYDIAN_INTERVAL= [0,2,4,6,7,9,11];
+const LYDIAN_CHORD=[MAJOR_NOTATION,MAJOR_NOTATION,MINOR_NOTATION,DIM_NOTATION,MAJOR_NOTATION, MINOR_NOTATION, MINOR_NOTATION];
+const MIXOLYDIAN_INTERVAL= [0,2,4,5,7,9,10];
+const MIXOLYDIAN_CHORD=[MAJOR_NOTATION,MINOR_NOTATION,DIM_NOTATION, MAJOR_NOTATION,MINOR_NOTATION, MINOR_NOTATION, MAJOR_NOTATION];
+const AEOLIAN_INTERVAL= [0,2,3,5,7,8,10];
+const AEOLIAN_CHORD=[MINOR_NOTATION,DIM_NOTATION,MAJOR_NOTATION, MINOR_NOTATION,MINOR_NOTATION,MAJOR_NOTATION,MAJOR_NOTATION];
+const LOCRIAN_INTERVAL= [0,1,3,5,6,8,10];
+const LOCRIAN_CHORD=[DIM_NOTATION,MAJOR_NOTATION,MINOR_NOTATION,MINOR_NOTATION,MAJOR_NOTATION,MAJOR_NOTATION,MINOR_NOTATION];
+
+const KEY_MODE_INTERVAL= [IONIAN_INTERVAL, DORIAN_INTERVAL, PRHYGIAN_INTERVAL,LYDIAN_INTERVAL,MIXOLYDIAN_INTERVAL,AEOLIAN_INTERVAL,LOCRIAN_INTERVAL];
+const KEY_MODE_CHORD = [IONIAN_CHORD, DORIAN_CHORD, PRHYGIAN_CHORD, LYDIAN_CHORD, MIXOLYDIAN_CHORD,AEOLIAN_CHORD, LOCRIAN_CHORD];
 
 const dominantMajorDeltaMap = [7,7,7,7,6,8,7,7];
 const dominantMinorDeltaMap = [7,7,7,7,6,8,7,7];
@@ -54,17 +78,13 @@ function findNoteIndex(midiNote, ringLevel) {
 }
 
 
-function generateKeyArray(noteIndex) {
+function generateKeyArray(noteIndex, keyMode) {
     var key = [];
-    //calculate the 7 notes in the key based on intervals 1,2,3,4,5,11
-    key[0] = noteMajorLabel[noteIndex];
-    key[1] = noteMajorLabel[(noteIndex + 1) % NUM_NOTES];
-    //add 'm' for minor chords
-    key[2] = noteMajorLabel[(noteIndex + 2) % NUM_NOTES] + MINOR_NOTATION;
-    key[3] = noteMajorLabel[(noteIndex + 3) % NUM_NOTES] + MINOR_NOTATION;
-    key[4] = noteMajorLabel[(noteIndex + 4) % NUM_NOTES] + MINOR_NOTATION;
-    key[5] = noteMajorLabel[(noteIndex + 5) % NUM_NOTES] + DIM_NOTATION;
-    key[6] = noteMajorLabel[(noteIndex + 11) % NUM_NOTES];
+    //calculate the 7 notes in the key based on intervals
+    //add chord suffix accordingly
+    for (var i = 0; i < 7; i++) {
+        key[i] = NOTE_LABEL[(noteIndex + KEY_MODE_INTERVAL[keyMode][i]) % NUM_NOTES] + KEY_MODE_CHORD[keyMode][i];
+    }
     return key;
 }
 
@@ -168,16 +188,7 @@ function canvasDownXY(x,y, force){
    console.log("down:" + x + "," + y);
    for(var i = 0; i < noteCode.length; i++) {
       for (var j = 0; j < noteCode[i].length; j++) {
-          var noteCenterPoint;
-           if (i == 0) {
-              noteCenterPoint = calculateNoteCenter(j, majorNoteRadius());
-           } else {
-              if ( i == 1) {
-                noteCenterPoint = calculateNoteCenter(j, innerRingRadius(canvas.width) - noteMinorPositionDelta);
-              } else {
-                noteCenterPoint = calculateNoteCenter(j, dimRingRadius(canvas.width) - noteDimPositionDelta);
-              }
-           }
+          var noteCenterPoint = calculateCenterWithRing(j,i);
 	      if (intersects(x,y,noteCenterPoint.x,noteCenterPoint.y,noteCircleRadius[i])) {
 		    down(noteCode[i][j], i, force);
 		    break;//note found no need to go on
@@ -192,16 +203,7 @@ function canvasUp(e) {
 function canvasUpXY(x,y) {
    for(var i = 0; i < noteCode.length; i++) {
       for (var j = 0; j < noteCode[i].length; j++) {
-          var noteCenterPoint;
-          if (i == 0) {
-            noteCenterPoint = calculateNoteCenter(j, majorNoteRadius());
-          } else {
-              if ( i == 1) {
-                noteCenterPoint = calculateNoteCenter(j, innerRingRadius(canvas.width) - noteMinorPositionDelta);
-              } else {
-                noteCenterPoint = calculateNoteCenter(j, dimRingRadius(canvas.width) - noteDimPositionDelta);
-              }
-          }
+          var noteCenterPoint = calculateCenterWithRing(j,i);
 	      if (intersects(x,y,noteCenterPoint.x,noteCenterPoint.y,noteCircleRadius[i])) {
 		    up(noteCode[i][j], i);
 		    break;
@@ -313,20 +315,20 @@ function changeOutput(){
     }
 }
 
-function changeKeyMode(){
-
-}
 
 function changeKey(){
     var selectedKey = document.getElementById('keySelect').value;
+    var keyMode = document.getElementById('modeSelect').value;
 	var ctx = canvas.getContext("2d");
+	var ringLevel = KEY_MODE_ROOT_RING[keyMode];
 	//clear all canvas to remove previous key lines
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	var tonicIndex = noteMajorLabel.findIndex((element) => element === selectedKey);
-    var keyFormation = generateKeyArray(tonicIndex);
+	var rootCircleIndex = noteLabel[ringLevel].findIndex((element) => element === (selectedKey + KEY_MODE_ROOT_NOTATION[keyMode]));
+	var rootIndex = NOTE_LABEL.findIndex((element) => element === selectedKey );
+    var keyFormation = generateKeyArray(rootIndex, keyMode);
     console.log("selectedKey:"+ keyFormation);
     ctx.strokeStyle=keyLineColor;
-    var tonicPoint = calculateNoteCenter(tonicIndex, majorNoteRadius());
+    var tonicPoint = calculateCenterWithRing(rootCircleIndex, ringLevel);
 	for (var i=1; i < keyFormation.length; i++)
     {
         ctx.beginPath();
@@ -383,14 +385,14 @@ function majorNoteRadius() {
 }
 
 
-function innerRingRadius(canvasWidth) {
+function innerRingRadius() {
 	//inner ring at 3/4 of total radius
-    return canvasWidth/2/4*3;
+    return canvas.width/2/4*3;
 }
 
-function dimRingRadius(canvasWidth) {
+function dimRingRadius() {
 	//dim ring at 1/4 of total radius
-    return canvasWidth/2/4*2;
+    return canvas.width/2/4*2;
 }
 
 function renderCircle() {
@@ -402,10 +404,10 @@ function renderCircle() {
 	ctx.stroke(); 
 	ctx.beginPath();
 
-	ctx.arc(canvas.width/2, canvas.height/2, innerRingRadius(canvas.width), 0, 2 * Math.PI);
+	ctx.arc(canvas.width/2, canvas.height/2, innerRingRadius(), 0, 2 * Math.PI);
 	ctx.stroke();
 
-	ctx.arc(canvas.width/2, canvas.height/2, dimRingRadius(canvas.width), 0, 2 * Math.PI);
+	ctx.arc(canvas.width/2, canvas.height/2, dimRingRadius(), 0, 2 * Math.PI);
 	ctx.stroke();
 
 	//dividers needs to split the quarter of the whole circumference in three.
@@ -480,18 +482,23 @@ function drawNoteWithRing(midiNote, ringLevel, color,chordNoteIndex) {
 }
 
 
-function drawNoteIndex(noteIndex,ringLevel, style) {
-	var ctx = canvas.getContext("2d");
+function calculateCenterWithRing(noteIndex, ringLevel) {
     var noteCenterPoint;
     if (ringLevel == 0 ) {
         noteCenterPoint = calculateNoteCenter(noteIndex, majorNoteRadius());
     } else {
         if (ringLevel == 1 ) {
-            noteCenterPoint = calculateNoteCenter(noteIndex, innerRingRadius(canvas.width) - noteMinorPositionDelta);
+            noteCenterPoint = calculateNoteCenter(noteIndex, innerRingRadius() - noteMinorPositionDelta);
         } else {
-            noteCenterPoint = calculateNoteCenter(noteIndex, dimRingRadius(canvas.width) - noteDimPositionDelta);
+            noteCenterPoint = calculateNoteCenter(noteIndex, dimRingRadius() - noteDimPositionDelta);
         }
     }
+    return noteCenterPoint;
+}
+
+function drawNoteIndex(noteIndex,ringLevel, style) {
+	var ctx = canvas.getContext("2d");
+    var noteCenterPoint = calculateCenterWithRing(noteIndex, ringLevel);
 	ctx.beginPath();
 	ctx.fillStyle=style;
 	ctx.arc(noteCenterPoint.x,noteCenterPoint.y,noteCircleRadius[ringLevel], 0, 2 * Math.PI);
