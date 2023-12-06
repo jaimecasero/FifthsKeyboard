@@ -32,31 +32,7 @@
 		  <option value="6">Locrian</option>
 	  </select>
 
-	<label for="chordModeSelect">Chord Mode:</label>
-	<select id="chordModeSelect">
-	   <option value="0" selected="selected">None</option>
-	   <option value="1">CircleMajorMinor</option>
-	   <option value="2">sus2</option>
-	   <option value="3">sus4</option>
-	   <option value="4">dim</option>
-	   <option value="5">aug</option>
-	   <option value="6">add7</option>
-	   <option value="7">add9</option>
-	  </select>
 
-	<label for="octaveSelect">Octave:</label>
-
-	<select id="octaveSelect" onkeypress="changeOctave(event)">
-	  <option>0</option>
-	  <option>1</option>
-	  <option>2</option>
-	  <option selected="selected">3</option>
-	  <option>4</option>
-	  <option>5</option>
-	  <option>6</option>
-	  <option>7</option>
-	  <option>8</option>
-	</select>
 
 	<label for="outputSelect">Output:</label>
 
@@ -89,6 +65,30 @@
 		  <option>15</option>
 		  <option>16</option>
 	  </select>
+	  
+	<BR>
+	<label for="chordModeSelect">Chord Mode:</label>
+	<input type="radio" id="modeNone" name="chordModeSelect" value="0" onchange="changeChordMode();" checked><label for="modeNone">root</label>
+	<input type="radio" id="circle" name="chordModeSelect" value="1" onchange="changeChordMode();"><label for="circle">circle</label>
+	<input type="radio" id="sus2" name="chordModeSelect" value="2" onchange="changeChordMode();"><label for="sus2">sus2</label>
+	<input type="radio" id="sus4" name="chordModeSelect" value="3" onchange="changeChordMode();"><label for="sus4">sus4</label>
+	<input type="radio" id="dim" name="chordModeSelect" value="4" onchange="changeChordMode();"><label for="dim">dim</label>
+	<input type="radio" id="aug" name="chordModeSelect" value="5" onchange="changeChordMode();"><label for="aug">aug</label>
+	<input type="radio" id="add7" name="chordModeSelect" value="6" onchange="changeChordMode();"><label for="add7">add7</label>
+	<input type="radio" id="add9" name="chordModeSelect" value="7" onchange="changeChordMode();"><label for="add9">add9</label>
+
+
+	<BR>
+	<label for="octaveSelect">Octave:</label>
+	<input type="radio" id="octave0" name="octaveSelect" value="0" onchange="changeOctave();"><label for="octave0">0</label>
+	<input type="radio" id="octave1" name="octaveSelect" value="1" onchange="changeOctave();"><label for="octave1">1</label>
+	<input type="radio" id="octave2" name="octaveSelect" value="2" onchange="changeOctave();"><label for="octave2">2</label>
+	<input type="radio" id="octave3" name="octaveSelect" value="3" onchange="changeOctave();" checked><label for="octave3">3</label>
+	<input type="radio" id="octave4" name="octaveSelect" value="4" onchange="changeOctave();"><label for="octave4">4</label>
+	<input type="radio" id="octave5" name="octaveSelect" value="5" onchange="changeOctave();"><label for="octave5">5</label>
+	<input type="radio" id="octave6" name="octaveSelect" value="6" onchange="changeOctave();"><label for="octave6">6</label>
+	<input type="radio" id="octave7" name="octaveSelect" value="7" onchange="changeOctave();"><label for="octave7">7</label>
+	<input type="radio" id="octave8" name="octaveSelect" value="8" onchange="changeOctave();"><label for="octave8">8</label>
 
 
   </form>
