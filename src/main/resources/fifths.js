@@ -1,6 +1,6 @@
 ////////////////////////MODEL //////////////////////////////////////
 const NUM_NOTES=12;
-const NOTE_PRESS_GAIN = 0.1;//the gain applied when note is pressed
+const NOTE_PRESS_GAIN = 0.2;//the gain applied when note is pressed
 const NOTE_PRESS_SUSTAIN = 2;//number of seconds the note will be sustained
 const DIM_NOTATION="\xBA";
 const MINOR_NOTATION="m";
@@ -169,15 +169,41 @@ function clearNoteLabels() {
 }
 
 ///////////////INPUT HANDLING/////////////////////////////////////////
-
+var shiftPressed = false;
 function keyDownHandler(event) {
+
 	var keyPressed = String.fromCharCode(event.keyCode);
     if (event.keyCode >= 48 && event.keyCode <= 57) {
-		octaveSelect.selectedIndex = keyPressed;
+		octave = keyPressed;
+	}
+	if (event.keyCode == 16) {
+		shiftPressed = true;
+	}
+	if (shiftPressed) {
+		keyPressed = keyPressed + "#";
+	}
+		console.log("down:" + keyPressed);
+	var noteIndex = noteMajorLabel.findIndex((element) => element === keyPressed);
+	if (noteIndex > -1) {
+		down(noteMajorCode[noteIndex],0, 0.5);
 	}
 }
 
 function keyUpHandler(event) {
+	var keyPressed = String.fromCharCode(event.keyCode);
+	console.log("up:" + event.keyCode);
+	if (event.keyCode == 16) {
+		shiftPressed = false;
+	}	
+	if (shiftPressed) {
+		keyPressed = keyPressed + "#";
+	}	
+	console.log("down:" + keyPressed);
+	var noteIndex = noteMajorLabel.findIndex((element) => element === keyPressed);
+	if (noteIndex > -1) {
+		up(noteMajorCode[noteIndex],0);
+	}	
+	
 }
 
 function canvasDown(e){
