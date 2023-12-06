@@ -5,6 +5,39 @@
 </head>
 <body>
   <form id="settingsForm">
+
+	<select id="outputSelect" onchange="changeOutput();">
+	  <option value="0" selected="selected">oscillator</option>
+	  <option value="1">midi</option>
+	</select>
+
+	  <label for="midiOutputSelect">Midi Device:</label>
+	  <select id="midiOutputSelect" onchange="changeMidiOutput();">
+	  </select>
+
+	  <label for="midiChannelSelect">Midi Channel:</label>
+	  <select id="midiChannelSelect" onchange="changeMidiChannel();">
+		  <option selected="selected">0</option>
+		  <option>1</option>
+		  <option>2</option>
+		  <option>3</option>
+		  <option>4</option>
+		  <option>5</option>
+		  <option>6</option>
+		  <option>7</option>
+		  <option>8</option>
+		  <option>9</option>
+		  <option>10</option>
+		  <option>11</option>
+		  <option>12</option>
+		  <option>13</option>
+		  <option>14</option>
+		  <option>15</option>
+		  <option>16</option>
+	  </select>  
+  
+  
+	<BR>
 	<label for="keySelect" >Key:</label>
 	<select id="keySelect" onchange="changeKey();">
 	   <option selected="selected">C</option>
@@ -36,46 +69,7 @@
 
 	<label for="outputSelect">Output:</label>
 
-	<select id="outputSelect" onchange="changeOutput();">
-	  <option value="0" selected="selected">oscillator</option>
-	  <option value="1">midi</option>
-	</select>
-
-	  <label for="midiOutputSelect">Midi Device:</label>
-	  <select id="midiOutputSelect" onchange="changeMidiOutput();">
-	  </select>
-
-	  <label for="midiChannelSelect">Midi Channel:</label>
-	  <select id="midiChannelSelect" onchange="changeMidiChannel();">
-		  <option selected="selected">0</option>
-		  <option>1</option>
-		  <option>2</option>
-		  <option>3</option>
-		  <option>4</option>
-		  <option>5</option>
-		  <option>6</option>
-		  <option>7</option>
-		  <option>8</option>
-		  <option>9</option>
-		  <option>10</option>
-		  <option>11</option>
-		  <option>12</option>
-		  <option>13</option>
-		  <option>14</option>
-		  <option>15</option>
-		  <option>16</option>
-	  </select>
 	  
-	<BR>
-	<label for="chordModeSelect">Chord Mode:</label>
-	<input type="radio" id="modeNone" name="chordModeSelect" value="0" onchange="changeChordMode();" checked><label for="modeNone">root</label>
-	<input type="radio" id="circle" name="chordModeSelect" value="1" onchange="changeChordMode();"><label for="circle">circle</label>
-	<input type="radio" id="sus2" name="chordModeSelect" value="2" onchange="changeChordMode();"><label for="sus2">sus2</label>
-	<input type="radio" id="sus4" name="chordModeSelect" value="3" onchange="changeChordMode();"><label for="sus4">sus4</label>
-	<input type="radio" id="dim" name="chordModeSelect" value="4" onchange="changeChordMode();"><label for="dim">dim</label>
-	<input type="radio" id="aug" name="chordModeSelect" value="5" onchange="changeChordMode();"><label for="aug">aug</label>
-	<input type="radio" id="add7" name="chordModeSelect" value="6" onchange="changeChordMode();"><label for="add7">add7</label>
-	<input type="radio" id="add9" name="chordModeSelect" value="7" onchange="changeChordMode();"><label for="add9">add9</label>
 
 
 	<BR>
@@ -97,17 +91,34 @@
 
 
 <form id="displayForm">
-<label for="noteText0">FirstNote:</label>
-<input type="text" id="noteText0" readonly class="firstNoteClass">
-</br>
-<label for="noteText1">SecondNote:</label>
-<input type="text" id="noteText1" readonly class="secondNoteClass">
+	<label for="noteText0">FirstNote:</label>
+	<input type="text" id="noteText0" readonly class="firstNoteClass">
 	</br>
-<label for="noteText2">Third:</label>
-<input type="text" id="noteText2" readonly class="thirdNoteClass">
-	</br>
-<label for="noteText3">Forth:</label>
-<input type="text" id="noteText3" readonly class="forthNoteClass">
+	<label for="noteText1">SecondNote:</label>
+	<input type="text" id="noteText1" readonly class="secondNoteClass">
+		</br>
+	<label for="noteText2">Third:</label>
+	<input type="text" id="noteText2" readonly class="thirdNoteClass">
+		</br>
+	<label for="noteText3">Forth:</label>
+	<input type="text" id="noteText3" readonly class="forthNoteClass">
+
+
+	<BR>
+	<label for="chordModeSelect">Chord Mode:</label>
+	<BR>
+	<input type="radio" id="modeNone" name="chordModeSelect" value="0" onchange="changeChordMode();" checked><label for="modeNone">R</label>
+	<input type="radio" id="circle" name="chordModeSelect" value="1" onchange="changeChordMode();"><label for="circle">C</label>
+	<input type="radio" id="sus2" name="chordModeSelect" value="2" onchange="changeChordMode();"><label for="sus2">sus2</label>
+	<input type="radio" id="sus4" name="chordModeSelect" value="3" onchange="changeChordMode();"><label for="sus4">sus4</label>
+	<input type="radio" id="dim" name="chordModeSelect" value="4" onchange="changeChordMode();"><label for="dim">dim</label>
+	<input type="radio" id="aug" name="chordModeSelect" value="5" onchange="changeChordMode();"><label for="aug">aug</label>
+	<BR>
+	<input type="radio" id="add7" name="chordModeSelect" value="6" onchange="changeChordMode();"><label for="add7">add7</label>
+	<input type="radio" id="add9" name="chordModeSelect" value="7" onchange="changeChordMode();"><label for="add9">add9</label>
+
 </form>
+
+
 </body>
 </html>
