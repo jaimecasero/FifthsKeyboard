@@ -66,6 +66,8 @@ const subdominantColor='yellow';
 const forthColor='salmon';
 const keyLineColor='orange';
 var noteColor=[tonicColor,subdominantColor,dominantColor,forthColor];
+var octave=3;
+var chordMode=0;
 
 function findNoteIndex(midiNote, ringLevel) {
    var normalizedMidiNote = midiNote;
@@ -219,9 +221,9 @@ function down(midiNote, ringLevel, force) {
 
   clearNoteLabels();
 
-  var chordModeVal = chordModeSelect.value;
+  var chordModeVal = chordMode;
   console.log ("chordMode:"+ chordModeVal);
-  var octaveSelectVal = octaveSelect.value;
+  var octaveSelectVal = octave;
   console.log("octave:" + octaveSelectVal);
 
   var midiNoteDelta = 0;
@@ -282,14 +284,14 @@ function calculateNoteDelta(midiNote,ringLevel,chordModeVal,i) {
 }
 
 function up(midiNote, ringLevel) {
-  var chordModeVal = document.getElementById('chordModeSelect').value;
+  var chordModeVal = chordMode;
   console.log("UP.midiNote:" + midiNote);
   var midiNoteDelta = 0;
   for (var i = 0; i < 4 ; i++) {
         midiNoteDelta = calculateNoteDelta(midiNote, ringLevel,chordModeVal, i);
         drawNoteWithRing(midiNote + midiNoteDelta,ringLevel, disabledNoteColor,i);
       if (outputSelect.value === "1") {
-        var octaveSelectVal = octaveSelect.value;
+        var octaveSelectVal = octave;
         midiNoteDelta = midiNote + midiNoteDelta + octaveSelectVal * 12;
         playMidiNoteOff(midiNoteDelta);
       }
@@ -315,6 +317,13 @@ function changeOutput(){
     }
 }
 
+function changeChordMode(){
+    chordMode = document.querySelector('input[name="chordModeSelect"]:checked').value;
+}
+
+function changeOctave(){
+    octave = document.querySelector('input[name="octaveSelect"]:checked').value;
+}
 
 function changeKey(){
     var selectedKey = document.getElementById('keySelect').value;
