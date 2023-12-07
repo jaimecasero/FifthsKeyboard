@@ -62,22 +62,27 @@ const noteCircleRadius=[noteMajorCircleRadius, noteMinorCircleRadius, noteDimCir
 
 
 const disabledNoteColor='grey';
-const tonicColor='blue';
+const tonicColor='white';
 const dominantColor='green';
 const subdominantColor='yellow';
 const forthColor='salmon';
-const keyLineColor='orange';
+const keyLineColor='red';
 var noteColor=[tonicColor,subdominantColor,dominantColor,forthColor];
 var octave=3;
 var chordMode=0;
 
-function findNoteIndex(midiNote, ringLevel) {
+
+function normalizeMidiNote(midiNote) {
    var normalizedMidiNote = midiNote;
    if (midiNote > 23) {
         //we work assuming octave is 1, this note went beyond this, so we need normalization
 	normalizedMidiNote = midiNote - NUM_NOTES;//down tune note one octave
-	console.log("Normalized Note:" + midiNote + "," + normalizedMidiNote);
-   }
+   }	
+   return normalizedMidiNote;
+}
+
+function findNoteIndex(midiNote, ringLevel) {
+   var normalizedMidiNote = normalizeMidiNote(midiNote);
    return noteCode[ringLevel].findIndex((element) => element === normalizedMidiNote);
 }
 
@@ -184,7 +189,6 @@ function keyDownHandler(event) {
 	if (shiftPressed) {
 		keyPressed = keyPressed + "#";
 	}
-		console.log("down:" + keyPressed);
 	var noteIndex = noteMajorLabel.findIndex((element) => element === keyPressed);
 	if (noteIndex > -1) {
 		down(noteMajorCode[noteIndex],0, 0.5);
@@ -193,14 +197,12 @@ function keyDownHandler(event) {
 
 function keyUpHandler(event) {
 	var keyPressed = String.fromCharCode(event.keyCode);
-	console.log("up:" + event.keyCode);
 	if (event.keyCode == 16) {
 		shiftPressed = false;
 	}	
 	if (shiftPressed) {
 		keyPressed = keyPressed + "#";
 	}	
-	console.log("down:" + keyPressed);
 	var noteIndex = noteMajorLabel.findIndex((element) => element === keyPressed);
 	if (noteIndex > -1) {
 		up(noteMajorCode[noteIndex],0);
@@ -243,16 +245,13 @@ function canvasUpXY(x,y) {
 }
 
 function down(midiNote, ringLevel, force) {
-  console.log("midiNote:" + midiNote);
-  console.log("freqMidi:" + freq(midiNote));
+  console.log("Down.midiNote:" + midiNote);
 
 
   clearNoteLabels();
 
   var chordModeVal = chordMode;
-  console.log ("chordMode:"+ chordModeVal);
   var octaveSelectVal = octave;
-  console.log("octave:" + octaveSelectVal);
 
   var midiNoteDelta = 0;
   for (var i = 0; i < 4 ; i++) {
@@ -317,7 +316,7 @@ function up(midiNote, ringLevel) {
   var midiNoteDelta = 0;
   for (var i = 0; i < 4 ; i++) {
         midiNoteDelta = calculateNoteDelta(midiNote, ringLevel,chordModeVal, i);
-		var color = calculateNoteColorByMidi(midiNote + midiNoteDelta);
+		var color = calculateNoteColorByMidi(normalizeMidiNote(midiNote + midiNoteDelta));
         drawNoteWithRing(midiNote + midiNoteDelta,ringLevel, color,i);
       if (outputSelect.value === "1") {
         var octaveSelectVal = octave;
@@ -525,7 +524,6 @@ function drawNoteWithRing(midiNote, ringLevel, color,chordNoteIndex) {
 
 	if(ringLevel== 0){
 		document.getElementById('noteText' + chordNoteIndex).value= noteLabel[ringLevel][noteMajorIndex];
-		console.log("noteIndex:" + noteMajorIndex);
 	} else {
 	    if (ringLevel == 1) {
             document.getElementById('noteText' + chordNoteIndex).value= noteLabel[ringLevel][noteMinorIndex];
@@ -604,7 +602,6 @@ function freq (midi) {
 
 function playOscillatorNote(i,adjustedMidiNote, octaveSelectVal, force){
       var noteFreq = freq(adjustedMidiNote) * Math.pow(2,octaveSelectVal);
-      console.log("biteFreq" + i + ":" + noteFreq);
       oscillatorArray[0].frequency.setValueAtTime(noteFreq, audioCtx.currentTime); // value in hertz
       gainArray[0].gain.cancelScheduledValues(audioCtx.currentTime);
       gainArray[0].gain.exponentialRampToValueAtTime(NOTE_PRESS_GAIN * force, audioCtx.currentTime + 0.1);
