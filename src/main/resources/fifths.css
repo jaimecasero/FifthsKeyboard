@@ -1,17 +1,17 @@
 .firstNoteClass {
-   background-color : blue;
+   background-color : #FFFFFF;
 }
 
 .secondNoteClass {
-   background-color : yellow;
+   background-color : #F9F9F9;
 }
 
 .thirdNoteClass {
-   background-color : green;
+   background-color : #F5F5F5;
 }
 
 .forthNoteClass {
-   background-color : salmon;
+   background-color : #F1F1F1;
 }
 
 .disabledNoteClass {
