@@ -7,6 +7,8 @@ const MINOR_NOTATION="m";
 const MAJOR_NOTATION="";
 
 const NOTE_LABEL= ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+const NOTE_CODE= [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
+const NOTE_COLOR= ['#FF3333', '#33FF8D', '#FF8A33', '#3358FF', '#FFFC33', '#FF33C1', '#33FF33', '#FF6133', '#33FCFF', '#FFB233', '#A833FF', '#93FF33'];
 
 const KEY_MODE_ROOT_RING = [0,1,1,0,0,1,2];
 const KEY_MODE_ROOT_NOTATION = [MAJOR_NOTATION,MINOR_NOTATION,MINOR_NOTATION,MAJOR_NOTATION,MAJOR_NOTATION,MINOR_NOTATION,DIM_NOTATION];
@@ -315,7 +317,8 @@ function up(midiNote, ringLevel) {
   var midiNoteDelta = 0;
   for (var i = 0; i < 4 ; i++) {
         midiNoteDelta = calculateNoteDelta(midiNote, ringLevel,chordModeVal, i);
-        drawNoteWithRing(midiNote + midiNoteDelta,ringLevel, disabledNoteColor,i);
+		var color = calculateNoteColorByMidi(midiNote + midiNoteDelta);
+        drawNoteWithRing(midiNote + midiNoteDelta,ringLevel, color,i);
       if (outputSelect.value === "1") {
         var octaveSelectVal = octave;
         midiNoteDelta = midiNote + midiNoteDelta + octaveSelectVal * 12;
@@ -489,9 +492,27 @@ function renderCircle() {
 	//draw notes
 	for(var i = 0; i < noteCode.length; i++) {
            for(var j = 0; j < noteCode[i].length; j++) {
-              drawNoteIndex(j,i, disabledNoteColor);
+              drawNoteIndex(j,i, calculateNoteColor(i,j));
 	   }
 	}
+}
+
+function calculateNoteColor(i,j) {
+	var color = disabledNoteColor;
+	var noteIndex = NOTE_CODE.findIndex((element) => element === noteCode[i][j]);
+	if (noteIndex > -1) {
+	  color = NOTE_COLOR[noteIndex];
+	}	
+	return color;
+}
+
+function calculateNoteColorByMidi(midiNote) {
+	var color = disabledNoteColor;
+	var noteIndex = NOTE_CODE.findIndex((element) => element === midiNote);
+	if (noteIndex > -1) {
+	  color = NOTE_COLOR[noteIndex];
+	}	
+	return color;
 }
 
 function drawNoteWithRing(midiNote, ringLevel, color,chordNoteIndex) {
