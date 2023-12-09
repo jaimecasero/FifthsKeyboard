@@ -69,7 +69,7 @@ const forthColor='salmon';
 const keyLineColor='red';
 var noteColor=[tonicColor,subdominantColor,dominantColor,forthColor];
 var octave=3;
-var chordMode=0;
+var chordMode=1;
 
 
 function normalizeMidiNote(midiNote) {
