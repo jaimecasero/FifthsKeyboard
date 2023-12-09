@@ -18,6 +18,10 @@
    color:grey;
 }
 
-keyLineClass {
+input[name="chordModeSelect"] {
+	height:35px; width:35px; vertical-align: middle;
+}
+
+.keyLineClass {
    color: orange;
 }
