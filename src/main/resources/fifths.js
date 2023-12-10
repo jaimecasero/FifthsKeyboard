@@ -99,8 +99,6 @@ function generateKeyArray(noteIndex, keyMode) {
 
 ////////DOM CACHING//////////////////
 var canvas;
-var chordModeSelect;
-var octaveSelect;
 var outputSelect;
 
 (function(window, document, undefined){
@@ -113,8 +111,6 @@ window.onload = init;
 	initOscillators();
 	//cache DOM elements for better performance
 	canvas = document.getElementById('circleCanvas');
-    chordModeSelect = document.getElementById('chordModeSelect');
-    octaveSelect = document.getElementById('octaveSelect');
     outputSelect = document.getElementById('outputSelect');
 
 	//register multitouch listener
@@ -190,8 +186,20 @@ function keyDownHandler(event) {
 		keyPressed = keyPressed + "#";
 	}
 	var noteIndex = noteMajorLabel.findIndex((element) => element === keyPressed);
-	if (noteIndex > -1) {
-		down(noteMajorCode[noteIndex],0, 0.5);
+	console.log("rep:" + event.repeat)
+	if (noteIndex > -1 && !event.repeat ) {
+		var ring = 0;
+		if (event.shiftKey) {
+			ring =0;
+		}
+		if (event.altKey) {
+			ring =1;
+		}
+		if (event.ctrlKey) {
+			ring =2;
+		}
+		
+		down(noteMajorCode[noteIndex],ring, 0.5);
 	}
 }
 
@@ -205,7 +213,17 @@ function keyUpHandler(event) {
 	}	
 	var noteIndex = noteMajorLabel.findIndex((element) => element === keyPressed);
 	if (noteIndex > -1) {
-		up(noteMajorCode[noteIndex],0);
+				var ring = 0;
+		if (event.shiftKey) {
+			ring =0;
+		}
+		if (event.altKey) {
+			ring =1;
+		}
+		if (event.ctrlKey) {
+			ring =2;
+		}
+		up(noteMajorCode[noteIndex],ring);
 	}	
 	
 }
