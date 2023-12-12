@@ -1,7 +1,6 @@
 ////////////////////////MODEL //////////////////////////////////////
 const NUM_NOTES=12;
-const NOTE_PRESS_GAIN = 0.2;//the gain applied when note is pressed
-const NOTE_PRESS_SUSTAIN = 2;//number of seconds the note will be sustained
+const NOTE_PRESS_SUSTAIN = 6;//number of seconds the note will be sustained
 const DIM_NOTATION="\xBA";
 const MINOR_NOTATION="m";
 const MAJOR_NOTATION="";
@@ -70,6 +69,7 @@ const keyLineColor='red';
 var noteColor=[tonicColor,subdominantColor,dominantColor,forthColor];
 var octave=3;
 var chordMode=1;
+var notePressGain = 0.8;//the gain applied when note is pressed
 
 
 function normalizeMidiNote(midiNote) {
@@ -199,7 +199,7 @@ function keyDownHandler(event) {
 			ring =2;
 		}
 		
-		down(noteMajorCode[noteIndex],ring, 0.5);
+		down(noteMajorCode[noteIndex],ring, notePressGain);
 	}
 }
 
@@ -369,6 +369,12 @@ function changeChordMode(){
 
 function changeOctave(){
     octave = document.querySelector('input[name="octaveSelect"]:checked').value;
+}
+
+function changeGain(){
+    var keyMode = document.getElementById('gainSelect').value;
+    notePressGain = keyMode;
+    console.log("new gain:" + notePressGain);
 }
 
 function changeKey(){
@@ -622,7 +628,7 @@ function playOscillatorNote(i,adjustedMidiNote, octaveSelectVal, force){
       var noteFreq = freq(adjustedMidiNote) * Math.pow(2,octaveSelectVal);
       oscillatorArray[0].frequency.setValueAtTime(noteFreq, audioCtx.currentTime); // value in hertz
       gainArray[0].gain.cancelScheduledValues(audioCtx.currentTime);
-      gainArray[0].gain.exponentialRampToValueAtTime(NOTE_PRESS_GAIN * force, audioCtx.currentTime + 0.1);
+      gainArray[0].gain.exponentialRampToValueAtTime(notePressGain * force, audioCtx.currentTime + 0.1);
       gainArray[0].gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + (NOTE_PRESS_SUSTAIN * force) + 0.1);
 }
 
