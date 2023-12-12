@@ -19,8 +19,13 @@
 }
 
 input[name="chordModeSelect"] {
+	height:35px; width:65px; vertical-align: middle;
+}
+
+input[name="scaleButton"] {
 	height:35px; width:35px; vertical-align: middle;
 }
+
 
 .keyLineClass {
    color: orange;

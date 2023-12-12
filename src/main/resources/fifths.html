@@ -1,5 +1,6 @@
-<html>
-<head>
+<html lang="eng">
+<head >
+	<title>Circle Of Fifths Player</title>
 	<script src="fifths.js"></script>
 	<link rel="stylesheet" href="fifths.css">
 </head>
@@ -67,7 +68,7 @@
 	  </select>
 
 	<BR>
-	<label for="octaveSelect">Octave:</label>
+	<label>Octave:</label>
 	<input type="radio" id="octave0" name="octaveSelect" value="0" onchange="changeOctave();"><label for="octave0">0</label>
 	<input type="radio" id="octave1" name="octaveSelect" value="1" onchange="changeOctave();"><label for="octave1">1</label>
 	<input type="radio" id="octave2" name="octaveSelect" value="2" onchange="changeOctave();"><label for="octave2">2</label>
@@ -93,6 +94,7 @@
 
 
 <form id="displayForm">
+	<label>Key Chord Grades:</label>
 	<BR>
 	<input type="button" id="FirstButton" name="scaleButton" value="I" onmousedown="" onmouseup="">
 	<input type="button" id="SecondButton" name="scaleButton" value="II" onmousedown="" onmouseup="">
@@ -100,20 +102,20 @@
 	<input type="button" id="ForthButton" name="scaleButton" value="IV" onmousedown="" onmouseup="">
 	<input type="button" id="FifthButton" name="scaleButton" value="V" onmousedown="" onmouseup="">
 	<input type="button" id="SixthButton" name="scaleButton" value="VI" onmousedown="" onmouseup="">
-	<input type="button" id="SeventhButton" name="scaleButton" value="VII" onmousedown="" onmouseup="">
+	<input type="button" id="SeventhGradeButton" name="scaleButton" value="VII" onmousedown="" onmouseup="">
 
 	<BR>
-	<label for="chordModeSelect">Chord Modifiers:</label>
+	<label>Chord Modifiers:</label>
 	<BR>
-	<input type="button" id="FirstButton" name="diminishedFifthButton" value="b5" onmousedown="" onmouseup="">
-	<input type="button" id="FirstButton" name="seventhButton" value="7" onmousedown="" onmouseup="">
-	<input type="button" id="SecondButton" name="majorSeventhButton" value="maj7" onmousedown="" onmouseup="">
-	<input type="button" id="ThirdButton" name="ninthButton" value="9" onmousedown="" onmouseup="">
-	<input type="button" id="ForthButton" name="diminishedNinthBUtton" value="b9" onmousedown="" onmouseup="">
-	<input type="button" id="FifthButton" name="eleventhButton" value="11" onmousedown="" onmouseup="">
-	<input type="button" id="SixthButton" name="augmentedEleventhButton" value="#11" onmousedown="" onmouseup="">
-	<input type="button" id="SeventhButton" name="thirteenthButton" value="13" onmousedown="" onmouseup="">
-	<input type="button" id="SeventhButton" name="diminishedThirteenthButton" value="b13" onmousedown="" onmouseup="">
+	<input type="button" id="diminishedFifthButton" name="chordModifierButton" value="b5" onmousedown="" onmouseup="">
+	<input type="button" id="seventhButton" name="chordModifierButton" value="7" onmousedown="" onmouseup="">
+	<input type="button" id="majorSeventhButton" name="chordModifierButton" value="maj7" onmousedown="" onmouseup="">
+	<input type="button" id="ninthButton" name="chordModifierButton" value="9" onmousedown="" onmouseup="">
+	<input type="button" id="dimnishedNinthButton" name="chordModifierButton" value="b9" onmousedown="" onmouseup="">
+	<input type="button" id="eleventhButton" name="eleventhButton" value="11" onmousedown="" onmouseup="">
+	<input type="button" id="augmentedEleventhButton" name="augmentedEleventhButton" value="#11" onmousedown="" onmouseup="">
+	<input type="button" id="thirteenthButton" name="thirteenthButton" value="13" onmousedown="" onmouseup="">
+	<input type="button" id="diminishedThirteenthButton" name="diminishedThirteenthButton" value="b13" onmousedown="" onmouseup="">
 
 
 	
@@ -121,13 +123,13 @@
 	<BR>
 	<label for="noteText0">FirstNote:</label>
 	<input type="text" id="noteText0" readonly class="firstNoteClass">
-	</br>
+	<br>
 	<label for="noteText1">SecondNote:</label>
 	<input type="text" id="noteText1" readonly class="secondNoteClass">
-		</br>
+	<br>
 	<label for="noteText2">Third:</label>
 	<input type="text" id="noteText2" readonly class="thirdNoteClass">
-		</br>
+	<br>
 	<label for="noteText3">Forth:</label>
 	<input type="text" id="noteText3" readonly class="forthNoteClass">
 	
