@@ -70,7 +70,7 @@ var noteColor=[tonicColor,subdominantColor,dominantColor,forthColor];
 var octave=3;
 var chordMode=1;
 var notePressGain = 0.8;//the gain applied when note is pressed
-
+var keyFormation=[];
 
 function normalizeMidiNote(midiNote) {
    var normalizedMidiNote = midiNote;
@@ -226,6 +226,31 @@ function keyUpHandler(event) {
 		up(noteMajorCode[noteIndex],ring);
 	}	
 	
+}
+
+function chordDown(event, grade) {
+    //calculate chord notes
+    var notePressed = keyFormation[grade];
+
+    for(var i = 0; i < noteLabel.length; i++) {
+        var noteIndex = noteLabel[i].findIndex((element) => element === notePressed);
+        if (noteIndex > -1) {
+        console.log("chorddown:" + noteCode[i][noteIndex]);
+            down(noteCode[i][noteIndex],i, event.pressure);
+        }
+    }
+}
+function chordUp(event, grade) {
+    //calculate chord notes
+    var notePressed = keyFormation[grade];
+    console.log("chordup:" + notePressed);
+    for(var i = 0; i < noteLabel.length; i++) {
+        var noteIndex = noteLabel[i].findIndex((element) => element === notePressed);
+        if (noteIndex > -1) {
+            console.log("chordup:" + noteCode[i][noteIndex]);
+            up(noteCode[i][noteIndex],i);
+        }
+    }
 }
 
 function canvasDown(e){
@@ -386,7 +411,7 @@ function changeKey(){
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	var rootCircleIndex = noteLabel[ringLevel].findIndex((element) => element === (selectedKey + KEY_MODE_ROOT_NOTATION[keyMode]));
 	var rootIndex = NOTE_LABEL.findIndex((element) => element === selectedKey );
-    var keyFormation = generateKeyArray(rootIndex, keyMode);
+    keyFormation = generateKeyArray(rootIndex, keyMode);
     console.log("selectedKey:"+ keyFormation);
     ctx.strokeStyle=keyLineColor;
     var tonicPoint = calculateCenterWithRing(rootCircleIndex, ringLevel);
