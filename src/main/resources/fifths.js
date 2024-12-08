@@ -226,6 +226,7 @@ function changeChordModifier(modifier) {
 
 function resetChordModifier() {
     chordModifier = [0,0,0,0];
+    console.log("chord modifier reset")
 }
 
 function chordDown(event, grade) {
