@@ -71,6 +71,7 @@ var octave=3;
 var chordMode=1;
 var notePressGain = 0.8;//the gain applied when note is pressed
 var keyFormation=[];
+var chordModifier=[0,0,0,0]
 
 function normalizeMidiNote(midiNote) {
    var normalizedMidiNote = midiNote;
@@ -228,6 +229,14 @@ function keyUpHandler(event) {
 	
 }
 
+function changeChordModifier(modifier) {
+    chordModifier = modifier;
+}
+
+function resetChordModifier() {
+    chordModifier = [0,0,0,0];
+}
+
 function chordDown(event, grade) {
     //calculate chord notes
     var notePressed = keyFormation[grade];
@@ -312,10 +321,6 @@ function down(midiNote, ringLevel, force) {
         //single note mode, break loop here
         break;
       }
-      if (chordModeVal < 6 && i >= 2) {
-        //this is 3 note chord mode, stop on third iteration
-        break;
-      }
   }
 
 }
@@ -326,31 +331,31 @@ function calculateNoteDelta(midiNote,ringLevel,chordModeVal,i) {
     //calculate note delta depending on ringlevel
     if (i == 1) {
         if(ringLevel== 0){
-            midiNoteDelta = subdominantMajorDeltaMap[chordModeVal];
+            midiNoteDelta = 4 ;
         } else {
             if (ringLevel == 1) {
-                midiNoteDelta = subdominantMinorDeltaMap[chordModeVal];
+                midiNoteDelta = 3;
             } else {
-                midiNoteDelta = subdominantDimDeltaMap[chordModeVal];
+                midiNoteDelta = 3;
             }
         }
     }
     if (i == 2){
         if(ringLevel== 0){
-           midiNoteDelta = dominantMajorDeltaMap[chordModeVal];
+           midiNoteDelta = 7;
         } else {
            if (ringLevel == 1) {
-            midiNoteDelta = dominantMinorDeltaMap[chordModeVal];
+            midiNoteDelta = 7;
            } else {
-            midiNoteDelta = dominantDimDeltaMap[chordModeVal];
+            midiNoteDelta = 6;
            }
         }
     }
     if (i == 3){
-        midiNoteDelta = forthChordNoteIntervalMap[chordModeVal];
+        midiNoteDelta = 0;
     }
 
-    return midiNoteDelta;
+    return midiNoteDelta + chordModifier[i];
 }
 
 function up(midiNote, ringLevel) {
@@ -368,10 +373,6 @@ function up(midiNote, ringLevel) {
       }
       if (chordModeVal == 0) {
         //single note mode, break loop here
-        break;
-      }
-      if (chordModeVal < 6 && i >= 2) {
-        //this is 3 note chord mode, stop on third iteration
         break;
       }
    }
