@@ -110,6 +110,7 @@ window.onload = init;
 		  event.preventDefault();
 		  //resume audiocontext on canvas touch
 		  audioCtx.resume();
+		  MIDI.AudioContext.resume();
 		  for (var i = 0; i < event.changedTouches.length; i++) {
 		    var touch = event.changedTouches[i];
 		    	var rect = canvas.getBoundingClientRect();
@@ -166,7 +167,6 @@ function clearNoteLabels() {
 ///////////////INPUT HANDLING/////////////////////////////////////////
 var shiftPressed = false;
 function keyDownHandler(event) {
-
 	var keyPressed = String.fromCharCode(event.keyCode);
     if (event.keyCode >= 48 && event.keyCode <= 57) {
 		octave = keyPressed;
@@ -225,7 +225,7 @@ function changeChordModifier(modifier) {
 }
 
 function resetChordModifier() {
-    chordModifier = [0,0,0,0];
+    //chordModifier = [0,0,0,0];
     console.log("chord modifier reset")
 }
 
@@ -291,9 +291,7 @@ function canvasUpXY(x,y) {
 function down(midiNote, ringLevel, force) {
   console.log("Down.midiNote:" + midiNote);
 
-
   clearNoteLabels();
-
   var octaveSelectVal = octave;
 
   var midiNoteDelta = 0;
@@ -301,10 +299,10 @@ function down(midiNote, ringLevel, force) {
       //calculate note delta depending on ringlevel
       midiNoteDelta = calculateNoteDelta(midiNote, ringLevel, i);
       var adjustedMidiNote = midiNote + midiNoteDelta;
-      if (outputSelect.value === "0") {
-        playOscillatorNote(i,adjustedMidiNote,octaveSelectVal,force);
-      } else {
         actualMidiNote = adjustedMidiNote + octaveSelectVal * 12;
+      if (outputSelect.value === "0") {
+        playOscillatorNote(actualMidiNote, force);
+      } else {
         playMidiNote(actualMidiNote, force);
       }
       drawNoteWithRing(adjustedMidiNote,ringLevel, noteColor[i],i);
@@ -348,13 +346,17 @@ function calculateNoteDelta(midiNote,ringLevel,i) {
 function up(midiNote, ringLevel) {
   console.log("UP.midiNote:" + midiNote);
   var midiNoteDelta = 0;
+
   for (var i = 0; i < 4 ; i++) {
         midiNoteDelta = calculateNoteDelta(midiNote, ringLevel, i);
 		var color = calculateNoteColorByMidi(normalizeMidiNote(midiNote + midiNoteDelta));
         drawNoteWithRing(midiNote + midiNoteDelta,ringLevel, color,i);
-      if (outputSelect.value === "1") {
         var octaveSelectVal = octave;
         midiNoteDelta = midiNote + midiNoteDelta + octaveSelectVal * 12;
+      if (outputSelect.value === "0") {
+        playOscillatorNoteOff(midiNoteDelta);
+      }
+      if (outputSelect.value === "1") {
         playMidiNoteOff(midiNoteDelta);
       }
    }
@@ -608,32 +610,37 @@ const audioCtx = new (window.AudioContext || window.webkitAudioContext);
 
 
 function initOscillators() {
-    //one oscillator for each possible 4 notes in a chord
-    for (var i=0; i< 4 ; i++){
-        oscillatorArray[i] = audioCtx.createOscillator();
-        oscillatorArray[i].type = 'triangle';
-        //use A4 as initial note
-        oscillatorArray[i].frequency.setValueAtTime(A4_FREQ, audioCtx.currentTime); // value in hertz
-        oscillatorArray[i].start();
-        gainArray[i] = audioCtx.createGain();
-        //set a very low gain value to  make it as quiet as possible
-        gainArray[i].gain.setValueAtTime(0.0001, audioCtx.currentTime);
-        gainArray[i].connect(audioCtx.destination);
-        oscillatorArray[i].connect(gainArray[i]);
-    }
+
+    MIDI.loadPlugin({
+      soundfontUrl: "./soundfont/",
+      instrument: "acoustic_grand_piano",
+      onprogress: (state, progress) => console.log(state, progress),
+      onsuccess: () => {
+        console.log("MIDI.js loaded");
+      },
+    });
+
 }
 
-function freq (midi) {
-	tuning = 440;
-	return midi === 0 || (midi > 0 && midi < 128) ? Math.pow(2, (midi - 69) / 12) * tuning : null
+/**
+ * Convert mouse event force (0-1) to MIDI velocity (0-127).
+ * @param {number} force - The force value from a mouse event (0 to 1).
+ * @returns {number} - The corresponding MIDI velocity (0 to 127).
+ */
+function forceToMidiVelocity(force) {
+  // Clamp the force value to the range 0-1
+  const clampedForce = Math.min(Math.max(force, 0), 1);
+  // Scale the clamped force to the MIDI velocity range (0-127)
+  const midiVelocity = Math.round(clampedForce * 127);
+  return midiVelocity;
 }
 
-function playOscillatorNote(i,adjustedMidiNote, octaveSelectVal, force){
-      var noteFreq = freq(adjustedMidiNote) * Math.pow(2,octaveSelectVal);
-      oscillatorArray[0].frequency.setValueAtTime(noteFreq, audioCtx.currentTime); // value in hertz
-      gainArray[0].gain.cancelScheduledValues(audioCtx.currentTime);
-      gainArray[0].gain.exponentialRampToValueAtTime(notePressGain * force, audioCtx.currentTime + 0.1);
-      gainArray[0].gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + (NOTE_PRESS_SUSTAIN * force) + 0.1);
+function playOscillatorNote(adjustedMidiNote, force){
+	MIDI.noteOn(0,adjustedMidiNote, forceToMidiVelocity(force),0);
+}
+
+function playOscillatorNoteOff(adjustedMidiNote){
+	MIDI.noteOff(0,adjustedMidiNote,0);
 }
 
 /////////////////////////////MIDI OUTPUT//////////////////////
