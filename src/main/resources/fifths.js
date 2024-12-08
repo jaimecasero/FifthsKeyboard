@@ -30,14 +30,6 @@ const LOCRIAN_CHORD=[DIM_NOTATION,MAJOR_NOTATION,MINOR_NOTATION,MINOR_NOTATION,M
 const KEY_MODE_INTERVAL= [IONIAN_INTERVAL, DORIAN_INTERVAL, PRHYGIAN_INTERVAL,LYDIAN_INTERVAL,MIXOLYDIAN_INTERVAL,AEOLIAN_INTERVAL,LOCRIAN_INTERVAL];
 const KEY_MODE_CHORD = [IONIAN_CHORD, DORIAN_CHORD, PRHYGIAN_CHORD, LYDIAN_CHORD, MIXOLYDIAN_CHORD,AEOLIAN_CHORD, LOCRIAN_CHORD];
 
-const dominantMajorDeltaMap = [7,7,7,7,6,8,7,7];
-const dominantMinorDeltaMap = [7,7,7,7,6,8,7,7];
-const dominantDimDeltaMap = [6,6,6,6,5,7,6,6];
-const subdominantMajorDeltaMap = [4,4,2,5,3,4,4,4];
-const subdominantMinorDeltaMap = [3,3,1,4,2,3,3,3];
-const subdominantDimDeltaMap = [3,3,3,3,3,3,3,3];
-const forthChordNoteIntervalMap = [0,0,0,0,0,0,11,14];
-
 
 const noteMajorLabel=['C','G','D','A','E','B','F#','C#','G#','D#','A#','F'];
 const noteMajorCode=[12,19,14,21,16,23,18,13,20,15,22,17];
