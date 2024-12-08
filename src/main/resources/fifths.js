@@ -60,7 +60,6 @@ const forthColor='salmon';
 const keyLineColor='red';
 var noteColor=[tonicColor,subdominantColor,dominantColor,forthColor];
 var octave=3;
-var chordMode=1;
 var notePressGain = 0.8;//the gain applied when note is pressed
 var keyFormation=[];
 var chordModifier=[0,0,0,0]
@@ -294,13 +293,12 @@ function down(midiNote, ringLevel, force) {
 
   clearNoteLabels();
 
-  var chordModeVal = chordMode;
   var octaveSelectVal = octave;
 
   var midiNoteDelta = 0;
   for (var i = 0; i < 4 ; i++) {
       //calculate note delta depending on ringlevel
-      midiNoteDelta = calculateNoteDelta(midiNote, ringLevel,chordModeVal, i);
+      midiNoteDelta = calculateNoteDelta(midiNote, ringLevel, i);
       var adjustedMidiNote = midiNote + midiNoteDelta;
       if (outputSelect.value === "0") {
         playOscillatorNote(i,adjustedMidiNote,octaveSelectVal,force);
@@ -309,16 +307,12 @@ function down(midiNote, ringLevel, force) {
         playMidiNote(actualMidiNote, force);
       }
       drawNoteWithRing(adjustedMidiNote,ringLevel, noteColor[i],i);
-      if (chordModeVal == 0) {
-        //single note mode, break loop here
-        break;
-      }
   }
 
 }
 
 
-function calculateNoteDelta(midiNote,ringLevel,chordModeVal,i) {
+function calculateNoteDelta(midiNote,ringLevel,i) {
     var midiNoteDelta = 0;
     //calculate note delta depending on ringlevel
     if (i == 1) {
@@ -351,21 +345,16 @@ function calculateNoteDelta(midiNote,ringLevel,chordModeVal,i) {
 }
 
 function up(midiNote, ringLevel) {
-  var chordModeVal = chordMode;
   console.log("UP.midiNote:" + midiNote);
   var midiNoteDelta = 0;
   for (var i = 0; i < 4 ; i++) {
-        midiNoteDelta = calculateNoteDelta(midiNote, ringLevel,chordModeVal, i);
+        midiNoteDelta = calculateNoteDelta(midiNote, ringLevel, i);
 		var color = calculateNoteColorByMidi(normalizeMidiNote(midiNote + midiNoteDelta));
         drawNoteWithRing(midiNote + midiNoteDelta,ringLevel, color,i);
       if (outputSelect.value === "1") {
         var octaveSelectVal = octave;
         midiNoteDelta = midiNote + midiNoteDelta + octaveSelectVal * 12;
         playMidiNoteOff(midiNoteDelta);
-      }
-      if (chordModeVal == 0) {
-        //single note mode, break loop here
-        break;
       }
    }
 
@@ -379,10 +368,6 @@ function changeOutput(){
     } else {
        initMidi();
     }
-}
-
-function changeChordMode(){
-    chordMode = document.querySelector('input[name="chordModeSelect"]:checked').value;
 }
 
 function changeOctave(){
