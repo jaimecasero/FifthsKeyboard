@@ -26,6 +26,9 @@ input[name="scaleButton"] {
 	height:35px; width:35px; vertical-align: middle;
 }
 
+input[name="chordModifierButton"] {
+	height:35px; width:35px; vertical-align: middle;
+}
 
 .keyLineClass {
    color: orange;
