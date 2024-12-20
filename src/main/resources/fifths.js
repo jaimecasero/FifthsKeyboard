@@ -168,15 +168,21 @@ function clearNoteLabels() {
 var shiftPressed = false;
 function keyDownHandler(event) {
 	var keyPressed = String.fromCharCode(event.keyCode);
-    if (event.keyCode >= 48 && event.keyCode <= 57) {
-		octave = keyPressed;
-	}
 	if (event.keyCode == 16) {
 		shiftPressed = true;
+	}
+    if (event.keyCode >= 48 && event.keyCode <= 57) {
+        if (shiftPressed) {
+		    octave = keyPressed;
+		} else {
+		    chordDown(event, event.keyCode - 49);
+		}
 	}
 	if (shiftPressed) {
 		keyPressed = keyPressed + "#";
 	}
+
+
 	var noteIndex = noteMajorLabel.findIndex((element) => element === keyPressed);
 	console.log("rep:" + event.repeat)
 	if (noteIndex > -1 && !event.repeat ) {
@@ -192,6 +198,7 @@ function keyDownHandler(event) {
 		}
 		
 		down(noteMajorCode[noteIndex],ring, notePressGain);
+	} else {
 	}
 }
 
@@ -199,7 +206,14 @@ function keyUpHandler(event) {
 	var keyPressed = String.fromCharCode(event.keyCode);
 	if (event.keyCode == 16) {
 		shiftPressed = false;
-	}	
+	}
+    if (event.keyCode >= 48 && event.keyCode <= 57) {
+        if (shiftPressed) {
+		    octave = keyPressed;
+		} else {
+		    chordUp(event, event.keyCode - 49);
+		}
+	}
 	if (shiftPressed) {
 		keyPressed = keyPressed + "#";
 	}	
@@ -225,25 +239,27 @@ function changeChordModifier(modifier) {
 }
 
 function resetChordModifier() {
-    //chordModifier = [0,0,0,0];
+    chordModifier = [0,0,0,0];
     console.log("chord modifier reset")
 }
 
 function chordDown(event, grade) {
     //calculate chord notes
     var notePressed = keyFormation[grade];
+    var pressure = ((event.pressure == null ) ? 0.5 : event.pressure);
 
     for(var i = 0; i < noteLabel.length; i++) {
         var noteIndex = noteLabel[i].findIndex((element) => element === notePressed);
         if (noteIndex > -1) {
-        console.log("chorddown:" + noteCode[i][noteIndex]);
-            down(noteCode[i][noteIndex],i, event.pressure);
+            console.log("chorddown:" + noteCode[i][noteIndex]);
+            down(noteCode[i][noteIndex],i, pressure);
         }
     }
 }
 function chordUp(event, grade) {
     //calculate chord notes
     var notePressed = keyFormation[grade];
+
     console.log("chordup:" + notePressed);
     for(var i = 0; i < noteLabel.length; i++) {
         var noteIndex = noteLabel[i].findIndex((element) => element === notePressed);
