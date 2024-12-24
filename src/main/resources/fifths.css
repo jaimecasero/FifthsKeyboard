@@ -37,7 +37,7 @@ input[name="scaleButton"] {
 }
 
 input[name="chordModifierButton"] {
-	height:65px; width:65px; vertical-align: middle;
+	height:65px; width:55px; vertical-align: middle;
 	  touch-action: manipulation;
 }
 
