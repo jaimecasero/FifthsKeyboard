@@ -18,12 +18,13 @@
    color:grey;
 }
 
-input[name="chordModeSelect"] {
-	height:35px; width:65px; vertical-align: middle;
+#circleCanvas {
+	  touch-action: manipulation;
 }
 
 input[name="octaveSelect"] {
 	height:35px; width:65px; vertical-align: middle;
+	  touch-action: manipulation;
 }
 
 input[name="chordModeSelect"] {
@@ -32,29 +33,11 @@ input[name="chordModeSelect"] {
 
 input[name="scaleButton"] {
 	height:65px; width:70px; vertical-align: middle;
+	  touch-action: manipulation;
 }
 
 input[name="chordModifierButton"] {
 	height:65px; width:65px; vertical-align: middle;
+	  touch-action: manipulation;
 }
 
-#chordModifierTable
-
-
-    td {
-      width: 40px; /* Fixed width */
-      height: 50px; /* Optional: Fixed height */
-      text-align: center;
-      border: 1px solid #ddd;
-    }
- td:nth-child(odd) {
-      background-color: #f9f9f9;
-    }
-
-    td:nth-child(even) {
-      background-color: #e0f7fa;
-    }
-
-.keyLineClass {
-   color: orange;
-}
