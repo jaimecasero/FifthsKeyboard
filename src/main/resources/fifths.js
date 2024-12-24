@@ -235,6 +235,7 @@ function keyUpHandler(event) {
 }
 
 function changeChordModifier(modifier) {
+    console.log("chord mofider:" + modifier)
     chordModifier = modifier;
 }
 
