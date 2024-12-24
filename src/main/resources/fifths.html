@@ -71,17 +71,6 @@
 		  <option value="6">Locrian</option>
 	  </select>
 
-	<BR>
-	<label>Octave:</label>
-	<input type="radio" id="octave0" name="octaveSelect" value="0" onchange="changeOctave();"><label for="octave0">0</label>
-	<input type="radio" id="octave1" name="octaveSelect" value="1" onchange="changeOctave();"><label for="octave1">1</label>
-	<input type="radio" id="octave2" name="octaveSelect" value="2" onchange="changeOctave();"><label for="octave2">2</label>
-	<input type="radio" id="octave3" name="octaveSelect" value="3" onchange="changeOctave();" checked><label for="octave3">3</label>
-	<input type="radio" id="octave4" name="octaveSelect" value="4" onchange="changeOctave();"><label for="octave4">4</label>
-	<input type="radio" id="octave5" name="octaveSelect" value="5" onchange="changeOctave();"><label for="octave5">5</label>
-	<input type="radio" id="octave6" name="octaveSelect" value="6" onchange="changeOctave();"><label for="octave6">6</label>
-	<input type="radio" id="octave7" name="octaveSelect" value="7" onchange="changeOctave();"><label for="octave7">7</label>
-	<input type="radio" id="octave8" name="octaveSelect" value="8" onchange="changeOctave();"><label for="octave8">8</label>
 
   <label for="gainSelect">Gain:</label>
   <select id="gainSelect" onchange="changeGain();">
@@ -94,7 +83,7 @@
 
   </form>
 
-<canvas id="circleCanvas" width="400" height="400" onmousedown="canvasDown(event)" onmouseup="canvasUp(event)"></canvas>
+<canvas id="circleCanvas" width="600" height="600" onmousedown="canvasDown(event)" onmouseup="canvasUp(event)"></canvas>
 
 
 <form id="displayForm">
@@ -108,26 +97,37 @@
 	<input type="button" id="SixthButton" name="scaleButton" value="VI" onpointerdown="chordDown(event, 5)" onpointerup="chordUp(event, 5)">
 	<input type="button" id="SeventhGradeButton" name="scaleButton" value="VII" onpointerdown="chordDown(event, 6)" onpointerup="chordUp(event, 6)">
 
-	<BR>
+	<BR>	<BR>
 	<label>Chord Modifiers:</label>
 	<BR>
-	<table id="chordModifierTable">
-		<tr>
-			<td onmousedown="changeChordModifier([0,-2,0,0])" onmouseup="resetChordModifier()">sus2</td>
-			<td onmousedown="changeChordModifier([0,-1,0,0])" onmouseup="resetChordModifier()">b3</td>
-			<td onmousedown="changeChordModifier([0, 1,0,0])" onmouseup="resetChordModifier()">sus4</td>
-			<td onmousedown="changeChordModifier([0,0,-1,0])" onmouseup="resetChordModifier()">b5</td>
-			<td onmousedown="changeChordModifier([0,0,0,10])" onmouseup="resetChordModifier()">7</td>
-			<td onmousedown="changeChordModifier([0,0,0,11])" onmouseup="resetChordModifier()">Maj7</td>
-			<td onmousedown="changeChordModifier([0,0,0,13])" onmouseup="resetChordModifier()">b9</td>
-			<td onmousedown="changeChordModifier([0,0,0,14])" onmouseup="resetChordModifier()">9</td>
-			<td onmousedown="changeChordModifier([0,0,0,15])" onmouseup="resetChordModifier()">11</td>
-			<td onmousedown="changeChordModifier([0,0,0,16])" onmouseup="resetChordModifier()">#11</td>
-			<td onmousedown="changeChordModifier([0,0,0,17])" onmouseup="resetChordModifier()">b13</td>
-			<td onmousedown="changeChordModifier([0,0,0,18])" onmouseup="resetChordModifier()">13</td>
-		</tr>
-	</table>
-	
+
+	<input type="button" name="chordModifierButton" value="sus2" onmousedown="changeChordModifier([0,-2,0,0])" onmouseup="resetChordModifier()">
+	<input type="button" name="chordModifierButton" value="b3" onmousedown="changeChordModifier([0,-1,0,0])" onmouseup="resetChordModifier()">
+	<input type="button" name="chordModifierButton" value="sus4" onmousedown="changeChordModifier([0,1,0,0])" onmouseup="resetChordModifier()">
+	<input type="button" name="chordModifierButton" value="b5" onmousedown="changeChordModifier([0,0,-1,0])" onmouseup="resetChordModifier()">
+	<input type="button" name="chordModifierButton" value="7" onmousedown="changeChordModifier([0,0,0,10])" onmouseup="resetChordModifier()">
+	<input type="button" name="chordModifierButton" value="Maj7" onmousedown="changeChordModifier([0,0,0,11])" onmouseup="resetChordModifier()">
+	<input type="button" name="chordModifierButton" value="b9" onmousedown="changeChordModifier([0,0,0,13])" onmouseup="resetChordModifier()">
+	<input type="button" name="chordModifierButton" value="9" onmousedown="changeChordModifier([0,0,0,14])" onmouseup="resetChordModifier()">
+	<input type="button" name="chordModifierButton" value="11" onmousedown="changeChordModifier([0,0,0,15])" onmouseup="resetChordModifier()">
+	<input type="button" name="chordModifierButton" value="#11" onmousedown="changeChordModifier([0,0,0,16])" onmouseup="resetChordModifier()">
+	<input type="button" name="chordModifierButton" value="b13" onmousedown="changeChordModifier([0,0,0,17])" onmouseup="resetChordModifier()">
+	<input type="button" name="chordModifierButton" value="13" onmousedown="changeChordModifier([0,0,0,18])" onmouseup="resetChordModifier()">
+
+	<BR>	<BR>
+
+	<label>Octave:</label>
+	<input type="radio" id="octave0" name="octaveSelect" value="0" onchange="changeOctave();"><label for="octave0">0</label>
+	<input type="radio" id="octave1" name="octaveSelect" value="1" onchange="changeOctave();"><label for="octave1">1</label>
+	<input type="radio" id="octave2" name="octaveSelect" value="2" onchange="changeOctave();"><label for="octave2">2</label>
+	<input type="radio" id="octave3" name="octaveSelect" value="3" onchange="changeOctave();" checked><label for="octave3">3</label>
+	<input type="radio" id="octave4" name="octaveSelect" value="4" onchange="changeOctave();"><label for="octave4">4</label>
+	<input type="radio" id="octave5" name="octaveSelect" value="5" onchange="changeOctave();"><label for="octave5">5</label>
+	<input type="radio" id="octave6" name="octaveSelect" value="6" onchange="changeOctave();"><label for="octave6">6</label>
+	<input type="radio" id="octave7" name="octaveSelect" value="7" onchange="changeOctave();"><label for="octave7">7</label>
+	<input type="radio" id="octave8" name="octaveSelect" value="8" onchange="changeOctave();"><label for="octave8">8</label>
+
+	<BR>	<BR>	<BR>
 	
 	<BR>
 	<label for="noteText0">FirstNote:</label>

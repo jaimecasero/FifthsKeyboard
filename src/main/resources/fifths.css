@@ -22,12 +22,20 @@ input[name="chordModeSelect"] {
 	height:35px; width:65px; vertical-align: middle;
 }
 
+input[name="octaveSelect"] {
+	height:35px; width:65px; vertical-align: middle;
+}
+
+input[name="chordModeSelect"] {
+	height:35px; width:65px; vertical-align: middle;
+}
+
 input[name="scaleButton"] {
-	height:35px; width:35px; vertical-align: middle;
+	height:65px; width:70px; vertical-align: middle;
 }
 
 input[name="chordModifierButton"] {
-	height:35px; width:35px; vertical-align: middle;
+	height:65px; width:65px; vertical-align: middle;
 }
 
 #chordModifierTable
