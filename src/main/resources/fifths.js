@@ -413,24 +413,27 @@ function changeKey(){
     console.log("selectedKey:"+ keyFormation);
     ctx.strokeStyle=keyLineColor;
     var tonicPoint = calculateCenterWithRing(rootCircleIndex, ringLevel);
-	for (var i=1; i < keyFormation.length; i++)
+	for (var i=0; i < keyFormation.length; i++)
     {
+        document.getElementById('GradeButton' + i).value = document.getElementById('GradeButton' + i).value.replace(DIM_NOTATION, '');
         ctx.beginPath();
         ctx.moveTo(tonicPoint.x, tonicPoint.y);
         if (keyFormation[i].includes(DIM_NOTATION)){
             var nextNoteIndex = noteDimLabel.findIndex((element) => element === keyFormation[i]);
             var nextDimNotePoint = calculateNoteCenter(nextNoteIndex,dimRingRadius(canvas.width)-noteDimPositionDelta);
             ctx.lineTo(nextDimNotePoint.x, nextDimNotePoint.y);
+            document.getElementById('GradeButton' + i).value = document.getElementById('GradeButton' + i).value.toLowerCase() + DIM_NOTATION;
         } else {
             if (keyFormation[i].includes(MINOR_NOTATION)){
                 var nextNoteIndex = noteMinorLabel.findIndex((element) => element === keyFormation[i]);
                 var nextMinorNotePoint = calculateNoteCenter(nextNoteIndex,innerRingRadius(canvas.width)-noteMinorPositionDelta);
                 ctx.lineTo(nextMinorNotePoint.x, nextMinorNotePoint.y);
-
+                document.getElementById('GradeButton' + i).value = document.getElementById('GradeButton' + i).value.toLowerCase();
             } else {
                 var nextNoteIndex = noteMajorLabel.findIndex((element) => element === keyFormation[i]);
                 var nextMajorNotePoint = calculateNoteCenter(nextNoteIndex, majorNoteRadius());
                 ctx.lineTo(nextMajorNotePoint.x, nextMajorNotePoint.y);
+                document.getElementById('GradeButton' + i).value = document.getElementById('GradeButton' + i).value.toUpperCase();
             }
         }
         ctx.stroke();
