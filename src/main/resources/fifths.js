@@ -109,7 +109,7 @@ window.onload = init;
 	canvas.addEventListener('touchstart', function(event) {
 		  event.preventDefault();
 		  //resume audiocontext on canvas touch
-		  audioCtx.resume();
+		  
 		  MIDI.AudioContext.resume();
 		  for (var i = 0; i < event.changedTouches.length; i++) {
 		    var touch = event.changedTouches[i];
