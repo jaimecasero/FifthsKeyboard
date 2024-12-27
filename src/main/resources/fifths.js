@@ -110,7 +110,6 @@ window.onload = init;
 		  event.preventDefault();
 		  //resume audiocontext on canvas touch
 		  
-		  MIDI.AudioContext.resume();
 		  for (var i = 0; i < event.changedTouches.length; i++) {
 		    var touch = event.changedTouches[i];
 		    	var rect = canvas.getBoundingClientRect();
