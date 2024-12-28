@@ -66,10 +66,11 @@ var chordModifier=[0,0,0,0]
 
 function normalizeMidiNote(midiNote) {
    var normalizedMidiNote = midiNote;
-   if (midiNote > 23) {
+
+   while (normalizedMidiNote > 23) {
         //we work assuming octave is 1, this note went beyond this, so we need normalization
-	normalizedMidiNote = midiNote - NUM_NOTES;//down tune note one octave
-   }	
+	normalizedMidiNote = normalizedMidiNote - NUM_NOTES;//down tune note one octave
+   }
    return normalizedMidiNote;
 }
 
