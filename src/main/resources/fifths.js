@@ -4,6 +4,7 @@ const NOTE_PRESS_SUSTAIN = 6;//number of seconds the note will be sustained
 const DIM_NOTATION="\xBA";
 const MINOR_NOTATION="m";
 const MAJOR_NOTATION="";
+const CHORD_SEPARATOR="-"
 
 const INTEGER_2_INTERVAL=['1', 'b2', '2', 'b3', '3', 'p4', '#4/b5', 'p5', 'b6', '6', '7', '#7','8', 'b9', '9', '11', '11#', 'b13', '13' ];
 
@@ -111,6 +112,7 @@ window.onload = init;
     outputSelect = document.getElementById('outputSelect');
     intervalNotationText = document.getElementById('intervalNotationText');
     integerNotationText = document.getElementById('integerNotationText');
+    chordText = document.getElementById('chordText');
 
 	//register multitouch listener
 	canvas.addEventListener('touchstart', function(event) {
@@ -161,6 +163,7 @@ function clearNoteLabels() {
 	noteText.value="";
 	integerNotationText.value="";
 	intervalNotationText.value=""
+	chordText.value="";
 }
 
 ///////////////INPUT HANDLING/////////////////////////////////////////
@@ -309,23 +312,26 @@ function down(midiNote, ringLevel, force) {
 
   var midiNoteDelta = 0;
   for (var i = 0; i < 4 ; i++) {
+       var separator =CHORD_SEPARATOR;
+       if (i === 3) {
+        separator = "";
+       }
       //calculate note delta depending on ringlevel
       midiNoteDelta = calculateNoteDelta(midiNote, ringLevel, i);
       var adjustedMidiNote = midiNote + midiNoteDelta;
       actualMidiNote = adjustedMidiNote + octaveSelectVal * 12;
 
-      console.log("Down.midiNote:" + adjustedMidiNote);
       if (outputSelect.value === "0") {
         playOscillatorNote(actualMidiNote, force);
       } else {
         playMidiNote(actualMidiNote, force);
       }
 
-      integerNotationText.value = integerNotationText.value + midiNoteDelta + "-";
-      intervalNotationText.value = intervalNotationText.value + INTEGER_2_INTERVAL[midiNoteDelta] + "-";
+      integerNotationText.value = integerNotationText.value + midiNoteDelta + separator;
+      intervalNotationText.value = intervalNotationText.value + INTEGER_2_INTERVAL[midiNoteDelta] + separator;
       var normNote = normalizeMidiNote(adjustedMidiNote)
       var noteIndex = NOTE_CODE.findIndex((element) => element === normNote);
-      noteText.value = noteText.value + "-" + NOTE_LABEL[noteIndex];
+      noteText.value = noteText.value + NOTE_LABEL[noteIndex] + separator;
 
 
       drawNoteWithRing(adjustedMidiNote,ringLevel, noteColor[i],i);

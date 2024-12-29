@@ -40,10 +40,18 @@
 		  <option>14</option>
 		  <option>15</option>
 		  <option>16</option>
-	  </select>  
+	  </select>
+
+	  <label for="gainSelect">Gain:</label>
+	  <select id="gainSelect" onchange="changeGain();">
+		  <option value="0.2">0.2</option>
+		  <option value="0.4">0.4</option>
+		  <option value="0.6">0.6</option>
+		  <option value="0.8" selected>0.8</option>
+		  <option value="1.0">1.0</option>
+	  </select>
   
-  
-	<BR>
+	<BR><BR>
 	<label for="keySelect" >Key:</label>
 	<select id="keySelect" onchange="changeKey();">
 	   <option selected="selected">C</option>
@@ -72,14 +80,7 @@
 	  </select>
 
 
-  <label for="gainSelect">Gain:</label>
-  <select id="gainSelect" onchange="changeGain();">
-	  <option value="0.2">0.2</option>
-	  <option value="0.4">0.4</option>
-	  <option value="0.6">0.6</option>
-	  <option value="0.8" selected>0.8</option>
-	  <option value="1.0">1.0</option>
-  </select>
+
 
   </form>
 
@@ -116,10 +117,10 @@
 	<input type="radio" name="chordModifierButton" value="b13" onmousedown="changeChordModifier([0,0,0,17])" ><label for="octave0">b13</label>
 	<input type="radio" name="chordModifierButton" value="13" onmousedown="changeChordModifier([0,0,0,18])" ><label for="octave0">13</label>
 
-	<BR>	<BR>
+	<BR>
 
 	<label>Octave:</label>
-	<input type="radio" id="octave0" name="octaveSelect" value="0" onchange="changeOctave();"><label for="octave0">0</label>
+	<BR>
 	<input type="radio" id="octave1" name="octaveSelect" value="1" onchange="changeOctave();"><label for="octave1">1</label>
 	<input type="radio" id="octave2" name="octaveSelect" value="2" onchange="changeOctave();"><label for="octave2">2</label>
 	<input type="radio" id="octave3" name="octaveSelect" value="3" onchange="changeOctave();" checked><label for="octave3">3</label>
@@ -127,17 +128,20 @@
 	<input type="radio" id="octave5" name="octaveSelect" value="5" onchange="changeOctave();"><label for="octave5">5</label>
 	<input type="radio" id="octave6" name="octaveSelect" value="6" onchange="changeOctave();"><label for="octave6">6</label>
 	<input type="radio" id="octave7" name="octaveSelect" value="7" onchange="changeOctave();"><label for="octave7">7</label>
-	<input type="radio" id="octave8" name="octaveSelect" value="8" onchange="changeOctave();"><label for="octave8">8</label>
 
 	<BR>	<BR>	<BR>
-	
+
+	<BR>
+	<label for="chordText">Chord:</label>
+	<input type="text" id="chordText" readonly>
+
 	<BR>
 	<label for="noteText">Notes:</label>
 	<input type="text" id="noteText" readonly>
-
+	<BR>
 	<label for="intervalNotationText">Interval Formula:</label>
 	<input type="text" id="intervalNotationText" readonly>
-
+	<BR>
 	<label for="integerNotationText">Integer Formula:</label>
 	<input type="text" id="integerNotationText" readonly>
 
