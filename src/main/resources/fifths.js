@@ -52,7 +52,7 @@ const noteCircleRadius=[noteMajorCircleRadius, noteMinorCircleRadius, noteDimCir
 
 
 
-const disabledNoteColor='grey';
+const DISABLED_NOTE_COLOR='grey';
 const tonicColor='white';
 const dominantColor='green';
 const subdominantColor='yellow';
@@ -93,6 +93,7 @@ function generateKeyArray(noteIndex, keyMode) {
 ////////DOM CACHING//////////////////
 var canvas;
 var outputSelect;
+var chordFormulaText;
 
 (function(window, document, undefined){
 window.onload = init;
@@ -105,6 +106,7 @@ window.onload = init;
 	//cache DOM elements for better performance
 	canvas = document.getElementById('circleCanvas');
     outputSelect = document.getElementById('outputSelect');
+    chordFormulaText = document.getElementById('chordFormulaText');
 
 	//register multitouch listener
 	canvas.addEventListener('touchstart', function(event) {
@@ -146,22 +148,14 @@ window.onload = init;
 	renderCircle();
 	clearNoteLabels();
 
-	var nColor = [];
-	for (var i = 0;i<4;i++){
-    var tColor = window.getComputedStyle(document.getElementById("noteText" + i),null).getPropertyValue("background-color");
-    nColor.push(tColor);
-    }
-    console.log("ncolor:" + nColor);
-    noteColor=nColor;
   }
 
 })(window, document, undefined);
 
 
 function clearNoteLabels() {
-	for (var i = 0; i < noteColor.length; i++) {
-	        document.getElementById('noteText' + i).value= "";
-	}
+	noteText.value="";
+	chordFormulaText.value="";
 }
 
 ///////////////INPUT HANDLING/////////////////////////////////////////
@@ -248,11 +242,10 @@ function chordDown(event, grade) {
     //calculate chord notes
     var notePressed = keyFormation[grade];
     var pressure = ((event.pressure == null ) ? 0.5 : event.pressure);
-
     for(var i = 0; i < noteLabel.length; i++) {
         var noteIndex = noteLabel[i].findIndex((element) => element === notePressed);
         if (noteIndex > -1) {
-            console.log("chorddown:" + noteCode[i][noteIndex]);
+            console.log("i:" + noteCode[i][noteIndex]);
             down(noteCode[i][noteIndex],i, pressure);
         }
     }
@@ -315,6 +308,7 @@ function down(midiNote, ringLevel, force) {
   for (var i = 0; i < 4 ; i++) {
       //calculate note delta depending on ringlevel
       midiNoteDelta = calculateNoteDelta(midiNote, ringLevel, i);
+      chordFormulaText.value = chordFormulaText.value + midiNoteDelta + "-";
       var adjustedMidiNote = midiNote + midiNoteDelta;
         actualMidiNote = adjustedMidiNote + octaveSelectVal * 12;
       if (outputSelect.value === "0") {
@@ -547,7 +541,7 @@ function renderCircle() {
 }
 
 function calculateNoteColor(i,j) {
-	var color = disabledNoteColor;
+	var color = DISABLED_NOTE_COLOR;
 	var noteIndex = NOTE_CODE.findIndex((element) => element === noteCode[i][j]);
 	if (noteIndex > -1) {
 	  color = NOTE_COLOR[noteIndex];
@@ -556,7 +550,7 @@ function calculateNoteColor(i,j) {
 }
 
 function calculateNoteColorByMidi(midiNote) {
-	var color = disabledNoteColor;
+	var color = DISABLED_NOTE_COLOR;
 	var noteIndex = NOTE_CODE.findIndex((element) => element === midiNote);
 	if (noteIndex > -1) {
 	  color = NOTE_COLOR[noteIndex];
@@ -573,14 +567,16 @@ function drawNoteWithRing(midiNote, ringLevel, color,chordNoteIndex) {
     drawNoteIndex(noteDimIndex, 2, color);
 
 	if(ringLevel== 0){
-		document.getElementById('noteText' + chordNoteIndex).value= noteLabel[ringLevel][noteMajorIndex];
+		noteText.value = noteText + " " + noteLabel[ringLevel][noteMajorIndex];
 	} else {
 	    if (ringLevel == 1) {
-            document.getElementById('noteText' + chordNoteIndex).value= noteLabel[ringLevel][noteMinorIndex];
             console.log("noteIndex:" + noteMinorIndex);
+    		noteText.value = noteText + " " + noteLabel[ringLevel][noteMinorIndex];
+
         } else {
-            document.getElementById('noteText' + chordNoteIndex).value= noteLabel[ringLevel][noteDimIndex];
             console.log("noteIndex:" + noteDimIndex);
+    		noteText.value = noteText + " " + noteLabel[ringLevel][noteDimIndex];
+
         }
 	}
 }
