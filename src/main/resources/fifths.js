@@ -65,6 +65,7 @@ var noteColor=[TONIC_COLOR,SUBDOMINANT_COLOR,DOMINANT_COLOR,FORTH_COLOR];
 var octave=3;
 var notePressGain = 0.8;//the gain applied when note is pressed
 var keyFormation=[];
+var keyNoteFormation=[];
 var chordModifier=[0,0,0,0]
 
 function normalizeMidiNote(midiNote) {
@@ -83,12 +84,21 @@ function findNoteIndex(midiNote, ringLevel) {
 }
 
 
-function generateKeyArray(noteIndex, keyMode) {
+function generateKeyChordArray(noteIndex, keyMode) {
     var key = [];
     //calculate the 7 notes in the key based on intervals
     //add chord suffix accordingly
     for (var i = 0; i < 7; i++) {
         key[i] = NOTE_LABEL[(noteIndex + KEY_MODE_INTERVAL[keyMode][i]) % NUM_NOTES] + KEY_MODE_CHORD[keyMode][i];
+    }
+    return key;
+}
+
+function generateKeyNoteArray(noteIndex, keyMode) {
+    var key = [];
+    //calculate the 7 notes in the key based on intervals
+    for (var i = 0; i < 7; i++) {
+        key[i] = NOTE_LABEL[(noteIndex + KEY_MODE_INTERVAL[keyMode][i]) % NUM_NOTES];
     }
     return key;
 }
@@ -113,6 +123,7 @@ window.onload = init;
     intervalNotationText = document.getElementById('intervalNotationText');
     integerNotationText = document.getElementById('integerNotationText');
     chordText = document.getElementById('chordText');
+    diatonicCheck= document.getElementById('diatonicCheck');
 
 	//register multitouch listener
 	canvas.addEventListener('touchstart', function(event) {
@@ -164,6 +175,7 @@ function clearNoteLabels() {
 	integerNotationText.value="";
 	intervalNotationText.value=""
 	chordText.value="";
+	diatonicCheck.checked=false;
 }
 
 ///////////////INPUT HANDLING/////////////////////////////////////////
@@ -257,6 +269,7 @@ function chordDown(event, grade) {
             down(noteCode[i][noteIndex],i, pressure);
         }
     }
+    chordText.value = notePressed;
 }
 function chordUp(event, grade) {
     //calculate chord notes
@@ -311,6 +324,7 @@ function down(midiNote, ringLevel, force) {
   var octaveSelectVal = octave;
 
   var midiNoteDelta = 0;
+  var diatonic = true;
   for (var i = 0; i < 4 ; i++) {
        var separator =CHORD_SEPARATOR;
        if (i === 3) {
@@ -332,11 +346,13 @@ function down(midiNote, ringLevel, force) {
       var normNote = normalizeMidiNote(adjustedMidiNote)
       var noteIndex = NOTE_CODE.findIndex((element) => element === normNote);
       noteText.value = noteText.value + NOTE_LABEL[noteIndex] + separator;
-
+      diatonic = diatonic && keyNoteFormation.indexOf(NOTE_LABEL[noteIndex]) > -1;
+        console.log("diatonic:" + NOTE_LABEL[noteIndex]);
 
       drawNoteWithRing(adjustedMidiNote,ringLevel, noteColor[i],i);
 
   }
+  diatonicCheck.checked = diatonic;
 
 }
 
@@ -422,7 +438,8 @@ function changeKey(){
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	var rootCircleIndex = noteLabel[ringLevel].findIndex((element) => element === (selectedKey + KEY_MODE_ROOT_NOTATION[keyMode]));
 	var rootIndex = NOTE_LABEL.findIndex((element) => element === selectedKey );
-    keyFormation = generateKeyArray(rootIndex, keyMode);
+    keyFormation = generateKeyChordArray(rootIndex, keyMode);
+    keyNoteFormation = generateKeyNoteArray(rootIndex, keyMode);
     console.log("selectedKey:"+ keyFormation);
     ctx.strokeStyle=keyLineColor;
     var tonicPoint = calculateCenterWithRing(rootCircleIndex, ringLevel);
