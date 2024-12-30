@@ -54,6 +54,20 @@ const noteCode=[NOTE_MAJOR_CODE, NOTE_MINOR_CODE, NOTE_DIM_CODE];
 const NOTE_CIRCLE_RADIUS=[NOTE_MAJOR_CIRCLE_RADIUS, NOTE_MINOR_CIRCLE_RADIUS, NOTE_DIM_CIRCLE_RADIUS];
 
 
+const SUS2_FORMULA=[0,-2,0,0];
+const B3_FORMULA=[0,-1,0,0];
+const SUS4_FORMULA=[0,1,0,0];
+const B5_FORMULA=[0,0,-1,0];
+const AUG_FORMULA=[0,0,1,0];
+const EXT_7_FORMULA=[0,0,0,10];
+const EXT_MAJ7_FORMULA=[0,0,0,11];
+const EXT_B9_FORMULA=[0,0,0,13];
+const EXT_9_FORMULA=[0,0,0,14];
+const EXT_11_FORMULA=[0,0,0,15];
+const EXT_MAJ11_FORMULA=[0,0,0,16];
+const EXT_B13_FORMULA=[0,0,0,17];
+const EXT_13_FORMULA=[0,0,0,18];
+const CHORD_MOD_ARR=[SUS2_FORMULA, B3_FORMULA, SUS4_FORMULA, B5_FORMULA, AUG_FORMULA, EXT_7_FORMULA, EXT_MAJ7_FORMULA, EXT_B9_FORMULA, EXT_9_FORMULA, EXT_11_FORMULA, EXT_MAJ11_FORMULA, EXT_B13_FORMULA, EXT_13_FORMULA];
 
 const DISABLED_NOTE_COLOR='grey';
 const TONIC_COLOR='#FFFFFF';
@@ -347,7 +361,7 @@ function down(midiNote, ringLevel, force) {
       var noteIndex = NOTE_CODE.findIndex((element) => element === normNote);
       noteText.value = noteText.value + NOTE_LABEL[noteIndex] + separator;
       diatonic = diatonic && keyNoteFormation.indexOf(NOTE_LABEL[noteIndex]) > -1;
-        console.log("diatonic:" + NOTE_LABEL[noteIndex]);
+      console.log("diatonic:" + NOTE_LABEL[noteIndex]);
 
       drawNoteWithRing(adjustedMidiNote,ringLevel, noteColor[i],i);
 
