@@ -273,18 +273,22 @@ function resetChordModifier() {
 }
 
 function chordDown(event, grade) {
-    //calculate chord notes
+    //find grade in current key, and search note code.
     var notePressed = keyFormation[grade];
     var pressure = ((event.pressure == null ) ? 0.5 : event.pressure);
     for(var i = 0; i < noteLabel.length; i++) {
         var noteIndex = noteLabel[i].findIndex((element) => element === notePressed);
         if (noteIndex > -1) {
-            console.log("i:" + noteCode[i][noteIndex]);
+            console.log("root note:" + noteCode[i][noteIndex]);
             down(noteCode[i][noteIndex],i, pressure);
+            break;
         }
     }
-    chordText.value = notePressed;
+    const selectedChordMod = document.querySelector('input[type="radio"][name="chordModifierRadio"]:checked');
+    chordText.value = notePressed + (selectedChordMod === null ?  "" : selectedChordMod.value);
+
 }
+
 function chordUp(event, grade) {
     //calculate chord notes
     var notePressed = keyFormation[grade];
@@ -333,12 +337,27 @@ function canvasUpXY(x,y) {
    }
 }
 
+
+function isDiatonic(chordArray) {
+    console.log("isDiatonic:" + chordArray)
+    var diatonic = true;
+    for (var i=0; i < chordArray.length; i++) {
+      diatonic = diatonic && keyNoteFormation.indexOf(chordArray[i]) > -1;
+    }
+    return diatonic;
+}
+function highlightDiatonicMods(midiNote) {
+    for (var i=0; i < CHORD_MOD_ARR.length; i++) {
+
+    }
+}
+
 function down(midiNote, ringLevel, force) {
   clearNoteLabels();
   var octaveSelectVal = octave;
 
   var midiNoteDelta = 0;
-  var diatonic = true;
+  var chordArray = [];
   for (var i = 0; i < 4 ; i++) {
        var separator =CHORD_SEPARATOR;
        if (i === 3) {
@@ -355,18 +374,20 @@ function down(midiNote, ringLevel, force) {
         playMidiNote(actualMidiNote, force);
       }
 
+      //update all UI elements
+
       integerNotationText.value = integerNotationText.value + midiNoteDelta + separator;
       intervalNotationText.value = intervalNotationText.value + INTEGER_2_INTERVAL[midiNoteDelta] + separator;
       var normNote = normalizeMidiNote(adjustedMidiNote)
       var noteIndex = NOTE_CODE.findIndex((element) => element === normNote);
       noteText.value = noteText.value + NOTE_LABEL[noteIndex] + separator;
-      diatonic = diatonic && keyNoteFormation.indexOf(NOTE_LABEL[noteIndex]) > -1;
-      console.log("diatonic:" + NOTE_LABEL[noteIndex]);
+      chordArray.push(NOTE_LABEL[noteIndex]);
 
       drawNoteWithRing(adjustedMidiNote,ringLevel, noteColor[i],i);
 
   }
-  diatonicCheck.checked = diatonic;
+
+  diatonicCheck.checked = isDiatonic(chordArray);
 
 }
 

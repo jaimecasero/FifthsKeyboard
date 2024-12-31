@@ -6,6 +6,10 @@
    background-color : #F9F9F9;
 }
 
+.chordModClass {
+
+}
+
 .thirdNoteClass {
    background-color : #F6F6F6;
 }
@@ -36,7 +40,7 @@ input[name="scaleButton"] {
 	  touch-action: manipulation;
 }
 
-input[name="chordModifierButton"] {
+input[name="chordModifierRadio"] {
 	height:65px; width:55px; vertical-align: middle;
 	  touch-action: manipulation;
 }
