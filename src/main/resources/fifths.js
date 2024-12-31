@@ -349,11 +349,24 @@ function isDiatonic(chordArray) {
     return diatonic;
 }
 
-function highlightDiatonicMods(midiNote) {
+function resetMods(midiNote, ringLevel) {
+    for (var i = 0; i < CHORD_MOD_ARR.length; i++) {
+        const chordModRadio = document.getElementById('chordMod' + i);
+        chordModRadio.style.boxShadow = '';
+    }
+}
+
+function highlightDiatonicMods(midiNote, ringLevel) {
     for (var i = 0; i < CHORD_MOD_ARR.length; i++) {
         const chordModRadio = document.getElementById('chordMod' + i);
         var chordArray = [];
         for (j = 0; j < 4; j++) {
+            midiNoteDelta = calculateNoteDeltaNoMod(midiNote, ringLevel, j) + CHORD_MOD_ARR[i][j];
+            var adjustedMidiNote = midiNote + midiNoteDelta;
+            var normNote = normalizeMidiNote(adjustedMidiNote)
+            var noteIndex = NOTE_CODE.findIndex((element) => element === normNote);
+            chordArray.push(NOTE_LABEL[noteIndex]);
+
         }
         if (isDiatonic(chordArray)) {
             chordModRadio.style.boxShadow = '10px 10px 20px rgba(0, 0, 255, 0.5)';
@@ -395,13 +408,13 @@ function down(midiNote, ringLevel, force) {
         drawNoteWithRing(adjustedMidiNote, ringLevel, noteColor[i], i);
 
     }
-
+    highlightDiatonicMods(midiNote, ringLevel);
     diatonicCheck.checked = isDiatonic(chordArray);
 
 }
 
 
-function calculateNoteDelta(midiNote, ringLevel, i) {
+function calculateNoteDeltaNoMod(midiNote, ringLevel, i) {
     var midiNoteDelta = 0;
     //calculate note delta depending on ringlevel
     if (i == 1) {
@@ -430,7 +443,11 @@ function calculateNoteDelta(midiNote, ringLevel, i) {
         midiNoteDelta = 0;
     }
 
-    return midiNoteDelta + chordModifier[i];
+    return midiNoteDelta;
+}
+
+function calculateNoteDelta(midiNote, ringLevel, i) {
+    return calculateNoteDeltaNoMod(midiNote,ringLevel,i) +  chordModifier[i];
 }
 
 function up(midiNote, ringLevel) {
@@ -450,6 +467,8 @@ function up(midiNote, ringLevel) {
             playMidiNoteOff(midiNoteDelta);
         }
     }
+
+    resetMods(midiNote, ringLevel)
 
 }
 
