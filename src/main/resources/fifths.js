@@ -75,7 +75,7 @@ const DOMINANT_COLOR = '#F6F6F6';
 const SUBDOMINANT_COLOR = '#F9F9F9';
 const FORTH_COLOR = '#F3F3F3';
 const keyLineColor = 'red';
-var noteColor = [TONIC_COLOR, SUBDOMINANT_COLOR, DOMINANT_COLOR, FORTH_COLOR];
+const NOTE_CHORD_COLOR = [TONIC_COLOR, SUBDOMINANT_COLOR, DOMINANT_COLOR, FORTH_COLOR];
 var octave = 3;
 var notePressGain = 0.8;//the gain applied when note is pressed
 var keyFormation = [];
@@ -93,25 +93,25 @@ function normalizeMidiNote(midiNote) {
 }
 
 function findNoteIndex(midiNote, ringLevel) {
-    var normalizedMidiNote = normalizeMidiNote(midiNote);
+    const normalizedMidiNote = normalizeMidiNote(midiNote);
     return noteCode[ringLevel].findIndex((element) => element === normalizedMidiNote);
 }
 
 
 function generateKeyChordArray(noteIndex, keyMode) {
-    var key = [];
+    let key = [];
     //calculate the 7 notes in the key based on intervals
     //add chord suffix accordingly
-    for (var i = 0; i < 7; i++) {
+    for (let i = 0; i < 7; i++) {
         key[i] = NOTE_LABEL[(noteIndex + KEY_MODE_INTERVAL[keyMode][i]) % NUM_NOTES] + KEY_MODE_CHORD[keyMode][i];
     }
     return key;
 }
 
 function generateKeyNoteArray(noteIndex, keyMode) {
-    var key = [];
+    let key = [];
     //calculate the 7 notes in the key based on intervals
-    for (var i = 0; i < 7; i++) {
+    for (let i = 0; i < 7; i++) {
         key[i] = NOTE_LABEL[(noteIndex + KEY_MODE_INTERVAL[keyMode][i]) % NUM_NOTES];
     }
     return key;
@@ -122,6 +122,9 @@ var canvas;
 var outputSelect;
 var integerNotationText;
 var intervalNotationText;
+var noteText;
+var diatonicCheck;
+var chordText;
 
 (function (window, document, undefined) {
     window.onload = init;
@@ -138,20 +141,21 @@ var intervalNotationText;
         integerNotationText = document.getElementById('integerNotationText');
         chordText = document.getElementById('chordText');
         diatonicCheck = document.getElementById('diatonicCheck');
+        noteText = document.getElementById('noteText');
 
         //register multitouch listener
         canvas.addEventListener('touchstart', function (event) {
             event.preventDefault();
             //resume audiocontext on canvas touch
 
-            for (var i = 0; i < event.changedTouches.length; i++) {
-                var touch = event.changedTouches[i];
-                var rect = canvas.getBoundingClientRect();
+            for (let i = 0; i < event.changedTouches.length; i++) {
+                const touch = event.changedTouches[i];
+                const rect = canvas.getBoundingClientRect();
                 //transpose touch coordinates to canvas
-                var x = touch.clientX - rect.left;
-                var y = touch.clientY - rect.top;
+                const x = touch.clientX - rect.left;
+                const y = touch.clientY - rect.top;
                 console.log("touchstart.x", x, ",y:" + y + ",force:" + touch.force);
-                var force = 1.0;
+                let force = 1.0;
                 if (touch.force > 0) {
                     force = touch.force;
                 }
@@ -160,12 +164,12 @@ var intervalNotationText;
         }, false);
         canvas.addEventListener('touchend', function (event) {
             event.preventDefault();
-            for (var i = 0; i < event.changedTouches.length; i++) {
-                var touch = event.changedTouches[i];
-                var rect = canvas.getBoundingClientRect();
+            for (let i = 0; i < event.changedTouches.length; i++) {
+                const touch = event.changedTouches[i];
+                const rect = canvas.getBoundingClientRect();
                 //transpose touch coordinates to canvas
-                var x = touch.clientX - rect.left;
-                var y = touch.clientY - rect.top;
+                const x = touch.clientX - rect.left;
+                const y = touch.clientY - rect.top;
                 console.log("touchend.x", x, ",y:" + y);
                 canvasUpXY(x, y);
             }
@@ -196,7 +200,7 @@ function clearNoteLabels() {
 var shiftPressed = false;
 
 function keyDownHandler(event) {
-    var keyPressed = String.fromCharCode(event.keyCode);
+    let keyPressed = String.fromCharCode(event.keyCode);
     if (event.keyCode == 16) {
         shiftPressed = true;
     }
@@ -212,10 +216,10 @@ function keyDownHandler(event) {
     }
 
 
-    var noteIndex = NOTE_MAJOR_LABEL.findIndex((element) => element === keyPressed);
+    const noteIndex = NOTE_MAJOR_LABEL.findIndex((element) => element === keyPressed);
     console.log("rep:" + event.repeat)
     if (noteIndex > -1 && !event.repeat) {
-        var ring = 0;
+        let ring = 0;
         if (event.shiftKey) {
             ring = 0;
         }
@@ -232,7 +236,7 @@ function keyDownHandler(event) {
 }
 
 function keyUpHandler(event) {
-    var keyPressed = String.fromCharCode(event.keyCode);
+    let keyPressed = String.fromCharCode(event.keyCode);
     if (event.keyCode == 16) {
         shiftPressed = false;
     }
@@ -246,7 +250,7 @@ function keyUpHandler(event) {
     if (shiftPressed) {
         keyPressed = keyPressed + "#";
     }
-    var noteIndex = NOTE_MAJOR_LABEL.findIndex((element) => element === keyPressed);
+    const noteIndex = NOTE_MAJOR_LABEL.findIndex((element) => element === keyPressed);
     if (noteIndex > -1) {
         var ring = 0;
         if (event.shiftKey) {
@@ -275,10 +279,10 @@ function resetChordModifier() {
 
 function chordDown(event, grade) {
     //find grade in current key, and search note code.
-    var notePressed = keyFormation[grade];
-    var pressure = ((event.pressure == null) ? 0.5 : event.pressure);
-    for (var i = 0; i < noteLabel.length; i++) {
-        var noteIndex = noteLabel[i].findIndex((element) => element === notePressed);
+    const notePressed = keyFormation[grade];
+    const pressure = ((event.pressure == null) ? 0.5 : event.pressure);
+    for (let i = 0; i < noteLabel.length; i++) {
+        const noteIndex = noteLabel[i].findIndex((element) => element === notePressed);
         if (noteIndex > -1) {
             console.log("root note:" + noteCode[i][noteIndex]);
             down(noteCode[i][noteIndex], i, pressure);
@@ -292,11 +296,11 @@ function chordDown(event, grade) {
 
 function chordUp(event, grade) {
     //calculate chord notes
-    var notePressed = keyFormation[grade];
+    const notePressed = keyFormation[grade];
 
     console.log("chordup:" + notePressed);
-    for (var i = 0; i < noteLabel.length; i++) {
-        var noteIndex = noteLabel[i].findIndex((element) => element === notePressed);
+    for (let i = 0; i < noteLabel.length; i++) {
+        const noteIndex = noteLabel[i].findIndex((element) => element === notePressed);
         if (noteIndex > -1) {
             console.log("chordup:" + noteCode[i][noteIndex]);
             up(noteCode[i][noteIndex], i);
@@ -312,9 +316,9 @@ function canvasDown(e) {
 
 function canvasDownXY(x, y, force) {
     console.log("down:" + x + "," + y);
-    for (var i = 0; i < noteCode.length; i++) {
-        for (var j = 0; j < noteCode[i].length; j++) {
-            var noteCenterPoint = calculateCenterWithRing(j, i);
+    for (let i = 0; i < noteCode.length; i++) {
+        for (let j = 0; j < noteCode[i].length; j++) {
+            const noteCenterPoint = calculateCenterWithRing(j, i);
             if (intersects(x, y, noteCenterPoint.x, noteCenterPoint.y, NOTE_CIRCLE_RADIUS[i])) {
                 down(noteCode[i][j], i, force);
                 break;//note found no need to go on
@@ -328,9 +332,9 @@ function canvasUp(e) {
 }
 
 function canvasUpXY(x, y) {
-    for (var i = 0; i < noteCode.length; i++) {
-        for (var j = 0; j < noteCode[i].length; j++) {
-            var noteCenterPoint = calculateCenterWithRing(j, i);
+    for (let i = 0; i < noteCode.length; i++) {
+        for (let j = 0; j < noteCode[i].length; j++) {
+            const noteCenterPoint = calculateCenterWithRing(j, i);
             if (intersects(x, y, noteCenterPoint.x, noteCenterPoint.y, NOTE_CIRCLE_RADIUS[i])) {
                 up(noteCode[i][j], i);
                 break;
@@ -342,29 +346,29 @@ function canvasUpXY(x, y) {
 
 function isDiatonic(chordArray) {
     console.log("isDiatonic:" + chordArray)
-    var diatonic = true;
-    for (var i = 0; i < chordArray.length; i++) {
+    let diatonic = true;
+    for (let i = 0; i < chordArray.length; i++) {
         diatonic = diatonic && keyNoteFormation.indexOf(chordArray[i]) > -1;
     }
     return diatonic;
 }
 
 function resetMods(midiNote, ringLevel) {
-    for (var i = 0; i < CHORD_MOD_ARR.length; i++) {
+    for (let i = 0; i < CHORD_MOD_ARR.length; i++) {
         const chordModRadio = document.getElementById('chordMod' + i);
         chordModRadio.style.boxShadow = '';
     }
 }
 
 function highlightDiatonicMods(midiNote, ringLevel) {
-    for (var i = 0; i < CHORD_MOD_ARR.length; i++) {
+    for (let i = 0; i < CHORD_MOD_ARR.length; i++) {
         const chordModRadio = document.getElementById('chordMod' + i);
-        var chordArray = [];
+        let chordArray = [];
         for (j = 0; j < 4; j++) {
-            midiNoteDelta = calculateNoteDeltaNoMod(midiNote, ringLevel, j) + CHORD_MOD_ARR[i][j];
-            var adjustedMidiNote = midiNote + midiNoteDelta;
-            var normNote = normalizeMidiNote(adjustedMidiNote)
-            var noteIndex = NOTE_CODE.findIndex((element) => element === normNote);
+            const midiNoteDelta = calculateNoteDeltaNoMod(midiNote, ringLevel, j) + CHORD_MOD_ARR[i][j];
+            const adjustedMidiNote = midiNote + midiNoteDelta;
+            const normNote = normalizeMidiNote(adjustedMidiNote)
+            const noteIndex = NOTE_CODE.findIndex((element) => element === normNote);
             chordArray.push(NOTE_LABEL[noteIndex]);
 
         }
@@ -376,19 +380,17 @@ function highlightDiatonicMods(midiNote, ringLevel) {
 
 function down(midiNote, ringLevel, force) {
     clearNoteLabels();
-    var octaveSelectVal = octave;
+    const octaveSelectVal = octave;
 
-    var midiNoteDelta = 0;
-    var chordArray = [];
-    for (var i = 0; i < 4; i++) {
-        var separator = CHORD_SEPARATOR;
-        if (i === 3) {
-            separator = "";
-        }
+    let midiNoteDelta = 0;
+    let chordArray = [];
+    for (let i = 0; i < 4; i++) {
+        const separator = (i === 3) ? "" : CHORD_SEPARATOR;
+
         //calculate note delta depending on ringlevel
         midiNoteDelta = calculateNoteDelta(midiNote, ringLevel, i);
-        var adjustedMidiNote = midiNote + midiNoteDelta;
-        actualMidiNote = adjustedMidiNote + octaveSelectVal * 12;
+        const adjustedMidiNote = midiNote + midiNoteDelta;
+        const actualMidiNote = adjustedMidiNote + octaveSelectVal * 12;
 
         if (outputSelect.value === "0") {
             playOscillatorNote(actualMidiNote, force);
@@ -400,12 +402,12 @@ function down(midiNote, ringLevel, force) {
 
         integerNotationText.value = integerNotationText.value + midiNoteDelta + separator;
         intervalNotationText.value = intervalNotationText.value + INTEGER_2_INTERVAL[midiNoteDelta] + separator;
-        var normNote = normalizeMidiNote(adjustedMidiNote)
-        var noteIndex = NOTE_CODE.findIndex((element) => element === normNote);
+        const normNote = normalizeMidiNote(adjustedMidiNote)
+        const noteIndex = NOTE_CODE.findIndex((element) => element === normNote);
         noteText.value = noteText.value + NOTE_LABEL[noteIndex] + separator;
         chordArray.push(NOTE_LABEL[noteIndex]);
 
-        drawNoteWithRing(adjustedMidiNote, ringLevel, noteColor[i], i);
+        drawNoteWithRing(adjustedMidiNote, ringLevel, NOTE_CHORD_COLOR[i], i);
 
     }
     highlightDiatonicMods(midiNote, ringLevel);
@@ -415,31 +417,31 @@ function down(midiNote, ringLevel, force) {
 
 
 function calculateNoteDeltaNoMod(midiNote, ringLevel, i) {
-    var midiNoteDelta = 0;
+    let midiNoteDelta = 0;
     //calculate note delta depending on ringlevel
-    if (i == 1) {
-        if (ringLevel == 0) {
+    if (i === 1) {
+        if (ringLevel === 0) {
             midiNoteDelta = 4;
         } else {
-            if (ringLevel == 1) {
+            if (ringLevel === 1) {
                 midiNoteDelta = 3;
             } else {
                 midiNoteDelta = 3;
             }
         }
     }
-    if (i == 2) {
-        if (ringLevel == 0) {
+    if (i === 2) {
+        if (ringLevel === 0) {
             midiNoteDelta = 7;
         } else {
-            if (ringLevel == 1) {
+            if (ringLevel === 1) {
                 midiNoteDelta = 7;
             } else {
                 midiNoteDelta = 6;
             }
         }
     }
-    if (i == 3) {
+    if (i === 3) {
         midiNoteDelta = 0;
     }
 
@@ -452,13 +454,13 @@ function calculateNoteDelta(midiNote, ringLevel, i) {
 
 function up(midiNote, ringLevel) {
     console.log("UP.midiNote:" + midiNote);
-    var midiNoteDelta = 0;
+    let midiNoteDelta = 0;
 
-    for (var i = 0; i < 4; i++) {
+    for (let i = 0; i < 4; i++) {
         midiNoteDelta = calculateNoteDelta(midiNote, ringLevel, i);
-        var color = calculateNoteColorByMidi(normalizeMidiNote(midiNote + midiNoteDelta));
+        const color = calculateNoteColorByMidi(normalizeMidiNote(midiNote + midiNoteDelta));
         drawNoteWithRing(midiNote + midiNoteDelta, ringLevel, color, i);
-        var octaveSelectVal = octave;
+        const octaveSelectVal = octave;
         midiNoteDelta = midiNote + midiNoteDelta + octaveSelectVal * 12;
         if (outputSelect.value === "0") {
             playOscillatorNoteOff(midiNoteDelta);
@@ -475,7 +477,7 @@ function up(midiNote, ringLevel) {
 
 //////////////////////////// CONFIGURATION ////////////////////////////
 function changeOutput() {
-    var selectedOutput = document.getElementById('outputSelect').value;
+    const selectedOutput = document.getElementById('outputSelect').value;
     if (selectedOutput === "0") {
     } else {
         initMidi();
@@ -487,43 +489,43 @@ function changeOctave() {
 }
 
 function changeGain() {
-    var keyMode = document.getElementById('gainSelect').value;
+    const keyMode = document.getElementById('gainSelect').value;
     notePressGain = keyMode;
     console.log("new gain:" + notePressGain);
 }
 
 function changeKey() {
-    var selectedKey = document.getElementById('keySelect').value;
-    var keyMode = document.getElementById('modeSelect').value;
-    var ctx = canvas.getContext("2d");
-    var ringLevel = KEY_MODE_ROOT_RING[keyMode];
+    const selectedKey = document.getElementById('keySelect').value;
+    const keyMode = document.getElementById('modeSelect').value;
+    const ctx = canvas.getContext("2d");
+    const ringLevel = KEY_MODE_ROOT_RING[keyMode];
     //clear all canvas to remove previous key lines
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    var rootCircleIndex = noteLabel[ringLevel].findIndex((element) => element === (selectedKey + KEY_MODE_ROOT_NOTATION[keyMode]));
-    var rootIndex = NOTE_LABEL.findIndex((element) => element === selectedKey);
+    const rootCircleIndex = noteLabel[ringLevel].findIndex((element) => element === (selectedKey + KEY_MODE_ROOT_NOTATION[keyMode]));
+    const rootIndex = NOTE_LABEL.findIndex((element) => element === selectedKey);
     keyFormation = generateKeyChordArray(rootIndex, keyMode);
     keyNoteFormation = generateKeyNoteArray(rootIndex, keyMode);
     console.log("selectedKey:" + keyFormation);
     ctx.strokeStyle = keyLineColor;
-    var tonicPoint = calculateCenterWithRing(rootCircleIndex, ringLevel);
-    for (var i = 0; i < keyFormation.length; i++) {
+    const tonicPoint = calculateCenterWithRing(rootCircleIndex, ringLevel);
+    for (let i = 0; i < keyFormation.length; i++) {
         document.getElementById('GradeButton' + i).value = document.getElementById('GradeButton' + i).value.replace(DIM_NOTATION, '');
         ctx.beginPath();
         ctx.moveTo(tonicPoint.x, tonicPoint.y);
         if (keyFormation[i].includes(DIM_NOTATION)) {
-            var nextNoteIndex = NOTE_DIM_LABEL.findIndex((element) => element === keyFormation[i]);
-            var nextDimNotePoint = calculateNoteCenter(nextNoteIndex, dimRingRadius(canvas.width) - NOTE_DIM_POSITION_DELTA);
+            const nextNoteIndex = NOTE_DIM_LABEL.findIndex((element) => element === keyFormation[i]);
+            const nextDimNotePoint = calculateNoteCenter(nextNoteIndex, dimRingRadius(canvas.width) - NOTE_DIM_POSITION_DELTA);
             ctx.lineTo(nextDimNotePoint.x, nextDimNotePoint.y);
             document.getElementById('GradeButton' + i).value = document.getElementById('GradeButton' + i).value.toLowerCase() + DIM_NOTATION;
         } else {
             if (keyFormation[i].includes(MINOR_NOTATION)) {
-                var nextNoteIndex = NOTE_MINOR_LABEL.findIndex((element) => element === keyFormation[i]);
-                var nextMinorNotePoint = calculateNoteCenter(nextNoteIndex, innerRingRadius(canvas.width) - NOTE_MINOR_POSITION_DELTA);
+                const nextNoteIndex = NOTE_MINOR_LABEL.findIndex((element) => element === keyFormation[i]);
+                const nextMinorNotePoint = calculateNoteCenter(nextNoteIndex, innerRingRadius(canvas.width) - NOTE_MINOR_POSITION_DELTA);
                 ctx.lineTo(nextMinorNotePoint.x, nextMinorNotePoint.y);
                 document.getElementById('GradeButton' + i).value = document.getElementById('GradeButton' + i).value.toLowerCase();
             } else {
-                var nextNoteIndex = NOTE_MAJOR_LABEL.findIndex((element) => element === keyFormation[i]);
-                var nextMajorNotePoint = calculateNoteCenter(nextNoteIndex, majorNoteRadius());
+                const nextNoteIndex = NOTE_MAJOR_LABEL.findIndex((element) => element === keyFormation[i]);
+                const nextMajorNotePoint = calculateNoteCenter(nextNoteIndex, majorNoteRadius());
                 ctx.lineTo(nextMajorNotePoint.x, nextMajorNotePoint.y);
                 document.getElementById('GradeButton' + i).value = document.getElementById('GradeButton' + i).value.toUpperCase();
             }
@@ -540,8 +542,8 @@ function changeKey() {
 ////////////////// CANVAS RENDERING ///////////////////////
 
 function intersects(x, y, cx, cy, r) {
-    var dx = x - cx;
-    var dy = y - cy;
+    const dx = x - cx;
+    const dy = y - cy;
     return dx * dx + dy * dy <= r * r;
 }
 
@@ -549,12 +551,12 @@ function calculateNoteCenter(noteIndex, radius) {
     //calculate note position based on angle
     //divide by 12, the possible notes based on noteindex[0,11]
     //use PI/2*3 to translate to canvas coordinates, where +y goes down
-    var noteAngle = ((((2 * Math.PI) / NUM_NOTES) * noteIndex) + Math.PI / 2 * 3);
+    const noteAngle = ((((2 * Math.PI) / NUM_NOTES) * noteIndex) + Math.PI / 2 * 3);
     //noteAngle= noteAngle / (noteAngle % Math.PI);
     //apply polar coordinates to calculate note position in the ring
     //add the canvas half to move the circle center in the center of canvas
-    var x = radius * Math.cos(noteAngle) + (canvas.width / 2);
-    var y = radius * Math.sin(noteAngle) + (canvas.width / 2);
+    const x = radius * Math.cos(noteAngle) + (canvas.width / 2);
+    const y = radius * Math.sin(noteAngle) + (canvas.width / 2);
     return {x, y};
 }
 
@@ -574,7 +576,7 @@ function dimRingRadius() {
 }
 
 function renderCircle() {
-    var ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d");
 
     //draw outer and inner circles
     ctx.beginPath();
@@ -592,11 +594,11 @@ function renderCircle() {
     //calculate circumference. divide by 4 parts
     //divide by 3 to get the 2 lines per quarter
     //divide by 2 to calculate delta from square center
-    var thirdDivisionDelta = (canvas.width * 3.14) / 4 / 3 / 2;
+    const thirdDivisionDelta = (canvas.width * 3.14) / 4 / 3 / 2;
     console.log("divDelta:" + thirdDivisionDelta);
     //apply delta to the square center
-    var point1 = canvas.width / 2 - thirdDivisionDelta;
-    var point2 = canvas.width / 2 + thirdDivisionDelta;
+    const point1 = canvas.width / 2 - thirdDivisionDelta;
+    const point2 = canvas.width / 2 + thirdDivisionDelta;
     console.log("point1:" + point1);
     //draw the note dividers
     ctx.beginPath();
@@ -630,16 +632,16 @@ function renderCircle() {
     ctx.stroke();
 
     //draw notes
-    for (var i = 0; i < noteCode.length; i++) {
-        for (var j = 0; j < noteCode[i].length; j++) {
+    for (let i = 0; i < noteCode.length; i++) {
+        for (let j = 0; j < noteCode[i].length; j++) {
             drawNoteIndex(j, i, calculateNoteColor(i, j));
         }
     }
 }
 
 function calculateNoteColor(i, j) {
-    var color = DISABLED_NOTE_COLOR;
-    var noteIndex = NOTE_CODE.findIndex((element) => element === noteCode[i][j]);
+    let color = DISABLED_NOTE_COLOR;
+    const noteIndex = NOTE_CODE.findIndex((element) => element === noteCode[i][j]);
     if (noteIndex > -1) {
         color = NOTE_COLOR[noteIndex];
     }
@@ -647,8 +649,8 @@ function calculateNoteColor(i, j) {
 }
 
 function calculateNoteColorByMidi(midiNote) {
-    var color = DISABLED_NOTE_COLOR;
-    var noteIndex = NOTE_CODE.findIndex((element) => element === midiNote);
+    let color = DISABLED_NOTE_COLOR;
+    const noteIndex = NOTE_CODE.findIndex((element) => element === midiNote);
     if (noteIndex > -1) {
         color = NOTE_COLOR[noteIndex];
     }
@@ -656,9 +658,9 @@ function calculateNoteColorByMidi(midiNote) {
 }
 
 function drawNoteWithRing(midiNote, ringLevel, color, chordNoteIndex) {
-    var noteDimIndex = findNoteIndex(midiNote, 2);
-    var noteMinorIndex = findNoteIndex(midiNote, 1);
-    var noteMajorIndex = findNoteIndex(midiNote, 0);
+    const noteDimIndex = findNoteIndex(midiNote, 2);
+    const noteMinorIndex = findNoteIndex(midiNote, 1);
+    const noteMajorIndex = findNoteIndex(midiNote, 0);
     drawNoteIndex(noteMajorIndex, 0, color);
     drawNoteIndex(noteMinorIndex, 1, color);
     drawNoteIndex(noteDimIndex, 2, color);
@@ -667,10 +669,10 @@ function drawNoteWithRing(midiNote, ringLevel, color, chordNoteIndex) {
 
 function calculateCenterWithRing(noteIndex, ringLevel) {
     var noteCenterPoint;
-    if (ringLevel == 0) {
+    if (ringLevel === 0) {
         noteCenterPoint = calculateNoteCenter(noteIndex, majorNoteRadius());
     } else {
-        if (ringLevel == 1) {
+        if (ringLevel === 1) {
             noteCenterPoint = calculateNoteCenter(noteIndex, innerRingRadius() - NOTE_MINOR_POSITION_DELTA);
         } else {
             noteCenterPoint = calculateNoteCenter(noteIndex, dimRingRadius() - NOTE_DIM_POSITION_DELTA);
@@ -680,8 +682,8 @@ function calculateCenterWithRing(noteIndex, ringLevel) {
 }
 
 function drawNoteIndex(noteIndex, ringLevel, style) {
-    var ctx = canvas.getContext("2d");
-    var noteCenterPoint = calculateCenterWithRing(noteIndex, ringLevel);
+    const ctx = canvas.getContext("2d");
+    const noteCenterPoint = calculateCenterWithRing(noteIndex, ringLevel);
     ctx.beginPath();
     ctx.fillStyle = style;
     ctx.arc(noteCenterPoint.x, noteCenterPoint.y, NOTE_CIRCLE_RADIUS[ringLevel], 0, 2 * Math.PI);
@@ -697,11 +699,7 @@ function drawNoteIndex(noteIndex, ringLevel, style) {
 }
 
 
-////////////////////// OSCILLATOR OUTPUT //////////////////////
-// create Oscillators node,
-const oscillatorArray = [];
-const gainArray = [];
-const A4_FREQ = 440;
+////////////////////// built-in midi OUTPUT //////////////////////
 
 // create web audio api context
 const audioCtx = new (window.AudioContext || window.webkitAudioContext);
@@ -760,9 +758,9 @@ function initMidi() {
 function onMIDISuccess(midiAccess) {
     console.log(midiAccess);
     outputs = midiAccess.outputs;
-    var midiOutputSelect = document.getElementById('midiOutputSelect');
-    for (var output of outputs.values()) {
-        var opt = document.createElement('option');
+    const midiOutputSelect = document.getElementById('midiOutputSelect');
+    for (let output of outputs.values()) {
+        const opt = document.createElement('option');
         opt.value = output.id;
         opt.innerHTML = output.name;
         midiOutputSelect.appendChild(opt);
@@ -771,7 +769,7 @@ function onMIDISuccess(midiAccess) {
 }
 
 function changeMidiOutput() {
-    var midiOutputSelect = document.getElementById('midiOutputSelect');
+    const midiOutputSelect = document.getElementById('midiOutputSelect');
     for (var output of outputs.values()) {
         if (output.id === midiOutputSelect.value) {
             midiOut = output;
