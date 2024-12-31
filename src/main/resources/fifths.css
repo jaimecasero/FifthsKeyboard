@@ -18,6 +18,14 @@
    background-color : #F3F3F3;
 }
 
+.diatonicClass{
+    box-shadow : '10px 10px 20px rgba(0, 0, 255, 0.5)';
+}
+
+.nonDiatonicClass {
+    box-shadow:'';
+}
+
 .disabledNoteClass {
    color:grey;
 }

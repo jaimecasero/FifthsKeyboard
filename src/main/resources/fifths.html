@@ -1,155 +1,181 @@
 <html lang="eng">
-<head >
-	<title>Circle Of Fifths Player</title>
+<head>
+    <title>Circle Of Fifths Player</title>
 
-	<!-- midi.js package -->
-	<script src="https://cdn.jsdelivr.net/npm/midi.js"></script>
-	<script src="fifths.js"></script>
-	<link rel="stylesheet" href="fifths.css">
+    <!-- midi.js package -->
+    <script src="https://cdn.jsdelivr.net/npm/midi.js"></script>
+    <script src="fifths.js"></script>
+    <link rel="stylesheet" href="fifths.css">
 
 </head>
 <body>
-  <form id="settingsForm">
+<form id="settingsForm">
 
-	<label for="outputSelect">Output:</label>
-	<select id="outputSelect" onchange="changeOutput();">
-	  <option value="0" selected="selected">oscillator</option>
-	  <option value="1">midi</option>
-	</select>
+    <label for="outputSelect">Output:</label>
+    <select id="outputSelect" onchange="changeOutput();">
+        <option value="0" selected="selected">oscillator</option>
+        <option value="1">midi</option>
+    </select>
 
-	  <label for="midiOutputSelect">Midi Device:</label>
-	  <select id="midiOutputSelect" onchange="changeMidiOutput();">
-	  </select>
+    <label for="midiOutputSelect">Midi Device:</label>
+    <select id="midiOutputSelect" onchange="changeMidiOutput();">
+    </select>
 
-	  <label for="midiChannelSelect">Midi Channel:</label>
-	  <select id="midiChannelSelect" onchange="changeMidiChannel();">
-		  <option selected="selected">0</option>
-		  <option>1</option>
-		  <option>2</option>
-		  <option>3</option>
-		  <option>4</option>
-		  <option>5</option>
-		  <option>6</option>
-		  <option>7</option>
-		  <option>8</option>
-		  <option>9</option>
-		  <option>10</option>
-		  <option>11</option>
-		  <option>12</option>
-		  <option>13</option>
-		  <option>14</option>
-		  <option>15</option>
-		  <option>16</option>
-	  </select>
+    <label for="midiChannelSelect">Midi Channel:</label>
+    <select id="midiChannelSelect" onchange="changeMidiChannel();">
+        <option selected="selected">0</option>
+        <option>1</option>
+        <option>2</option>
+        <option>3</option>
+        <option>4</option>
+        <option>5</option>
+        <option>6</option>
+        <option>7</option>
+        <option>8</option>
+        <option>9</option>
+        <option>10</option>
+        <option>11</option>
+        <option>12</option>
+        <option>13</option>
+        <option>14</option>
+        <option>15</option>
+        <option>16</option>
+    </select>
 
-	  <label for="gainSelect">Gain:</label>
-	  <select id="gainSelect" onchange="changeGain();">
-		  <option value="0.2">0.2</option>
-		  <option value="0.4">0.4</option>
-		  <option value="0.6">0.6</option>
-		  <option value="0.8" selected>0.8</option>
-		  <option value="1.0">1.0</option>
-	  </select>
-  
-	<BR><BR>
-	<label for="keySelect" >Key:</label>
-	<select id="keySelect" onchange="changeKey();">
-	   <option selected="selected">C</option>
-	   <option >C#</option>
-	   <option >D</option>
-	   <option >D#</option>
-	   <option >E</option>
-	   <option >F</option>
-	   <option >F#</option>
-	   <option >G</option>
-	   <option >G#</option>
-	   <option >A</option>
-	   <option >A#</option>
-	   <option >B</option>
-	  </select>
+    <label for="gainSelect">Gain:</label>
+    <select id="gainSelect" onchange="changeGain();">
+        <option value="0.2">0.2</option>
+        <option value="0.4">0.4</option>
+        <option value="0.6">0.6</option>
+        <option value="0.8" selected>0.8</option>
+        <option value="1.0">1.0</option>
+    </select>
 
-	  <label for="modeSelect">Mode:</label>
-	  <select id="modeSelect" onchange="changeKey();">
-		  <option value ="0" selected="selected">Ionian</option>
-		  <option value="1">Dorian</option>
-		  <option value="2">Phrygian</option>
-		  <option value="3">Lydian</option>
-		  <option value="4">Mixolydian</option>
-		  <option value="5">Aeolian</option>
-		  <option value="6">Locrian</option>
-	  </select>
+    <BR><BR>
+    <label for="keySelect">Key:</label>
+    <select id="keySelect" onchange="changeKey();">
+        <option selected="selected">C</option>
+        <option>C#</option>
+        <option>D</option>
+        <option>D#</option>
+        <option>E</option>
+        <option>F</option>
+        <option>F#</option>
+        <option>G</option>
+        <option>G#</option>
+        <option>A</option>
+        <option>A#</option>
+        <option>B</option>
+    </select>
 
-
+    <label for="modeSelect">Mode:</label>
+    <select id="modeSelect" onchange="changeKey();">
+        <option value="0" selected="selected">Ionian</option>
+        <option value="1">Dorian</option>
+        <option value="2">Phrygian</option>
+        <option value="3">Lydian</option>
+        <option value="4">Mixolydian</option>
+        <option value="5">Aeolian</option>
+        <option value="6">Locrian</option>
+    </select>
 
 
-  </form>
+</form>
 
 <canvas id="circleCanvas" width="600" height="600" onmousedown="canvasDown(event)" onmouseup="canvasUp(event)"></canvas>
 
 
 <form id="displayForm">
-	<label>Key Chord Grades:</label>
-	<BR>
-	<input type="button" id="GradeButton0" name="scaleButton" value="I" onpointerdown="chordDown(event, 0)" onpointerup="chordUp(event, 0)">
-	<input type="button" id="GradeButton1" name="scaleButton" value="II" onpointerdown="chordDown(event, 1)" onpointerup="chordUp(event, 1)">
-	<input type="button" id="GradeButton2" name="scaleButton" value="III" onpointerdown="chordDown(event, 2)" onpointerup="chordUp(event, 2)">
-	<input type="button" id="GradeButton3" name="scaleButton" value="IV" onpointerdown="chordDown(event, 3)" onpointerup="chordUp(event, 3)">
-	<input type="button" id="GradeButton4" name="scaleButton" value="V" onpointerdown="chordDown(event, 4)" onpointerup="chordUp(event, 4)">
-	<input type="button" id="GradeButton5" name="scaleButton" value="VI" onpointerdown="chordDown(event, 5)" onpointerup="chordUp(event, 5)">
-	<input type="button" id="GradeButton6" name="scaleButton" value="VII" onpointerdown="chordDown(event, 6)" onpointerup="chordUp(event, 6)">
+    <label>Key Chord Grades:</label>
+    <BR>
+    <input type="button" id="GradeButton0" name="scaleButton" value="I" onpointerdown="chordDown(event, 0)"
+           onpointerup="chordUp(event, 0)">
+    <input type="button" id="GradeButton1" name="scaleButton" value="II" onpointerdown="chordDown(event, 1)"
+           onpointerup="chordUp(event, 1)">
+    <input type="button" id="GradeButton2" name="scaleButton" value="III" onpointerdown="chordDown(event, 2)"
+           onpointerup="chordUp(event, 2)">
+    <input type="button" id="GradeButton3" name="scaleButton" value="IV" onpointerdown="chordDown(event, 3)"
+           onpointerup="chordUp(event, 3)">
+    <input type="button" id="GradeButton4" name="scaleButton" value="V" onpointerdown="chordDown(event, 4)"
+           onpointerup="chordUp(event, 4)">
+    <input type="button" id="GradeButton5" name="scaleButton" value="VI" onpointerdown="chordDown(event, 5)"
+           onpointerup="chordUp(event, 5)">
+    <input type="button" id="GradeButton6" name="scaleButton" value="VII" onpointerdown="chordDown(event, 6)"
+           onpointerup="chordUp(event, 6)">
 
-	<BR>	<BR>
-	<label>Chord Modifiers:</label>
-	<BR>
-	<input type="radio" id="chordNoMod" name="chordModifierRadio" value="noMod" onmousedown="resetChordModifier()" ><label for="chordNoMod">noMod</label>
-	<BR>
-	<input type="radio" id="chordMod0" name="chordModifierRadio" value="sus2" class="chordModClass" onmousedown="changeChordModifier(SUS2_FORMULA)" ><label for="chordMod0">sus2</label>
-	<input type="radio" id="chordMod1" name="chordModifierRadio" value="b3" onmousedown="changeChordModifier(B3_FORMULA)" ><label for="chordMod1">b3</label>
-	<input type="radio" id="chordMod2" name="chordModifierRadio" value="sus4" onmousedown="changeChordModifier(SUS4_FORMULA)" ><label for="chordMod2">sus4</label>
-	<BR>
-	<input type="radio" id="chordMod3" name="chordModifierRadio" value="b5" onmousedown="changeChordModifier(B5_FORMULA)" ><label for="chordMod3">b5</label>
-	<input type="radio" id="chordMod4" name="chordModifierRadio" value="aug" onmousedown="changeChordModifier(AUG_FORMULA)" ><label for="chordMod4">aug</label>
+    <BR> <BR>
+    <label>Chord Modifiers:</label>
+    <BR>
+    <input type="radio" id="chordNoMod" name="chordModifierRadio" value="noMod"
+           onmousedown="resetChordModifier()"><label for="chordNoMod">noMod</label>
+    <BR>
+    <input type="radio" id="chordMod0" name="chordModifierRadio" value="sus2" class="chordModClass"
+           onmousedown="changeChordModifier(SUS2_FORMULA)"><label for="chordMod0">sus2</label>
+    <input type="radio" id="chordMod1" name="chordModifierRadio" value="b3"
+           onmousedown="changeChordModifier(B3_FORMULA)"><label for="chordMod1">b3</label>
+    <input type="radio" id="chordMod2" name="chordModifierRadio" value="sus4"
+           onmousedown="changeChordModifier(SUS4_FORMULA)"><label for="chordMod2">sus4</label>
+    <BR>
+    <input type="radio" id="chordMod3" name="chordModifierRadio" value="b5"
+           onmousedown="changeChordModifier(B5_FORMULA)"><label for="chordMod3">b5</label>
+    <input type="radio" id="chordMod4" name="chordModifierRadio" value="aug"
+           onmousedown="changeChordModifier(AUG_FORMULA)"><label for="chordMod4">aug</label>
 
-	<input type="radio" id="chordMod5" name="chordModifierRadio" value="7" onmousedown="changeChordModifier(EXT_7_FORMULA)" ><label for="chordMod5">7</label>
-	<input type="radio" id="chordMod6" name="chordModifierRadio" value="Maj7" onmousedown="changeChordModifier(EXT_MAJ7_FORMULA)" ><label for="chordMod6">Maj7</label>
-	<BR>
-	<input type="radio" id="chordMod7" name="chordModifierRadio" value="b9" onmousedown="changeChordModifier(EXT_B9_FORMULA)" ><label for="chordMod7">b9</label>
-	<input type="radio" id="chordMod8" name="chordModifierRadio" value="9" onmousedown="changeChordModifier(EXT_9_FORMULA)" ><label for="chordMod8">9</label>
-	<input type="radio" id="chordMod9" name="chordModifierRadio" value="11" onmousedown="changeChordModifier(EXT_11_FORMULA)" ><label for="chordMod9">11</label>
-	<input type="radio" id="chordMod10" name="chordModifierRadio" value="#11" onmousedown="changeChordModifier(EXT_MAJ11_FORMULA)" ><label for="chordMod10">#11</label>
-	<input type="radio" id="chordMod11" name="chordModifierRadio" value="b13" onmousedown="changeChordModifier(EXT_B13_FORMULA)" ><label for="chordMod11">b13</label>
-	<input type="radio" id="chordMod12" name="chordModifierRadio" value="13" onmousedown="changeChordModifier(EXT_13_FORMULA)" ><label for="chordMod12">13</label>
+    <input type="radio" id="chordMod5" name="chordModifierRadio" value="7"
+           onmousedown="changeChordModifier(EXT_7_FORMULA)"><label for="chordMod5">7</label>
+    <input type="radio" id="chordMod6" name="chordModifierRadio" value="Maj7"
+           onmousedown="changeChordModifier(EXT_MAJ7_FORMULA)"><label for="chordMod6">Maj7</label>
+    <BR>
+    <input type="radio" id="chordMod7" name="chordModifierRadio" value="b9"
+           onmousedown="changeChordModifier(EXT_B9_FORMULA)"><label for="chordMod7">b9</label>
+    <input type="radio" id="chordMod8" name="chordModifierRadio" value="9"
+           onmousedown="changeChordModifier(EXT_9_FORMULA)"><label for="chordMod8">9</label>
+    <input type="radio" id="chordMod9" name="chordModifierRadio" value="11"
+           onmousedown="changeChordModifier(EXT_11_FORMULA)"><label for="chordMod9">11</label>
+    <input type="radio" id="chordMod10" name="chordModifierRadio" value="#11"
+           onmousedown="changeChordModifier(EXT_MAJ11_FORMULA)"><label for="chordMod10">#11</label>
+    <input type="radio" id="chordMod11" name="chordModifierRadio" value="b13"
+           onmousedown="changeChordModifier(EXT_B13_FORMULA)"><label for="chordMod11">b13</label>
+    <input type="radio" id="chordMod12" name="chordModifierRadio" value="13"
+           onmousedown="changeChordModifier(EXT_13_FORMULA)"><label for="chordMod12">13</label>
 
-	<BR>
+    <BR>
 
-	<label>Octave:</label>
-	<BR>
-	<input type="radio" id="octave1" name="octaveSelect" value="1" onchange="changeOctave();"><label for="octave1">1</label>
-	<input type="radio" id="octave2" name="octaveSelect" value="2" onchange="changeOctave();"><label for="octave2">2</label>
-	<input type="radio" id="octave3" name="octaveSelect" value="3" onchange="changeOctave();" checked><label for="octave3">3</label>
-	<input type="radio" id="octave4" name="octaveSelect" value="4" onchange="changeOctave();"><label for="octave4">4</label>
-	<input type="radio" id="octave5" name="octaveSelect" value="5" onchange="changeOctave();"><label for="octave5">5</label>
-	<input type="radio" id="octave6" name="octaveSelect" value="6" onchange="changeOctave();"><label for="octave6">6</label>
-	<input type="radio" id="octave7" name="octaveSelect" value="7" onchange="changeOctave();"><label for="octave7">7</label>
+    <label>Octave:</label>
+    <BR>
+    <input type="radio" id="octave1" name="octaveSelect" value="1" onchange="changeOctave();"><label
+        for="octave1">1</label>
+    <input type="radio" id="octave2" name="octaveSelect" value="2" onchange="changeOctave();"><label
+        for="octave2">2</label>
+    <input type="radio" id="octave3" name="octaveSelect" value="3" onchange="changeOctave();" checked><label
+        for="octave3">3</label>
+    <input type="radio" id="octave4" name="octaveSelect" value="4" onchange="changeOctave();"><label
+        for="octave4">4</label>
+    <input type="radio" id="octave5" name="octaveSelect" value="5" onchange="changeOctave();"><label
+        for="octave5">5</label>
+    <input type="radio" id="octave6" name="octaveSelect" value="6" onchange="changeOctave();"><label
+        for="octave6">6</label>
+    <input type="radio" id="octave7" name="octaveSelect" value="7" onchange="changeOctave();"><label
+        for="octave7">7</label>
 
-	<BR>	<BR>	<BR>
+    <BR> <BR> <BR>
 
 
-	<BR>
-	<label for="diatonicCheck">Diatonic:</label>
-	<input type="checkbox" id="diatonicCheck" readonly>
-	<BR>
-	<label for="chordText">Chord:</label>
-	<input type="text" id="chordText" readonly>
-	<BR>
-	<label for="noteText">Notes:</label>
-	<input type="text" id="noteText" readonly>
-	<BR>
-	<label for="intervalNotationText">Interval Formula:</label>
-	<input type="text" id="intervalNotationText" readonly>
-	<BR>
-	<label for="integerNotationText">Integer Formula:</label>
-	<input type="text" id="integerNotationText" readonly>
+    <BR>
+    <label for="diatonicCheck">Diatonic:</label>
+    <input type="checkbox" id="diatonicCheck" readonly>
+    <BR>
+    <label for="chordText">Chord:</label>
+    <input type="text" id="chordText" readonly>
+    <BR>
+    <label for="noteText">Notes:</label>
+    <input type="text" id="noteText" readonly>
+    <BR>
+    <label for="intervalNotationText">Interval Formula:</label>
+    <input type="text" id="intervalNotationText" readonly>
+    <BR>
+    <label for="integerNotationText">Integer Formula:</label>
+    <input type="text" id="integerNotationText" readonly>
 
 </form>
 
