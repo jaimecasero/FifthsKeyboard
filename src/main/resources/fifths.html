@@ -12,7 +12,7 @@
 <form id="settingsForm">
 
     <label for="outputSelect">Output:</label>
-    <select id="outputSelect" onchange="changeOutput();">
+    <select id="outputSelect" onchange="changeOutput(this.value);">
         <option value="0" selected="selected">midi</option>
         <option value="1">ext midi</option>
     </select>
@@ -43,7 +43,7 @@
     </select>
 
     <label for="gainSelect">Gain:</label>
-    <select id="gainSelect" onchange="changeGain();">
+    <select id="gainSelect">
         <option value="0.2">0.2</option>
         <option value="0.4">0.4</option>
         <option value="0.6">0.6</option>
@@ -143,19 +143,19 @@
 
     <label>Octave:</label>
     <BR>
-    <input type="radio" id="octave1" name="octaveSelect" value="1" onchange="changeOctave();"><label
+    <input type="radio" id="octave1" name="octaveSelect" value="1" onchange="changeOctave(this.value);"><label
         for="octave1">1</label>
-    <input type="radio" id="octave2" name="octaveSelect" value="2" onchange="changeOctave();"><label
+    <input type="radio" id="octave2" name="octaveSelect" value="2" onchange="changeOctave(this.value);"><label
         for="octave2">2</label>
-    <input type="radio" id="octave3" name="octaveSelect" value="3" onchange="changeOctave();" checked><label
+    <input type="radio" id="octave3" name="octaveSelect" value="3" onchange="changeOctave(this.value);" checked><label
         for="octave3">3</label>
-    <input type="radio" id="octave4" name="octaveSelect" value="4" onchange="changeOctave();"><label
+    <input type="radio" id="octave4" name="octaveSelect" value="4" onchange="changeOctave(this.value);"><label
         for="octave4">4</label>
-    <input type="radio" id="octave5" name="octaveSelect" value="5" onchange="changeOctave();"><label
+    <input type="radio" id="octave5" name="octaveSelect" value="5" onchange="changeOctave(this.value);"><label
         for="octave5">5</label>
-    <input type="radio" id="octave6" name="octaveSelect" value="6" onchange="changeOctave();"><label
+    <input type="radio" id="octave6" name="octaveSelect" value="6" onchange="changeOctave(this.value);"><label
         for="octave6">6</label>
-    <input type="radio" id="octave7" name="octaveSelect" value="7" onchange="changeOctave();"><label
+    <input type="radio" id="octave7" name="octaveSelect" value="7" onchange="changeOctave(this.value);"><label
         for="octave7">7</label>
 
     <BR> <BR> <BR>

@@ -475,22 +475,17 @@ function up(midiNote, ringLevel) {
 
 
 //////////////////////////// CONFIGURATION ////////////////////////////
-function changeOutput() {
-    const selectedOutput = document.getElementById('outputSelect').value;
-    if (selectedOutput === "0") {
+function changeOutput(outputMode) {
+    if (changeOutput === "0") {
     } else {
         initMidi();
     }
 }
 
-function changeOctave() {
-    octave = document.querySelector('input[name="octaveSelect"]:checked').value;
+function changeOctave(newValue) {
+    octave = newValue;
 }
 
-function changeGain() {
-    const notePressGain = document.getElementById('gainSelect').value;
-    console.log("new gain:" + notePressGain);
-}
 
 function changeKey() {
     const selectedKey = document.getElementById('keySelect').value;
@@ -740,7 +735,7 @@ function playOscillatorNoteOff(adjustedMidiNote) {
 /////////////////////////////Ext MIDI OUTPUT///////////1///////////
 const NOTE_ON = 0x90;
 const NOTE_OFF = 0x80;
-var outputs;
+var extMidiOutput;
 var midiOut;
 var midiVelocity = 127;
 var midiChannel = 0;
@@ -759,9 +754,9 @@ function changeMidiChannel(channel) {
 
 function onMIDISuccess(midiAccess) {
     console.log(midiAccess);
-    outputs = midiAccess.outputs;
+    extMidiOutput = midiAccess.outputs;
     const midiOutputSelect = document.getElementById('midiOutputSelect');
-    for (let output of outputs.values()) {
+    for (let output of extMidiOutput.values()) {
         const opt = document.createElement('option');
         opt.value = output.id;
         opt.innerHTML = output.name;
@@ -772,7 +767,7 @@ function onMIDISuccess(midiAccess) {
 
 function changeMidiOutput() {
     const midiOutputSelect = document.getElementById('midiOutputSelect');
-    for (let output of outputs.values()) {
+    for (let output of extMidiOutput.values()) {
         if (output.id === midiOutputSelect.value) {
             midiOut = output;
             break;
