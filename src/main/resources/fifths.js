@@ -83,7 +83,7 @@ var keyNoteFormation = [];
 var chordModifier = [0, 0, 0, 0]
 
 function normalizeMidiNote(midiNote) {
-    var normalizedMidiNote = midiNote;
+    let normalizedMidiNote = midiNote;
 
     while (normalizedMidiNote > 23) {
         //we work assuming octave is 1, this note went beyond this, so we need normalization
@@ -201,7 +201,7 @@ var shiftPressed = false;
 
 function keyDownHandler(event) {
     let keyPressed = String.fromCharCode(event.keyCode);
-    if (event.keyCode == 16) {
+    if (event.keyCode === 16) {
         shiftPressed = true;
     }
     if (event.keyCode >= 48 && event.keyCode <= 57) {
@@ -237,7 +237,7 @@ function keyDownHandler(event) {
 
 function keyUpHandler(event) {
     let keyPressed = String.fromCharCode(event.keyCode);
-    if (event.keyCode == 16) {
+    if (event.keyCode === 16) {
         shiftPressed = false;
     }
     if (event.keyCode >= 48 && event.keyCode <= 57) {
@@ -252,7 +252,7 @@ function keyUpHandler(event) {
     }
     const noteIndex = NOTE_MAJOR_LABEL.findIndex((element) => element === keyPressed);
     if (noteIndex > -1) {
-        var ring = 0;
+        let ring = 0;
         if (event.shiftKey) {
             ring = 0;
         }
@@ -364,7 +364,7 @@ function highlightDiatonicMods(midiNote, ringLevel) {
     for (let i = 0; i < CHORD_MOD_ARR.length; i++) {
         const chordModRadio = document.getElementById('chordMod' + i);
         let chordArray = [];
-        for (j = 0; j < 4; j++) {
+        for (let j = 0; j < 4; j++) {
             const midiNoteDelta = calculateNoteDeltaNoMod(midiNote, ringLevel, j) + CHORD_MOD_ARR[i][j];
             const adjustedMidiNote = midiNote + midiNoteDelta;
             const normNote = normalizeMidiNote(adjustedMidiNote)
@@ -460,8 +460,7 @@ function up(midiNote, ringLevel) {
         midiNoteDelta = calculateNoteDelta(midiNote, ringLevel, i);
         const color = calculateNoteColorByMidi(normalizeMidiNote(midiNote + midiNoteDelta));
         drawNoteWithRing(midiNote + midiNoteDelta, ringLevel, color, i);
-        const octaveSelectVal = octave;
-        midiNoteDelta = midiNote + midiNoteDelta + octaveSelectVal * 12;
+        midiNoteDelta = midiNote + midiNoteDelta + octave * 12;
         if (outputSelect.value === "0") {
             playOscillatorNoteOff(midiNoteDelta);
         }
@@ -489,8 +488,7 @@ function changeOctave() {
 }
 
 function changeGain() {
-    const keyMode = document.getElementById('gainSelect').value;
-    notePressGain = keyMode;
+    const notePressGain = document.getElementById('gainSelect').value;
     console.log("new gain:" + notePressGain);
 }
 
@@ -668,7 +666,7 @@ function drawNoteWithRing(midiNote, ringLevel, color, chordNoteIndex) {
 
 
 function calculateCenterWithRing(noteIndex, ringLevel) {
-    var noteCenterPoint;
+    let noteCenterPoint;
     if (ringLevel === 0) {
         noteCenterPoint = calculateNoteCenter(noteIndex, majorNoteRadius());
     } else {
@@ -770,7 +768,7 @@ function onMIDISuccess(midiAccess) {
 
 function changeMidiOutput() {
     const midiOutputSelect = document.getElementById('midiOutputSelect');
-    for (var output of outputs.values()) {
+    for (let output of outputs.values()) {
         if (output.id === midiOutputSelect.value) {
             midiOut = output;
             break;
