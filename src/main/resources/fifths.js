@@ -356,7 +356,7 @@ function isDiatonic(chordArray) {
 function resetMods(midiNote, ringLevel) {
     for (let i = 0; i < CHORD_MOD_ARR.length; i++) {
         const chordModRadio = document.getElementById('chordMod' + i);
-        chordModRadio.style.boxShadow = '';
+        chordModRadio.className = 'noDiatonicClass';
     }
 }
 
@@ -373,7 +373,7 @@ function highlightDiatonicMods(midiNote, ringLevel) {
 
         }
         if (isDiatonic(chordArray)) {
-            chordModRadio.style.boxShadow = '10px 10px 20px rgba(0, 0, 255, 0.5)';
+            chordModRadio.className = 'diatonicClass';
         }
     }
 }
@@ -737,7 +737,7 @@ function playOscillatorNoteOff(adjustedMidiNote) {
     MIDI.noteOff(0, adjustedMidiNote, 0);
 }
 
-/////////////////////////////MIDI OUTPUT//////////////////////
+/////////////////////////////Ext MIDI OUTPUT///////////1///////////
 const NOTE_ON = 0x90;
 const NOTE_OFF = 0x80;
 var outputs;
@@ -751,6 +751,10 @@ function initMidi() {
     } else {
         console.log("no midi support");
     }
+}
+
+function changeMidiChannel(channel) {
+    midiChannel = channel;
 }
 
 function onMIDISuccess(midiAccess) {
@@ -778,12 +782,12 @@ function changeMidiOutput() {
 
 function playMidiNote(midiNote, force) {
     console.log("turn on:" + midiNote);
-    midiOut.send([NOTE_ON, midiNote, midiVelocity * force]);
+    midiOut.send([NOTE_ON | midiChannel, midiNote, midiVelocity * force]);
 }
 
 function playMidiNoteOff(midiNote) {
     console.log("turn off:" + midiNote);
-    midiOut.send([NOTE_OFF, midiNote, midiVelocity]);
+    midiOut.send([NOTE_OFF | midiChannel, midiNote, midiVelocity]);
 }
 
 function onMIDIFailure() {
