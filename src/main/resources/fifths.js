@@ -49,8 +49,8 @@ const NOTE_DIM_CODE = [23, 18, 13, 20, 15, 22, 17, 12, 19, 14, 21, 16];
 const NOTE_DIM_CIRCLE_RADIUS = 20;
 const NOTE_DIM_POSITION_DELTA = 30;
 
-const noteLabel = [NOTE_MAJOR_LABEL, NOTE_MINOR_LABEL, NOTE_DIM_LABEL];
-const noteCode = [NOTE_MAJOR_CODE, NOTE_MINOR_CODE, NOTE_DIM_CODE];
+const NOTE_CIRCLE_LABEL = [NOTE_MAJOR_LABEL, NOTE_MINOR_LABEL, NOTE_DIM_LABEL];
+const NOTE_CIRCLE_CODE = [NOTE_MAJOR_CODE, NOTE_MINOR_CODE, NOTE_DIM_CODE];
 const NOTE_CIRCLE_RADIUS = [NOTE_MAJOR_CIRCLE_RADIUS, NOTE_MINOR_CIRCLE_RADIUS, NOTE_DIM_CIRCLE_RADIUS];
 
 
@@ -75,10 +75,10 @@ const TONIC_COLOR = '#FFFFFF';
 const DOMINANT_COLOR = '#F6F6F6';
 const SUBDOMINANT_COLOR = '#F9F9F9';
 const FORTH_COLOR = '#F3F3F3';
-const keyLineColor = 'red';
+const KEY_LINE_COLOR = 'red';
 const NOTE_CHORD_COLOR = [TONIC_COLOR, SUBDOMINANT_COLOR, DOMINANT_COLOR, FORTH_COLOR];
 var octave = 3;
-var notePressGain = 0.8;//the gain applied when note is pressed
+const KEYBOARD_GAIN = 0.8;//the gain applied when note is pressed
 var keyFormation = [];
 var keyNoteFormation = [];
 var chordModifier = [0, 0, 0, 0]
@@ -95,7 +95,7 @@ function normalizeMidiNote(midiNote) {
 
 function findNoteIndex(midiNote, ringLevel) {
     const normalizedMidiNote = normalizeMidiNote(midiNote);
-    return noteCode[ringLevel].findIndex((element) => element === normalizedMidiNote);
+    return NOTE_CIRCLE_CODE[ringLevel].findIndex((element) => element === normalizedMidiNote);
 }
 
 
@@ -231,7 +231,7 @@ function keyDownHandler(event) {
             ring = 2;
         }
 
-        down(NOTE_MAJOR_CODE[noteIndex], ring, notePressGain);
+        down(NOTE_MAJOR_CODE[noteIndex], ring, KEYBOARD_GAIN);
     } else {
     }
 }
@@ -281,12 +281,12 @@ function resetChordModifier() {
 function chordDown(event, grade) {
     //find grade in current key, and search note code.
     const notePressed = keyFormation[grade];
-    const pressure = ((event.pressure == null) ? 0.5 : event.pressure);
-    for (let i = 0; i < noteLabel.length; i++) {
-        const noteIndex = noteLabel[i].findIndex((element) => element === notePressed);
+    const pressure = ((event.pressure == null) ? KEYBOARD_GAIN : event.pressure);
+    for (let i = 0; i < NOTE_CIRCLE_LABEL.length; i++) {
+        const noteIndex = NOTE_CIRCLE_LABEL[i].findIndex((element) => element === notePressed);
         if (noteIndex > -1) {
-            console.log("root note:" + noteCode[i][noteIndex]);
-            down(noteCode[i][noteIndex], i, pressure);
+            console.log("root note:" + NOTE_CIRCLE_CODE[i][noteIndex]);
+            down(NOTE_CIRCLE_CODE[i][noteIndex], i, pressure);
             break;
         }
     }
@@ -300,11 +300,11 @@ function chordUp(event, grade) {
     const notePressed = keyFormation[grade];
 
     console.log("chordup:" + notePressed);
-    for (let i = 0; i < noteLabel.length; i++) {
-        const noteIndex = noteLabel[i].findIndex((element) => element === notePressed);
+    for (let i = 0; i < NOTE_CIRCLE_LABEL.length; i++) {
+        const noteIndex = NOTE_CIRCLE_LABEL[i].findIndex((element) => element === notePressed);
         if (noteIndex > -1) {
-            console.log("chordup:" + noteCode[i][noteIndex]);
-            up(noteCode[i][noteIndex], i);
+            console.log("chordup:" + NOTE_CIRCLE_CODE[i][noteIndex]);
+            up(NOTE_CIRCLE_CODE[i][noteIndex], i);
         }
     }
 }
@@ -317,11 +317,11 @@ function canvasDown(e) {
 
 function canvasDownXY(x, y, force) {
     console.log("down:" + x + "," + y);
-    for (let i = 0; i < noteCode.length; i++) {
-        for (let j = 0; j < noteCode[i].length; j++) {
+    for (let i = 0; i < NOTE_CIRCLE_CODE.length; i++) {
+        for (let j = 0; j < NOTE_CIRCLE_CODE[i].length; j++) {
             const noteCenterPoint = calculateCenterWithRing(j, i);
             if (intersects(x, y, noteCenterPoint.x, noteCenterPoint.y, NOTE_CIRCLE_RADIUS[i])) {
-                down(noteCode[i][j], i, force);
+                down(NOTE_CIRCLE_CODE[i][j], i, force);
                 break;//note found no need to go on
             }
         }
@@ -333,11 +333,11 @@ function canvasUp(e) {
 }
 
 function canvasUpXY(x, y) {
-    for (let i = 0; i < noteCode.length; i++) {
-        for (let j = 0; j < noteCode[i].length; j++) {
+    for (let i = 0; i < NOTE_CIRCLE_CODE.length; i++) {
+        for (let j = 0; j < NOTE_CIRCLE_CODE[i].length; j++) {
             const noteCenterPoint = calculateCenterWithRing(j, i);
             if (intersects(x, y, noteCenterPoint.x, noteCenterPoint.y, NOTE_CIRCLE_RADIUS[i])) {
-                up(noteCode[i][j], i);
+                up(NOTE_CIRCLE_CODE[i][j], i);
                 break;
             }
         }
@@ -495,12 +495,12 @@ function changeKey() {
     const ringLevel = KEY_MODE_ROOT_RING[keyMode];
     //clear all canvas to remove previous key lines
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const rootCircleIndex = noteLabel[ringLevel].findIndex((element) => element === (selectedKey + KEY_MODE_ROOT_NOTATION[keyMode]));
+    const rootCircleIndex = NOTE_CIRCLE_LABEL[ringLevel].findIndex((element) => element === (selectedKey + KEY_MODE_ROOT_NOTATION[keyMode]));
     const rootIndex = NOTE_LABEL.findIndex((element) => element === selectedKey);
     keyFormation = generateKeyChordArray(rootIndex, keyMode);
     keyNoteFormation = generateKeyNoteArray(rootIndex, keyMode);
     console.log("selectedKey:" + keyFormation);
-    ctx.strokeStyle = keyLineColor;
+    ctx.strokeStyle = KEY_LINE_COLOR;
     const tonicPoint = calculateCenterWithRing(rootCircleIndex, ringLevel);
     for (let i = 0; i < keyFormation.length; i++) {
         document.getElementById('GradeButton' + i).value = document.getElementById('GradeButton' + i).value.replace(DIM_NOTATION, '');
@@ -626,8 +626,8 @@ function renderCircle() {
     ctx.stroke();
 
     //draw notes
-    for (let i = 0; i < noteCode.length; i++) {
-        for (let j = 0; j < noteCode[i].length; j++) {
+    for (let i = 0; i < NOTE_CIRCLE_CODE.length; i++) {
+        for (let j = 0; j < NOTE_CIRCLE_CODE[i].length; j++) {
             drawNoteIndex(j, i, calculateNoteColor(i, j));
         }
     }
@@ -635,7 +635,7 @@ function renderCircle() {
 
 function calculateNoteColor(i, j) {
     let color = DISABLED_NOTE_COLOR;
-    const noteIndex = NOTE_CODE.findIndex((element) => element === noteCode[i][j]);
+    const noteIndex = NOTE_CODE.findIndex((element) => element === NOTE_CIRCLE_CODE[i][j]);
     if (noteIndex > -1) {
         color = NOTE_COLOR[noteIndex];
     }
@@ -687,7 +687,7 @@ function drawNoteIndex(noteIndex, ringLevel, style) {
     ctx.fillStyle = 'black';
     ctx.font = "25px Arial";
     //make coordinate correction so text is centered in the circle
-    ctx.fillText(noteLabel[ringLevel][noteIndex], noteCenterPoint.x - 20, noteCenterPoint.y + 10);
+    ctx.fillText(NOTE_CIRCLE_LABEL[ringLevel][noteIndex], noteCenterPoint.x - 20, noteCenterPoint.y + 10);
 
 
 }
