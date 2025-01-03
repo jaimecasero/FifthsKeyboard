@@ -78,7 +78,7 @@ const FORTH_COLOR = '#F3F3F3';
 const KEY_LINE_COLOR = 'red';
 const NOTE_CHORD_COLOR = [TONIC_COLOR, SUBDOMINANT_COLOR, DOMINANT_COLOR, FORTH_COLOR];
 var octave = 3;
-const KEYBOARD_GAIN = 0.8;//the gain applied when note is pressed
+const KEYBOARD_GAIN = 0.5;//the gain applied when note is pressed
 var keyFormation = [];
 var keyNoteFormation = [];
 var chordModifier = [0, 0, 0, 0]
@@ -282,6 +282,7 @@ function chordDown(event, grade) {
     //find grade in current key, and search note code.
     const notePressed = keyFormation[grade];
     const pressure = ((event.pressure == null) ? KEYBOARD_GAIN : event.pressure);
+    console.log("pressure:" + pressure);
     for (let i = 0; i < NOTE_CIRCLE_LABEL.length; i++) {
         const noteIndex = NOTE_CIRCLE_LABEL[i].findIndex((element) => element === notePressed);
         if (noteIndex > -1) {
@@ -346,11 +347,11 @@ function canvasUpXY(x, y) {
 
 
 function isDiatonic(chordArray) {
-    console.log("isDiatonic:" + chordArray)
     let diatonic = true;
     for (let i = 0; i < chordArray.length; i++) {
         diatonic = diatonic && keyNoteFormation.indexOf(chordArray[i]) > -1;
     }
+    console.log("isDiatonic:" + chordArray + diatonic);
     return diatonic;
 }
 
@@ -386,6 +387,7 @@ function down(midiNote, ringLevel, force) {
     let midiNoteDelta = 0;
     let chordArray = [];
     for (let i = 0; i < 4; i++) {
+
         const separator = (i === 3) ? "" : CHORD_SEPARATOR;
 
         //calculate note delta depending on ringlevel
@@ -410,6 +412,10 @@ function down(midiNote, ringLevel, force) {
 
         drawNoteWithRing(adjustedMidiNote, ringLevel, NOTE_CHORD_COLOR[i], i);
 
+        if (force !== KEYBOARD_GAIN) {
+            //event from screen is single note
+            break;
+        }
     }
     highlightDiatonicMods(midiNote, ringLevel);
     diatonicCheck.checked = isDiatonic(chordArray);
