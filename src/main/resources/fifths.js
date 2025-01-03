@@ -412,10 +412,7 @@ function down(midiNote, ringLevel, force) {
 
         drawNoteWithRing(adjustedMidiNote, ringLevel, NOTE_CHORD_COLOR[i], i);
 
-        if (force !== KEYBOARD_GAIN) {
-            //event from screen is single note
-            break;
-        }
+        
     }
     highlightDiatonicMods(midiNote, ringLevel);
     diatonicCheck.checked = isDiatonic(chordArray);
