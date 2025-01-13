@@ -53,7 +53,8 @@ const NOTE_CIRCLE_LABEL = [NOTE_MAJOR_LABEL, NOTE_MINOR_LABEL, NOTE_DIM_LABEL];
 const NOTE_CIRCLE_CODE = [NOTE_MAJOR_CODE, NOTE_MINOR_CODE, NOTE_DIM_CODE];
 const NOTE_CIRCLE_RADIUS = [NOTE_MAJOR_CIRCLE_RADIUS, NOTE_MINOR_CIRCLE_RADIUS, NOTE_DIM_CIRCLE_RADIUS];
 
-
+const FIRST_INVERSION_FORMULA = [0, -12, 0,0];
+const SECOND_INVERSION_FORMULA = [0, -0, -12,0];
 const SUS2_FORMULA = [0, -2, 0, 0];
 const B3_FORMULA = [0, -1, 0, 0];
 const SUS4_FORMULA = [0, 1, 0, 0];
@@ -714,6 +715,9 @@ function initOscillators() {
         onsuccess: () => {
             console.log("MIDI.js loaded");
         },
+        onerror: (e) => {
+            window.alert("browser not supported. Use Chrome:" + e.message);
+        }
     });
 
 }
