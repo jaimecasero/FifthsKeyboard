@@ -1,22 +1,4 @@
-.firstNoteClass {
-   background-color : #FFFFFF;
-}
 
-.secondNoteClass {
-   background-color : #F9F9F9;
-}
-
-.chordModClass {
-
-}
-
-.thirdNoteClass {
-   background-color : #F6F6F6;
-}
-
-.forthNoteClass {
-   background-color : #F3F3F3;
-}
 
 .diatonicClass{
     box-shadow : 10px 10px 20px rgba(0, 0, 255, 0.5);

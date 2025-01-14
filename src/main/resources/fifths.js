@@ -11,6 +11,8 @@ const INTEGER_2_INTERVAL = ['1', 'b2', '2', 'b3', '3', 'p4', '#4/b5', 'p5', 'b6'
 const NOTE_LABEL = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 const NOTE_CODE = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
 const NOTE_COLOR = ['#FF3333', '#33FF8D', '#FF8A33', '#3358FF', '#FFFC33', '#FF33C1', '#33FF33', '#FF6133', '#33FCFF', '#FFB233', '#A833FF', '#93FF33'];
+const NOTE_NATURAL_ART_COLOR = ['white', 'grey', 'white', 'grey', 'white', 'white', 'grey', 'white', 'grey', 'white', 'grey', 'white'];
+
 
 const KEY_MODE_ROOT_RING = [0, 1, 1, 0, 0, 1, 2];
 const KEY_MODE_ROOT_NOTATION = [MAJOR_NOTATION, MINOR_NOTATION, MINOR_NOTATION, MAJOR_NOTATION, MAJOR_NOTATION, MINOR_NOTATION, DIM_NOTATION];
@@ -72,10 +74,10 @@ const EXT_13_FORMULA = [0, 0, 0, 18];
 const CHORD_MOD_ARR = [SUS2_FORMULA, B3_FORMULA, SUS4_FORMULA, B5_FORMULA, AUG_FORMULA, EXT_7_FORMULA, EXT_MAJ7_FORMULA, EXT_B9_FORMULA, EXT_9_FORMULA, EXT_11_FORMULA, EXT_MAJ11_FORMULA, EXT_B13_FORMULA, EXT_13_FORMULA, EXT_6_FORMULA];
 
 const DISABLED_NOTE_COLOR = 'grey';
-const TONIC_COLOR = '#FFFFFF';
-const DOMINANT_COLOR = '#F6F6F6';
-const SUBDOMINANT_COLOR = '#F9F9F9';
-const FORTH_COLOR = '#F3F3F3';
+const TONIC_COLOR = '#00FF00';
+const DOMINANT_COLOR = '#006600';
+const SUBDOMINANT_COLOR = '#009900';
+const FORTH_COLOR = '#003300';
 const KEY_LINE_COLOR = 'red';
 const NOTE_CHORD_COLOR = [TONIC_COLOR, SUBDOMINANT_COLOR, DOMINANT_COLOR, FORTH_COLOR];
 var octave = 3;
@@ -387,6 +389,8 @@ function down(midiNote, ringLevel, force) {
 
     let midiNoteDelta = 0;
     let chordArray = [];
+    let integerNotation ="";
+    let intervalNotation = "";
     for (let i = 0; i < 4; i++) {
 
         const separator = (i === 3) ? "" : CHORD_SEPARATOR;
@@ -404,8 +408,8 @@ function down(midiNote, ringLevel, force) {
 
         //update all UI elements
 
-        integerNotationText.value = integerNotationText.value + midiNoteDelta + separator;
-        intervalNotationText.value = intervalNotationText.value + INTEGER_2_INTERVAL[midiNoteDelta] + separator;
+        integerNotation = integerNotation + midiNoteDelta + separator;
+        intervalNotation = intervalNotation + INTEGER_2_INTERVAL[midiNoteDelta] + separator;
         const normNote = normalizeMidiNote(adjustedMidiNote)
         const noteIndex = NOTE_CODE.findIndex((element) => element === normNote);
         noteText.value = noteText.value + NOTE_LABEL[noteIndex] + separator;
@@ -415,6 +419,8 @@ function down(midiNote, ringLevel, force) {
 
         
     }
+    integerNotationText.value = integerNotation;
+    intervalNotationText.value = intervalNotation;
     highlightDiatonicMods(midiNote, ringLevel);
     diatonicCheck.checked = isDiatonic(chordArray);
 
@@ -641,7 +647,7 @@ function calculateNoteColor(i, j) {
     let color = DISABLED_NOTE_COLOR;
     const noteIndex = NOTE_CODE.findIndex((element) => element === NOTE_CIRCLE_CODE[i][j]);
     if (noteIndex > -1) {
-        color = NOTE_COLOR[noteIndex];
+        color = NOTE_NATURAL_ART_COLOR[noteIndex];
     }
     return color;
 }
@@ -650,7 +656,7 @@ function calculateNoteColorByMidi(midiNote) {
     let color = DISABLED_NOTE_COLOR;
     const noteIndex = NOTE_CODE.findIndex((element) => element === midiNote);
     if (noteIndex > -1) {
-        color = NOTE_COLOR[noteIndex];
+        color = NOTE_NATURAL_ART_COLOR[noteIndex];
     }
     return color;
 }
