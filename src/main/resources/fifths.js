@@ -10,7 +10,7 @@ const INTEGER_2_INTERVAL = ['1', 'b2', '2', 'b3', '3', 'p4', '#4/b5', 'p5', 'b6'
 
 const NOTE_LABEL = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 const NOTE_CODE = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
-const NOTE_KEY_SIG = ['0#/0b', '7#/5b', '2#', '3b', '4#', '1b', '6#/6b', '1#', '4b', '3#', '2b', '5#/7b'];
+const NOTE_KEY_SIG = ['', '\u266F\u266F\u266F\u266F\u266F\u266F\u266F/\u266D\u266D\u266D\u266D\u266D', '\u266F\u266F', '\u266D\u266D\u266D', '\u266F\u266F\u266F\u266F', '\u266D', '\u266F\u266F\u266F\u266F\u266F\u266F/\u266D\u266D\u266D\u266D\u266D\u266D', '\u266F', '\u266D\u266D\u266D\u266D', '\u266F\u266F\u266F', '\u266D\u266D', '\u266F\u266F\u266F\u266F\u266F/\u266D\u266D\u266D\u266D\u266D\u266D\u266D'];
 const NOTE_COLOR = ['#FF3333', '#33FF8D', '#FF8A33', '#3358FF', '#FFFC33', '#FF33C1', '#33FF33', '#FF6133', '#33FCFF', '#FFB233', '#A833FF', '#93FF33'];
 const NOTE_NATURAL_ART_COLOR = ['white', 'grey', 'white', 'grey', 'white', 'white', 'grey', 'white', 'grey', 'white', 'grey', 'white'];
 
@@ -35,7 +35,7 @@ const LOCRIAN_CHORD = [DIM_NOTATION, MAJOR_NOTATION, MINOR_NOTATION, MINOR_NOTAT
 
 const KEY_MODE_INTERVAL = [IONIAN_INTERVAL, DORIAN_INTERVAL, PRHYGIAN_INTERVAL, LYDIAN_INTERVAL, MIXOLYDIAN_INTERVAL, AEOLIAN_INTERVAL, LOCRIAN_INTERVAL];
 const KEY_MODE_CHORD = [IONIAN_CHORD, DORIAN_CHORD, PRHYGIAN_CHORD, LYDIAN_CHORD, MIXOLYDIAN_CHORD, AEOLIAN_CHORD, LOCRIAN_CHORD];
-const KEY_MODE_RELATIVE_MAJOR = [0, -2, -4, -5, -7, -9, 0, -10];
+const KEY_MODE_RELATIVE_MAJOR = [0, -2, -4, -5, -7, -9, -11];
 
 
 const NOTE_MAJOR_LABEL = ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'C#', 'G#', 'D#', 'A#', 'F'];
