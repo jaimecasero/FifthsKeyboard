@@ -10,6 +10,7 @@ const INTEGER_2_INTERVAL = ['1', 'b2', '2', 'b3', '3', 'p4', '#4/b5', 'p5', 'b6'
 
 const NOTE_LABEL = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 const NOTE_CODE = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
+const NOTE_KEY_SIG = ['0#/0b', '7#/5b', '2#', '3b', '4#', '1b', '6#/6b', '1#', '4b', '3#', '2b', '5#/7b'];
 const NOTE_COLOR = ['#FF3333', '#33FF8D', '#FF8A33', '#3358FF', '#FFFC33', '#FF33C1', '#33FF33', '#FF6133', '#33FCFF', '#FFB233', '#A833FF', '#93FF33'];
 const NOTE_NATURAL_ART_COLOR = ['white', 'grey', 'white', 'grey', 'white', 'white', 'grey', 'white', 'grey', 'white', 'grey', 'white'];
 
@@ -34,6 +35,7 @@ const LOCRIAN_CHORD = [DIM_NOTATION, MAJOR_NOTATION, MINOR_NOTATION, MINOR_NOTAT
 
 const KEY_MODE_INTERVAL = [IONIAN_INTERVAL, DORIAN_INTERVAL, PRHYGIAN_INTERVAL, LYDIAN_INTERVAL, MIXOLYDIAN_INTERVAL, AEOLIAN_INTERVAL, LOCRIAN_INTERVAL];
 const KEY_MODE_CHORD = [IONIAN_CHORD, DORIAN_CHORD, PRHYGIAN_CHORD, LYDIAN_CHORD, MIXOLYDIAN_CHORD, AEOLIAN_CHORD, LOCRIAN_CHORD];
+const KEY_MODE_RELATIVE_MAJOR = [0, -2, -4, -5, -7, -9, 0, -10];
 
 
 const NOTE_MAJOR_LABEL = ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'C#', 'G#', 'D#', 'A#', 'F'];
@@ -129,6 +131,7 @@ var intervalNotationText;
 var noteText;
 var diatonicCheck;
 var chordText;
+var keySignatureInput;
 
 (function (window, document, undefined) {
     window.onload = init;
@@ -146,6 +149,7 @@ var chordText;
         chordText = document.getElementById('chordText');
         diatonicCheck = document.getElementById('diatonicCheck');
         noteText = document.getElementById('noteText');
+        keySignatureInput = document.getElementById('keySignatureInput');
 
         //register multitouch listener
         canvas.addEventListener('touchstart', function (event) {
@@ -501,12 +505,20 @@ function changeOctave(newValue) {
 function changeKey() {
     const selectedKey = document.getElementById('keySelect').value;
     const keyMode = document.getElementById('modeSelect').value;
+    console.log("key:" + selectedKey + " mode:" + keyMode);
     const ctx = canvas.getContext("2d");
     const ringLevel = KEY_MODE_ROOT_RING[keyMode];
     //clear all canvas to remove previous key lines
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     const rootCircleIndex = NOTE_CIRCLE_LABEL[ringLevel].findIndex((element) => element === (selectedKey + KEY_MODE_ROOT_NOTATION[keyMode]));
     const rootIndex = NOTE_LABEL.findIndex((element) => element === selectedKey);
+    console.log("rootIndex:" + rootIndex);
+    let relativeMajorNote = rootIndex + KEY_MODE_RELATIVE_MAJOR[keyMode];
+    if (relativeMajorNote < 0) {
+        relativeMajorNote = NUM_NOTES + relativeMajorNote;
+    }
+    console.log("relativeMajorNote:" + relativeMajorNote);
+    keySignatureInput.value = NOTE_KEY_SIG[relativeMajorNote];
     keyFormation = generateKeyChordArray(rootIndex, keyMode);
     keyNoteFormation = generateKeyNoteArray(rootIndex, keyMode);
     console.log("selectedKey:" + keyFormation);
