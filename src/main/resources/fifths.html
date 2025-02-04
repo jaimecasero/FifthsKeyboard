@@ -82,6 +82,9 @@
     <label for="keySignatureInput">Key Signature:</label>
     <input type="text" id="keySignatureInput" value="0" readonly>
 
+    <label for="keyFormulaInput">Key Formula:</label>
+    <input type="text" id="keyFormulaInput" value="0" readonly>
+
 
 
 
@@ -91,6 +94,25 @@
 
 
 <form id="displayForm">
+    <label>Key Notes:</label>
+    <BR>
+    <input type="button" id="NoteButton0" name="scaleButton" value="I" onpointerdown="keyNoteDown(event, 0)"
+           onpointerup="keyNoteUp(event, 0)">
+    <input type="button" id="NoteButton1" name="scaleButton" value="II" onpointerdown="keyNoteDown(event, 1)"
+           onpointerup="keyNoteUp(event, 1)">
+    <input type="button" id="NoteButton2" name="scaleButton" value="III" onpointerdown="keyNoteDown(event, 2)"
+           onpointerup="keyNoteUp(event, 2)">
+    <input type="button" id="NoteButton3" name="scaleButton" value="IV" onpointerdown="keyNoteDown(event, 3)"
+           onpointerup="keyNoteUp(event, 3)">
+    <input type="button" id="NoteButton4" name="scaleButton" value="V" onpointerdown="keyNoteDown(event, 4)"
+           onpointerup="keyNoteUp(event, 4)">
+    <input type="button" id="NoteButton5" name="scaleButton" value="VI" onpointerdown="keyNoteDown(event, 5)"
+           onpointerup="keyNoteUp(event, 5)">
+    <input type="button" id="NoteButton6" name="scaleButton" value="VII" onpointerdown="keyNoteDown(event, 6)"
+           onpointerup="keyNoteUp(event, 6)">
+
+    <BR>
+
     <label>Key Chord Grades:</label>
     <BR>
     <input type="button" id="GradeButton0" name="scaleButton" value="I" onpointerdown="chordDown(event, 0)"
@@ -110,15 +132,6 @@
 
     <BR> <BR>
 
-
-    <label>Chord Inversions:</label>
-    <BR>
-    <input type="radio" id="chordNoMod" name="chordModifierRadio" value="Fundamental"
-           onmousedown="resetChordModifier()" checked><label for="chordNoMod">Fundamental</label>
-    <input type="radio" id="chordFirstInversion" name="chordModifierRadio" value="1stInv"
-           onmousedown="changeChordModifier(FIRST_INVERSION_FORMULA)"><label for="chordFirstInversion">1st Inv</label>
-    <input type="radio" id="chordSecondInversion" name="chordModifierRadio" value="2ndInversion"
-           onmousedown="changeChordModifier(SECOND_INVERSION_FORMULA)"><label for="chordSecondInversion">2nd Inv</label>
 
     <BR>
     <label>Chord Modifiers:</label>

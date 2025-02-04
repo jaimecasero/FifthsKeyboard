@@ -18,22 +18,34 @@ const NOTE_NATURAL_ART_COLOR = ['white', 'grey', 'white', 'grey', 'white', 'whit
 const KEY_MODE_ROOT_RING = [0, 1, 1, 0, 0, 1, 2];
 const KEY_MODE_ROOT_NOTATION = [MAJOR_NOTATION, MINOR_NOTATION, MINOR_NOTATION, MAJOR_NOTATION, MAJOR_NOTATION, MINOR_NOTATION, DIM_NOTATION];
 
+
+const HALF_STEP_LABEL="H";
+const WHOLE_STEP_LABEL="W";
+
 const IONIAN_INTERVAL = [0, 2, 4, 5, 7, 9, 11];
+const IONIAN_FORMULA = "WWHWWWH";
 const IONIAN_CHORD = [MAJOR_NOTATION, MINOR_NOTATION, MINOR_NOTATION, MAJOR_NOTATION, MAJOR_NOTATION, MINOR_NOTATION, DIM_NOTATION];
 const DORIAN_INTERVAL = [0, 2, 3, 5, 7, 9, 10];
+const DORIAN_FORMULA= "WHWWWHW";
 const DORIAN_CHORD = [MINOR_NOTATION, MINOR_NOTATION, MAJOR_NOTATION, MAJOR_NOTATION, MINOR_NOTATION, DIM_NOTATION, MAJOR_NOTATION];
 const PRHYGIAN_INTERVAL = [0, 1, 3, 5, 7, 8, 10];
+const PRHYGIAN_FORMULA = "HWWWHWW";
 const PRHYGIAN_CHORD = [MINOR_NOTATION, MAJOR_NOTATION, MAJOR_NOTATION, MINOR_NOTATION, DIM_NOTATION, MAJOR_NOTATION, MINOR_NOTATION];
 const LYDIAN_INTERVAL = [0, 2, 4, 6, 7, 9, 11];
+const LYDIAN_FORMULA = "WWWHWWH";
 const LYDIAN_CHORD = [MAJOR_NOTATION, MAJOR_NOTATION, MINOR_NOTATION, DIM_NOTATION, MAJOR_NOTATION, MINOR_NOTATION, MINOR_NOTATION];
 const MIXOLYDIAN_INTERVAL = [0, 2, 4, 5, 7, 9, 10];
+const MIXOLYDIAN_FORMULA = "WWHWWHW";
 const MIXOLYDIAN_CHORD = [MAJOR_NOTATION, MINOR_NOTATION, DIM_NOTATION, MAJOR_NOTATION, MINOR_NOTATION, MINOR_NOTATION, MAJOR_NOTATION];
 const AEOLIAN_INTERVAL = [0, 2, 3, 5, 7, 8, 10];
+const AEOLIAN_FORMULA = "WHWWHWW";
 const AEOLIAN_CHORD = [MINOR_NOTATION, DIM_NOTATION, MAJOR_NOTATION, MINOR_NOTATION, MINOR_NOTATION, MAJOR_NOTATION, MAJOR_NOTATION];
 const LOCRIAN_INTERVAL = [0, 1, 3, 5, 6, 8, 10];
+const LOCRIAN_FORMULA = "HWWHWWW";
 const LOCRIAN_CHORD = [DIM_NOTATION, MAJOR_NOTATION, MINOR_NOTATION, MINOR_NOTATION, MAJOR_NOTATION, MAJOR_NOTATION, MINOR_NOTATION];
 
 const KEY_MODE_INTERVAL = [IONIAN_INTERVAL, DORIAN_INTERVAL, PRHYGIAN_INTERVAL, LYDIAN_INTERVAL, MIXOLYDIAN_INTERVAL, AEOLIAN_INTERVAL, LOCRIAN_INTERVAL];
+const KEY_MODE_FORMULA = [IONIAN_FORMULA, DORIAN_FORMULA, PRHYGIAN_FORMULA, LYDIAN_FORMULA, MIXOLYDIAN_FORMULA, AEOLIAN_FORMULA, LOCRIAN_FORMULA];
 const KEY_MODE_CHORD = [IONIAN_CHORD, DORIAN_CHORD, PRHYGIAN_CHORD, LYDIAN_CHORD, MIXOLYDIAN_CHORD, AEOLIAN_CHORD, LOCRIAN_CHORD];
 const KEY_MODE_RELATIVE_MAJOR = [0, -2, -4, -5, -7, -9, -11];
 
@@ -153,6 +165,7 @@ var noteText;
 var diatonicCheck;
 var chordText;
 var keySignatureInput;
+var keyFormulaInput;
 
 (function (window, document, undefined) {
     window.onload = init;
@@ -171,6 +184,7 @@ var keySignatureInput;
         diatonicCheck = document.getElementById('diatonicCheck');
         noteText = document.getElementById('noteText');
         keySignatureInput = document.getElementById('keySignatureInput');
+        keyFormulaInput = document.getElementById('keyFormulaInput');
 
         //register multitouch listener
         canvas.addEventListener('touchstart', function (event) {
@@ -326,7 +340,7 @@ function chordDown(event, grade) {
         //calculate note delta depending on ringlevel
         const actualMidiNote = NOTE_MAJOR_CODE[noteIndex] + octave * 12;
         chordArray.push(actualMidiNote);
-        playNote(actualMidiNote, pressure);
+        playMidiNote(actualMidiNote, pressure);
     }
 }
 
@@ -341,7 +355,7 @@ function chordUp(event, grade) {
         //calculate note delta depending on ringlevel
         const actualMidiNote = NOTE_MAJOR_CODE[noteIndex] + octave * 12;
         chordArray.push(actualMidiNote);
-        playNoteOff(actualMidiNote);
+        playMidiNoteOff(actualMidiNote);
     }
 }
 
@@ -351,6 +365,31 @@ function canvasDown(e) {
     canvasDownXY(e.offsetX, e.offsetY, 1.0);
 }
 
+function keyNoteDown(event, keyIndex) {
+    const pressure = ((event.pressure == null) ? KEYBOARD_GAIN : event.pressure);
+    console.log("keyNoteDown:" + NOTE_MAJOR_LABEL.indexOf(keyNoteFormation[keyIndex]));
+    playNote(NOTE_MAJOR_LABEL.indexOf(keyNoteFormation[keyIndex]), pressure);
+}
+
+function keyNoteUp(event, keyIndex) {
+    playNoteOff(NOTE_MAJOR_LABEL.indexOf(keyNoteFormation[keyIndex]));
+}
+
+function playNote(noteIndex, force) {
+    const actualMidiNote = NOTE_MAJOR_CODE[noteIndex] + octave * 12;
+    pressedNotes.push(noteIndex);
+    playMidiNote(actualMidiNote, force);
+}
+
+function playNoteOff(noteIndex) {
+    const index = pressedNotes.indexOf(noteIndex);
+    if (index > -1) { // only splice array when item is found
+        pressedNotes.splice(index, 1); // 2nd parameter means remove one item only
+    }
+    const actualMidiNote = NOTE_MAJOR_CODE[noteIndex] + octave * 12;
+    playMidiNoteOff(actualMidiNote);
+}
+
 function canvasDownXY(x, y, force) {
     console.log("down:" + x + "," + y);
     let found = false;
@@ -358,9 +397,7 @@ function canvasDownXY(x, y, force) {
         const noteCenterPoint = calculateCenterWithRing(i, 0);
         if (intersects(x, y, noteCenterPoint.x, noteCenterPoint.y, NOTE_MAJOR_CIRCLE_RADIUS)) {
             //calculate note delta depending on ringlevel
-            const actualMidiNote = NOTE_MAJOR_CODE[i] + octave * 12;
-            pressedNotes.push(i);
-            playNote(actualMidiNote, force);
+            playNote(i,force);
             found = true;
             break;//note found no need to go on
         }
@@ -394,12 +431,7 @@ function canvasUpXY(x, y) {
     for (let i = 0; i < NOTE_MAJOR_CODE.length; i++) {
         const noteCenterPoint = calculateCenterWithRing(i, 0);
         if (intersects(x, y, noteCenterPoint.x, noteCenterPoint.y, NOTE_MAJOR_CIRCLE_RADIUS)) {
-            const index = pressedNotes.indexOf(i);
-            if (index > -1) { // only splice array when item is found
-                pressedNotes.splice(index, 1); // 2nd parameter means remove one item only
-            }
-            const actualMidiNote = NOTE_MAJOR_CODE[i] + octave * 12;
-            playNoteOff(actualMidiNote);
+            playNoteOff(i);
             found = true;
             break;
         }
@@ -474,7 +506,7 @@ function down(grade, force) {
         const adjustedMidiNote = midiNote + midiNoteDelta;
         const actualMidiNote = adjustedMidiNote + octaveSelectVal * 12;
 
-        playNote(actualMidiNote, force);
+        playMidiNote(actualMidiNote, force);
 
         //update all UI elements
 
@@ -538,7 +570,7 @@ function up(midiNote, ringLevel) {
         const color = calculateNoteColorByMidi(normalizeMidiNote(midiNote + midiNoteDelta));
         drawNoteWithRing(midiNote + midiNoteDelta, ringLevel, color, i);
         midiNoteDelta = midiNote + midiNoteDelta + octave * 12;
-        playNoteOff(midiNoteDelta);
+        playMidiNoteOff(midiNoteDelta);
     }
 
     resetMods(midiNote, ringLevel)
@@ -574,6 +606,7 @@ function changeKey() {
     }
     console.log("relativeMajorNote:" + relativeMajorNote);
     keySignatureInput.value = NOTE_KEY_SIG[relativeMajorNote];
+    keyFormulaInput.value = KEY_MODE_FORMULA[keyMode]
     keyFormation = generateKeyChordArray(rootIndex, keyMode);
     keyNoteFormation = generateKeyNoteArray(rootIndex, keyMode);
     console.log("selectedKey:" + keyFormation);
@@ -587,6 +620,7 @@ function changeKey() {
             }
         }
         document.getElementById('GradeButton' + i).value = GRADE_LABEL[i];
+        document.getElementById('NoteButton' + i).value = keyNoteFormation[i];
     }
 
     //draw all circle again
@@ -816,20 +850,20 @@ function drawNoteIndex(noteObject) {
 
 }
 
-function playNote(adjustedMidiNote, force) {
+function playMidiNote(adjustedMidiNote, force) {
     if (outputSelect.value === "0") {
         playOscillatorNote(adjustedMidiNote, force);
     } else {
-        playMidiNote(adjustedMidiNote, force);
+        playExtMidiNote(adjustedMidiNote, force);
     }
     renderCircle()
 }
 
-function playNoteOff(adjustedMidiNote) {
+function playMidiNoteOff(adjustedMidiNote) {
     if (outputSelect.value === "0") {
         playOscillatorNoteOff(adjustedMidiNote);
     } else {
-        playMidiNoteOff(adjustedMidiNote);
+        playExtMidiNoteOff(adjustedMidiNote);
     }
     renderCircle();
 }
@@ -921,12 +955,12 @@ function changeMidiOutput() {
     }
 }
 
-function playMidiNote(midiNote, force) {
+function playExtMidiNote(midiNote, force) {
     console.log("turn on:" + midiNote);
     midiOut.send([NOTE_ON | midiChannel, midiNote, midiVelocity * force]);
 }
 
-function playMidiNoteOff(midiNote) {
+function playExtMidiNoteOff(midiNote) {
     console.log("turn off:" + midiNote);
     midiOut.send([NOTE_OFF | midiChannel, midiNote, midiVelocity]);
 }
