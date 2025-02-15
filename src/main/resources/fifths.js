@@ -279,7 +279,7 @@ function keyDownHandler(event) {
             ring = 2;
         }
 
-        down(NOTE_MAJOR_CODE[noteIndex], ring, KEYBOARD_GAIN);
+        playNote(noteIndex, ring, KEYBOARD_GAIN);
     } else {
     }
 }
@@ -312,7 +312,7 @@ function keyUpHandler(event) {
         if (event.ctrlKey) {
             ring = 2;
         }
-        up(NOTE_MAJOR_CODE[noteIndex], ring);
+        playNoteOff(noteIndex, ring);
     }
 
 }
@@ -368,7 +368,7 @@ function canvasDown(e) {
 function keyNoteDown(event, keyIndex) {
     const pressure = ((event.pressure == null) ? KEYBOARD_GAIN : event.pressure);
     console.log("keyNoteDown:" + NOTE_MAJOR_LABEL.indexOf(keyNoteFormation[keyIndex]));
-    playNote(NOTE_MAJOR_LABEL.indexOf(keyNoteFormation[keyIndex]), pressure);
+    cplayNote(NOTE_MAJOR_LABEL.indexOf(keyNoteFormation[keyIndex]), pressure);
 }
 
 function keyNoteUp(event, keyIndex) {
@@ -378,16 +378,25 @@ function keyNoteUp(event, keyIndex) {
 function playNote(noteIndex, force) {
     const actualMidiNote = NOTE_MAJOR_CODE[noteIndex] + octave * 12;
     pressedNotes.push(noteIndex);
+    intervalRing.push("P1");
+    console.log("pressedNotes:" + pressedNotes);
+    console.log("intervalRing:" + intervalRing);
+
     playMidiNote(actualMidiNote, force);
+    renderCircle();
 }
 
 function playNoteOff(noteIndex) {
     const index = pressedNotes.indexOf(noteIndex);
     if (index > -1) { // only splice array when item is found
         pressedNotes.splice(index, 1); // 2nd parameter means remove one item only
+        intervalRing.splice(index, 1);
+        console.log("pressedNotes:" + pressedNotes);
+        console.log("intervalRing:" + intervalRing);
     }
     const actualMidiNote = NOTE_MAJOR_CODE[noteIndex] + octave * 12;
     playMidiNoteOff(actualMidiNote);
+    renderCircle();
 }
 
 function canvasDownXY(x, y, force) {
@@ -621,6 +630,9 @@ function changeKey() {
         }
         document.getElementById('GradeButton' + i).value = GRADE_LABEL[i];
         document.getElementById('NoteButton' + i).value = keyNoteFormation[i];
+        document.getElementById('GradeButton' + i).style.borderColor = GRADE_COLOR[i];
+        const noteIndex = NOTE_LABEL.findIndex((element) => element === keyNoteFormation[i]);
+        document.getElementById('NoteButton' + i).style.borderColor = NOTE_COLOR[noteIndex];
     }
 
     //draw all circle again
@@ -754,21 +766,34 @@ function renderCircle() {
     }
 
     //draw pressed notes
-    for (let i = 0; i < intervalRing.length; i++) {
+    for (let i = 0; i < NOTE_MAJOR_CODE.length; i++) {
         let innerStyle = "white";
         if ( pressedNotes.some(element => element === i)) {
             innerStyle = "salmon";
+            let noteObject = {
+                index: i,
+                ring: 2,
+                outerCircleStyle: INTERVAL_COLOR[i],
+                innerCircleStyle: innerStyle,
+                text: intervalRing[i],
+                textFont: "15px Arial",
+                textStyle: "black",
+            }
+            drawNoteIndex(noteObject);
+        } else {
+            innerStyle = "white";
+            let noteObject = {
+                index: i,
+                ring: 2,
+                outerCircleStyle: INTERVAL_COLOR[i],
+                innerCircleStyle: innerStyle,
+                text: "",
+                textFont: "15px Arial",
+                textStyle: "black",
+            }
+            drawNoteIndex(noteObject);
         }
-        let noteObject = {
-            index: i,
-            ring: 2,
-            outerCircleStyle: INTERVAL_COLOR[i],
-            innerCircleStyle: innerStyle,
-            text: intervalRing[i],
-            textFont: "15px Arial",
-            textStyle: "black",
-        }
-        drawNoteIndex(noteObject);
+
     }
 }
 
@@ -856,7 +881,6 @@ function playMidiNote(adjustedMidiNote, force) {
     } else {
         playExtMidiNote(adjustedMidiNote, force);
     }
-    renderCircle()
 }
 
 function playMidiNoteOff(adjustedMidiNote) {
@@ -865,7 +889,6 @@ function playMidiNoteOff(adjustedMidiNote) {
     } else {
         playExtMidiNoteOff(adjustedMidiNote);
     }
-    renderCircle();
 }
 
 
