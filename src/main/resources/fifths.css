@@ -16,6 +16,18 @@
 	  touch-action: manipulation;
 }
 
+#keyFormulaInput {
+	width: 90px;
+}
+
+#keyMajorRelativeInput {
+	width: 120px;
+}
+
+#keySignatureInput {
+	width: 90px;
+}
+
 input[name="octaveSelect"] {
 	height:35px; width:65px; vertical-align: middle;
 	  touch-action: manipulation;
