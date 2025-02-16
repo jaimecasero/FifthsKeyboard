@@ -278,18 +278,8 @@ function keyDownHandler(event) {
     const noteIndex = NOTE_MAJOR_LABEL.findIndex((element) => element === keyPressed);
     console.log("rep:" + event.repeat)
     if (noteIndex > -1 && !event.repeat) {
-        let ring = 0;
-        if (event.shiftKey) {
-            ring = 0;
-        }
-        if (event.altKey) {
-            ring = 1;
-        }
-        if (event.ctrlKey) {
-            ring = 2;
-        }
-
-        playNote(noteIndex, ring, KEYBOARD_GAIN);
+        console.log("noteIndex:" + noteIndex);
+        playNote(noteIndex, KEYBOARD_GAIN);
     } else {
     }
 }
@@ -378,7 +368,7 @@ function canvasDown(e) {
 function keyNoteDown(event, keyIndex) {
     const pressure = ((event.pressure == null) ? KEYBOARD_GAIN : event.pressure);
     console.log("keyNoteDown:" + NOTE_MAJOR_LABEL.indexOf(keyNoteFormation[keyIndex]));
-    cplayNote(NOTE_MAJOR_LABEL.indexOf(keyNoteFormation[keyIndex]), pressure);
+    playNote(NOTE_MAJOR_LABEL.indexOf(keyNoteFormation[keyIndex]), pressure);
 }
 
 function keyNoteUp(event, keyIndex) {
@@ -776,7 +766,7 @@ function renderCircle() {
         }
     }
 
-    //draw pressed notes
+    //draw pressed/interval notes
     for (let i = 0; i < NOTE_MAJOR_CODE.length; i++) {
         let innerStyle = "white";
         if ( pressedNotes.some(element => element === i)) {
