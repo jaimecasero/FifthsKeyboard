@@ -333,20 +333,48 @@ function chordDown(event, grade) {
     console.log("chordDown:" + grade + " pressure:" + pressure);
     //build basic chord triad
     let chordIndexes = [];
+    let chromaticIndexes = [];
+    let chordArray = [];
+    let integerNotation ="";
+    let intervalNotation = "";
+    let noteTextTemp = "";
+
     for (let i = 0; i < 3; i++) {
         const nextChordNote = (grade + i * 2) % keyNoteFormation.length;
         const notePressed = keyNoteFormation[nextChordNote];
         console.log("notePressed:" + notePressed);
         const noteIndex = NOTE_MAJOR_LABEL.findIndex((element) => element === notePressed);
+        const chromaticIndex = NOTE_LABEL.findIndex((element) => element === notePressed);
         chordIndexes.push(noteIndex);
+        chordArray.push(notePressed);
+        chromaticIndexes.push(chromaticIndex);
         playNote(noteIndex, pressure);
+
+        //update all UI elements
+        const separator = (i === 3) ? "" : CHORD_SEPARATOR;
+        let rootDelta = chromaticIndex - chromaticIndexes[0];
+        if (rootDelta < 0) {
+            rootDelta = rootDelta + NUM_NOTES;
+        }
+        integerNotation = integerNotation + rootDelta + separator;
+        intervalNotation = intervalNotation + INTEGER_2_INTERVAL[rootDelta] + separator;
+        noteTextTemp = noteTextTemp + NOTE_LABEL[chromaticIndex] + separator;
     }
+    //put root as default extension
+    chromaticIndexes.push(chromaticIndexes[0]);
+    noteText.value = noteTextTemp;
+    integerNotationText.value = integerNotation;
+    intervalNotationText.value = intervalNotation;
+    highlightDiatonicMods(chromaticIndexes);
+    diatonicCheck.checked = isDiatonic(chordArray);
+
+
+    //calculate all circle intervals based on root note
     for (let i = 0; i < NOTE_MAJOR_CODE.length; i++) {
         let j = i + chordIndexes[0];
         if (j >= NOTE_MAJOR_CODE.length) {
             j = j - NOTE_MAJOR_CODE.length;
         }
-        console.log("j:" + j + " interval:" + INTERVAL_LABEL[i] + " color:" + INTERVAL_COLOR[i]);
         intervalStyleRing[j] = INTERVAL_COLOR[i];
         intervalTextRing[j]= INTERVAL_LABEL[i];
     }
@@ -356,16 +384,13 @@ function chordDown(event, grade) {
 function chordUp(event, grade) {
     //calculate chord notes
     //build basic chord triad
-    let chordArray = [];
     for (let i = 0; i < 3; i++) {
         const nextChordNote = (grade + i * 2 ) % keyNoteFormation.length;
         const notePressed = keyNoteFormation[nextChordNote];
         const noteIndex = NOTE_MAJOR_LABEL.findIndex((element) => element === notePressed);
-        //calculate note delta depending on ringlevel
-        const actualMidiNote = NOTE_MAJOR_CODE[noteIndex] + octave * 12;
-        chordArray.push(actualMidiNote);
         playNoteOff(noteIndex);
     }
+    resetMods();
 }
 
 function canvasDown(e) {
@@ -468,72 +493,42 @@ function canvasUpXY(x, y) {
 
 function isDiatonic(chordArray) {
     let diatonic = true;
+    console.log("isDiatonic:" + chordArray + "|onkey:" + keyNoteFormation);
     for (let i = 0; i < chordArray.length; i++) {
         diatonic = diatonic && keyNoteFormation.indexOf(chordArray[i]) > -1;
     }
-    console.log("isDiatonic:" + chordArray + diatonic);
+    console.log("isDiatonic:" + chordArray + "->" + diatonic);
     return diatonic;
 }
 
-function resetMods(midiNote, ringLevel) {
+function resetMods() {
     for (let i = 0; i < CHORD_MOD_ARR.length; i++) {
         const chordModRadio = document.getElementById('chordMod' + i);
-        chordModRadio.className = 'noDiatonicClass';
-    }
-}
-
-function highlightDiatonicMods(midiNote, ringLevel) {
-    for (let i = 0; i < CHORD_MOD_ARR.length; i++) {
-        const chordModRadio = document.getElementById('chordMod' + i);
-        let chordArray = [];
-        for (let j = 0; j < 4; j++) {
-            const midiNoteDelta = calculateNoteDeltaNoMod(midiNote, ringLevel, j) + CHORD_MOD_ARR[i][j];
-            const adjustedMidiNote = midiNote + midiNoteDelta;
-            const normNote = normalizeMidiNote(adjustedMidiNote)
-            const noteIndex = NOTE_CODE.findIndex((element) => element === normNote);
-            chordArray.push(NOTE_LABEL[noteIndex]);
-
-        }
-        if (isDiatonic(chordArray)) {
-            chordModRadio.className = 'diatonicClass';
+        if (chordModRadio !== null) {
+            chordModRadio.className = 'noDiatonicClass';
         }
     }
 }
 
-function down(grade, force) {
-    clearNoteLabels();
-    const octaveSelectVal = octave;
-
-    let midiNoteDelta = 0;
-    let chordArray = [];
-    let integerNotation ="";
-    let intervalNotation = "";
-
-    for (let i = 0; i < 4; i++) {
-
-        const separator = (i === 3) ? "" : CHORD_SEPARATOR;
-
-        //calculate note delta depending on ringlevel
-        midiNoteDelta = calculateNoteDelta(midiNote, ringLevel, i);
-        const adjustedMidiNote = midiNote + midiNoteDelta;
-        const actualMidiNote = adjustedMidiNote + octaveSelectVal * 12;
-
-        playMidiNote(actualMidiNote, force);
-
-        //update all UI elements
-
-        integerNotation = integerNotation + midiNoteDelta + separator;
-        intervalNotation = intervalNotation + INTEGER_2_INTERVAL[midiNoteDelta] + separator;
-        const normNote = normalizeMidiNote(adjustedMidiNote)
-        const noteIndex = NOTE_CODE.findIndex((element) => element === normNote);
-        noteText.value = noteText.value + NOTE_LABEL[noteIndex] + separator;
-        chordArray.push(NOTE_LABEL[noteIndex]);
+function highlightDiatonicMods(chromaticArray) {
+    console.log("highlightDiatonicMods:" + chromaticArray);
+    for (let i = 0; i < CHORD_MOD_ARR.length; i++) {
+        const chordModRadio = document.getElementById('chordMod' + i);
+        if (chordModRadio !== null) {
+            let chordArray = [];
+            for (let j = 0; j < 4; j++) {
+                let noteIndex = chromaticArray[j] + CHORD_MOD_ARR[i][j];
+                if (noteIndex > NOTE_LABEL.length ) {
+                   noteIndex = noteIndex - NOTE_LABEL.length;
+                }
+                chordArray.push(NOTE_LABEL[noteIndex]);
+            }
+            console.log("chordArray:" + chordArray);
+            if (isDiatonic(chordArray)) {
+                chordModRadio.className = 'diatonicClass';
+            }
+        }
     }
-    integerNotationText.value = integerNotation;
-    intervalNotationText.value = intervalNotation;
-    highlightDiatonicMods(midiNote, ringLevel);
-    diatonicCheck.checked = isDiatonic(chordArray);
-
 }
 
 

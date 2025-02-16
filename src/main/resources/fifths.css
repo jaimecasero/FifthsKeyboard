@@ -1,11 +1,11 @@
 
 
 .diatonicClass{
-    box-shadow : 10px 10px 20px rgba(0, 0, 255, 0.5);
+	border-color: blue;
 }
 
 .nonDiatonicClass {
-    box-shadow:;
+    border-color: black;
 }
 
 .disabledNoteClass {
