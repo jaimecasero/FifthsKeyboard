@@ -776,7 +776,7 @@ function renderCircle() {
                 ring: 2,
                 outerCircleStyle: INTERVAL_COLOR[i],
                 innerCircleStyle: innerStyle,
-                text: intervalRing[i],
+                text: "",//intervalRing[i]
                 textFont: "15px Arial",
                 textStyle: "black",
             }
