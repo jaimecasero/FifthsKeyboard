@@ -118,7 +118,7 @@ const PERFECT_CONSONANCE = "green";
 const IMPERFECT_CONSONANCE = "yellowgreen";
 const MILD_DISONANCE= "orange";
 const STRONG_DISONANCE="red";
-const INTERVAL_LABEL = ["P1", "P5", "M2", "M6", "M3", "M7", "4#/5b", "m2", "m6", "m3", "m7", "P4"];
+const INTERVAL_LABEL = ["P1", "P5", "M2", "M6", "M3", "M7", "4#", "m2", "m6", "m3", "m7", "P4"];
 const INTERVAL_COLOR = [PERFECT_CONSONANCE, PERFECT_CONSONANCE, MILD_DISONANCE, MILD_DISONANCE, IMPERFECT_CONSONANCE, STRONG_DISONANCE, STRONG_DISONANCE, STRONG_DISONANCE, IMPERFECT_CONSONANCE, IMPERFECT_CONSONANCE, MILD_DISONANCE, PERFECT_CONSONANCE];
 
 
@@ -128,7 +128,8 @@ var keyFormation = [];
 var keyNoteFormation = [];
 var chordModifier = [0, 0, 0, 0];
 var pressedNotes = [];
-var intervalRing = [];
+var intervalTextRing = INTERVAL_LABEL.slice();
+var intervalStyleRing = INTERVAL_COLOR.slice();
 function normalizeMidiNote(midiNote) {
     let normalizedMidiNote = midiNote;
 
@@ -331,17 +332,25 @@ function chordDown(event, grade) {
     const pressure = ((event.pressure == null) ? KEYBOARD_GAIN : event.pressure);
     console.log("chordDown:" + grade + " pressure:" + pressure);
     //build basic chord triad
-    const chordArray = [];
+    let chordIndexes = [];
     for (let i = 0; i < 3; i++) {
-        const nextChordNote = (grade + i * 2 ) % keyNoteFormation.length;
+        const nextChordNote = (grade + i * 2) % keyNoteFormation.length;
         const notePressed = keyNoteFormation[nextChordNote];
         console.log("notePressed:" + notePressed);
         const noteIndex = NOTE_MAJOR_LABEL.findIndex((element) => element === notePressed);
-        //calculate note delta depending on ringlevel
-        const actualMidiNote = NOTE_MAJOR_CODE[noteIndex] + octave * 12;
-        chordArray.push(actualMidiNote);
-        playMidiNote(actualMidiNote, pressure);
+        chordIndexes.push(noteIndex);
+        playNote(noteIndex, pressure);
     }
+    for (let i = 0; i < NOTE_MAJOR_CODE.length; i++) {
+        let j = i + chordIndexes[0];
+        if (j >= NOTE_MAJOR_CODE.length) {
+            j = j - NOTE_MAJOR_CODE.length;
+        }
+        console.log("j:" + j + " interval:" + INTERVAL_LABEL[i] + " color:" + INTERVAL_COLOR[i]);
+        intervalStyleRing[j] = INTERVAL_COLOR[i];
+        intervalTextRing[j]= INTERVAL_LABEL[i];
+    }
+    renderCircle();
 }
 
 function chordUp(event, grade) {
@@ -355,7 +364,7 @@ function chordUp(event, grade) {
         //calculate note delta depending on ringlevel
         const actualMidiNote = NOTE_MAJOR_CODE[noteIndex] + octave * 12;
         chordArray.push(actualMidiNote);
-        playMidiNoteOff(actualMidiNote);
+        playNoteOff(noteIndex);
     }
 }
 
@@ -378,10 +387,6 @@ function keyNoteUp(event, keyIndex) {
 function playNote(noteIndex, force) {
     const actualMidiNote = NOTE_MAJOR_CODE[noteIndex] + octave * 12;
     pressedNotes.push(noteIndex);
-    intervalRing.push("P1");
-    console.log("pressedNotes:" + pressedNotes);
-    console.log("intervalRing:" + intervalRing);
-
     playMidiNote(actualMidiNote, force);
     renderCircle();
 }
@@ -390,9 +395,7 @@ function playNoteOff(noteIndex) {
     const index = pressedNotes.indexOf(noteIndex);
     if (index > -1) { // only splice array when item is found
         pressedNotes.splice(index, 1); // 2nd parameter means remove one item only
-        intervalRing.splice(index, 1);
         console.log("pressedNotes:" + pressedNotes);
-        console.log("intervalRing:" + intervalRing);
     }
     const actualMidiNote = NOTE_MAJOR_CODE[noteIndex] + octave * 12;
     playMidiNoteOff(actualMidiNote);
@@ -771,29 +774,17 @@ function renderCircle() {
         let innerStyle = "white";
         if ( pressedNotes.some(element => element === i)) {
             innerStyle = "salmon";
-            let noteObject = {
-                index: i,
-                ring: 2,
-                outerCircleStyle: INTERVAL_COLOR[i],
-                innerCircleStyle: innerStyle,
-                text: "",//intervalRing[i]
-                textFont: "15px Arial",
-                textStyle: "black",
-            }
-            drawNoteIndex(noteObject);
-        } else {
-            innerStyle = "white";
-            let noteObject = {
-                index: i,
-                ring: 2,
-                outerCircleStyle: INTERVAL_COLOR[i],
-                innerCircleStyle: innerStyle,
-                text: "",
-                textFont: "15px Arial",
-                textStyle: "black",
-            }
-            drawNoteIndex(noteObject);
         }
+        let noteObject = {
+            index: i,
+            ring: 2,
+            outerCircleStyle: intervalStyleRing[i],
+            innerCircleStyle: innerStyle,
+            text: intervalTextRing[i],
+            textFont: "15px Arial",
+            textStyle: "black",
+        }
+        drawNoteIndex(noteObject);
 
     }
 }
