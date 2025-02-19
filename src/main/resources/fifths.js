@@ -493,7 +493,6 @@ function canvasUpXY(x, y) {
 
 function isDiatonic(chordArray) {
     let diatonic = true;
-    console.log("isDiatonic:" + chordArray + "|onkey:" + keyNoteFormation);
     for (let i = 0; i < chordArray.length; i++) {
         diatonic = diatonic && keyNoteFormation.indexOf(chordArray[i]) > -1;
     }
@@ -523,7 +522,6 @@ function highlightDiatonicMods(chromaticArray) {
                 }
                 chordArray.push(NOTE_LABEL[noteIndex]);
             }
-            console.log("chordArray:" + chordArray);
             if (isDiatonic(chordArray)) {
                 chordModRadio.className = 'diatonicClass';
             }
