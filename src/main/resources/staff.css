@@ -1,0 +1,42 @@
+table {
+    border-collapse: collapse;
+    position: relative;
+}
+td {
+    width: 50px;
+    height: 35px; /* Adjust for line spacing */
+    position: relative;
+}
+
+.middle-row {
+    text-decoration: line-through;
+}
+
+.clef-row {
+    border-top: 2px solid black; /* Creates the staff lines */
+}
+/* Notes between the lines */
+.note-on-space {
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 24px;
+}
+.natural-key {
+    background: white; /* Ensures readability */
+}
+
+input[name="noteButton"] {
+    width: 30px;
+    height: 30px;
+}
+
+/* Notes on the lines (row upper border) */
+.note-on-line {
+    position: absolute;
+    left: 50%;
+    top: 0; /* Align with the top border */
+    transform: translate(-50%, -50%);
+    font-size: 24px;
+}
+
