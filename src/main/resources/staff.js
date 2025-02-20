@@ -1,11 +1,21 @@
 ////////////////////////MODEL //////////////////////////////////////
 const NUM_NOTES = 12;
 const NOTE_LABEL = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-const NOTE_CODE = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
+const NOTE_MIDI_CODE = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
 const KEYBOARD_GAIN = 0.657;//the gain applied when note is pressed
+
+const TREBLE_MIDI_CODE = [60,62,64,65,67,69,71,72,74,76,77,79,81]; //[C4-B5]
+const BASS_MIDI_CODE =   [40,41,43,45,47,48,50,52,53,55,57,59,60]; //[E2-C4]
+
+
 const tableModel = [
     ['','','','',''],
 ];
+var currentNote="";
+var currentNoteTablePos=9;
+var currentNoteIndex=0;
+var song=[12,13,14,15,16,17,18,19,20,21,22,23];
+
 
 var speed = 1;
 
@@ -39,19 +49,16 @@ var outputSelect;
         clefTable = document.getElementById('clefTable');
         outputSelect = document.getElementById('outputSelect');
 
-
         //register key handlers
         document.addEventListener("keydown", keyDownHandler, false);
         document.addEventListener("keyup", keyUpHandler, false);
-
-        renderClefTable();
-
     }
-
 })(window, document, undefined);
 
+function resetClefCell(column) {
 
-function renderClefTable() {
+}
+function setClefCell(midiNote, column) {
 
 }
 

@@ -1,6 +1,6 @@
 <html lang="eng">
 <head>
-    <title>StaffReader</title>
+    <title>Staff Reader</title>
 
     <!-- midi.js package -->
     <script src="https://cdn.jsdelivr.net/npm/midi.js"></script>
@@ -51,9 +51,37 @@
     </select>
     <BR></BR>
 
+    <label for="clefSelect">Clef:</label>
+    <select id="clefSelect">
+        <option value="0" selected>&#119070;</option>
+        <option value="1">&#119074;</option>
+    </select>
+    <label for="signatureSelect">Signature:</label>
+    <select id="signatureSelect">
+        <option value="0" selected></option>
+        <option value="1">&flat;</option>
+        <option value="2">&flat;&flat;</option>
+        <option value="3">&flat;&flat;&flat;</option>
+        <option value="4">&flat;&flat;&flat;&flat;</option>
+        <option value="5">&flat;&flat;&flat;&flat;&flat;</option>
+        <option value="6">&flat;&flat;&flat;&flat;&flat;&flat;</option>
+        <option value="7">&flat;&flat;&flat;&flat;&flat;&flat;&flat;</option>
+        <option value="8">&sharp;</option>
+        <option value="9">&sharp;&sharp;</option>
+        <option value="10">&sharp;&sharp;&sharp;</option>
+        <option value="11">&sharp;&sharp;&sharp;&sharp;</option>
+        <option value="12">&sharp;&sharp;&sharp;&sharp;&sharp;</option>
+        <option value="13">&sharp;&sharp;&sharp;&sharp;&sharp;&sharp;</option>
+        <option value="14">&sharp;&sharp;&sharp;&sharp;&sharp;&sharp;&sharp;</option>
+    </select>
+
+    <label for="hintCheckbox">Sig Hint:</label>
+    <input type="checkbox" id="hintCheckbox">
+
     <input type="button" id="clefButton" value="Start" onclick="start()">
 
     <BR><BR>
+
     <table id="clefTable">
         <tr class="middle-row"><td class="middle-row"><span class="note-on-line">C</span><span class="note-on-space">B</span></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
         <tr class="treble-row"><td class="clef-row"  ><span class="note-on-line">F</span><span class="note-on-space">E</span></td><td class="clef-row"><td class="clef-row"></td><td class="clef-row"><td class="clef-row"></td><td class="clef-row"><td class="clef-row"></td><td class="clef-row"><td></tr>
@@ -72,7 +100,7 @@
     <BR>
     <input type="button" id="NoteButton0" name="noteButton" class="natural-key" value="C" onpointerdown="keyNoteDown(event, 0)"
            onpointerup="keyNoteUp(event, 0)">
-    <input type="button" id="NoteButton1" name="noteButton" class="artificial-key" value="C#" onpointerdown="keyNoteDown(event, 1)"
+    <input type="button" id="NoteButton1" name="noteButton" class="artificial-key" value="C#/Db" onpointerdown="keyNoteDown(event, 1)"
            onpointerup="keyNoteUp(event, 1)">
     <input type="button" id="NoteButton2" name="noteButton" class="natural-key" value="D" onpointerdown="keyNoteDown(event, 2)"
            onpointerup="keyNoteUp(event, 2)">
