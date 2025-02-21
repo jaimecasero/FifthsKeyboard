@@ -4,31 +4,26 @@ const NOTE_LABEL = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 
 const NOTE_MIDI_CODE = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
 const KEYBOARD_GAIN = 0.657;//the gain applied when note is pressed
 
-const TREBLE_MIDI_CODE = [60,62,64,65,67,69,71,72,74,76,77,79,81]; //[C4-B5]
-const BASS_MIDI_CODE =   [40,41,43,45,47,48,50,52,53,55,57,59,60]; //[E2-C4]
 
+const CLEF_ROWS=7;
+const TREBLE_MIDI_CODE = [59,60,62,64,65,67,69,71,72,74,76,77,79,81]; //[C4-B5]
+const TREBLE_OCTAVE = 4;
+const BASS_MIDI_CODE =   [39,40,41,43,45,47,48,50,52,53,55,57,59,60]; //[E2-C4]
+const BASS_OCTAVE = 2;
 
-const tableModel = [
-    ['','','','',''],
-];
+const CLEF_CODE_ARRAY= [TREBLE_MIDI_CODE,BASS_MIDI_CODE];
+const CLEF_OCTAVE_ARRAY= [TREBLE_OCTAVE,BASS_OCTAVE];
+
+const NOTE_CHAR="O";
+
 var currentNote="";
-var currentNoteTablePos=9;
+var currentNoteTablePos=1;
 var currentNoteIndex=0;
-var song=[12,13,14,15,16,17,18,19,20,21,22,23];
-
+var song=[71,76,79,77,69,71,72,74];
+var nextNoteTimer;
+var selectedClef = 0;
 
 var speed = 1;
-
-function normalizeMidiNote(midiNote) {
-    let normalizedMidiNote = midiNote;
-
-    while (normalizedMidiNote > 23) {
-        //we work assuming octave is 1, this note went beyond this, so we need normalization
-        normalizedMidiNote = normalizedMidiNote - NUM_NOTES;//down tune note one octave
-    }
-    return normalizedMidiNote;
-}
-
 
 
 
@@ -36,6 +31,7 @@ function normalizeMidiNote(midiNote) {
 ////////DOM CACHING//////////////////
 var clefTable;
 var outputSelect;
+var clefSelect;
 
 (function (window, document, undefined) {
     window.onload = init;
@@ -48,18 +44,76 @@ var outputSelect;
         //cache DOM elements for better performance
         clefTable = document.getElementById('clefTable');
         outputSelect = document.getElementById('outputSelect');
-
+        clefSelect = document.getElementById('clefSelect');
         //register key handlers
         document.addEventListener("keydown", keyDownHandler, false);
         document.addEventListener("keyup", keyUpHandler, false);
+
+        changeClef(selectedClef);
     }
 })(window, document, undefined);
 
-function resetClefCell(column) {
+function resetClefCell(clefIndex,column) {
+    const clefRowIndex = CLEF_ROWS - Math.floor(clefIndex / 2) - 1;
+    let clefRow = clefTable.getElementsByTagName("tr")[clefRowIndex];
+    let clefCell = clefRow.getElementsByTagName("td")[column];
+    clefCell.innerHTML = "";
 
 }
-function setClefCell(midiNote, column) {
 
+function midiToClefIndex(midiNote) {
+
+    let clefIndex = -1;
+    for (let i = 0; i < CLEF_CODE_ARRAY[selectedClef].length; i++) {
+        if (midiNote === CLEF_CODE_ARRAY[selectedClef][i]) {
+            clefIndex = i;
+            break;
+        }
+    }
+    console.log("midiToClefIndex:" + midiNote + ".index:" + clefIndex + "");
+    return clefIndex;
+}
+function setClefCell(clefIndex, column) {
+    console.log("setClefCell:" + clefIndex);
+    if (clefIndex > 0){
+        const clefRowIndex = CLEF_ROWS - Math.floor(clefIndex / 2) - 1;
+        let noteClass = "note-on-line";
+        if (clefIndex % 2 === 0) {
+            noteClass = "note-on-space";
+        }
+        console.log("clefRowIndex:" + clefRowIndex + " class:" + noteClass);
+
+        setClefText(NOTE_CHAR, noteClass, clefRowIndex, column);
+    }
+}
+
+function setClefText(text, textClass, clefRowIndex, column) {
+    console.log("setClefText:" + text + " " + textClass + " " + clefRowIndex + " " + column);
+    let clefRow = clefTable.getElementsByTagName("tr")[clefRowIndex];
+    let clefCell = clefRow.getElementsByTagName("td")[column];
+    clefCell.innerHTML = clefCell.innerHTML + "<span class='" + textClass + "'>" + text + "</span>";
+}
+
+function start() {
+    currentNoteIndex = 0;
+    renderCurrentNote();
+
+}
+
+
+function renderCurrentNote() {
+    currentNote = song[currentNoteIndex];
+    let clefIndex = midiToClefIndex(currentNote);
+    resetClefCell(clefIndex, currentNoteTablePos);
+    currentNoteIndex = currentNoteIndex + 1;
+    if (currentNoteIndex >= song.length) {
+        currentNoteIndex = 0;
+    }
+    currentNote = song[currentNoteIndex];
+    clefIndex = midiToClefIndex(currentNote);
+    setClefCell(clefIndex, currentNoteTablePos);
+    playMidiNote(currentNote, KEYBOARD_GAIN);
+    nextNoteTimer = setTimeout(renderCurrentNote, 1000 * speed);
 }
 
 ///////////////INPUT HANDLING/////////////////////////////////////////
@@ -82,7 +136,7 @@ function keyDownHandler(event) {
     }
 
 
-    const noteIndex = NOTE_MAJOR_LABEL.findIndex((element) => element === keyPressed);
+    const noteIndex = NOTE_LABEL.findIndex((element) => element === keyPressed);
     console.log("rep:" + event.repeat)
     if (noteIndex > -1 && !event.repeat) {
         console.log("noteIndex:" + noteIndex);
@@ -100,7 +154,7 @@ function keyUpHandler(event) {
     if (shiftPressed) {
         keyPressed = keyPressed + "#";
     }
-    const noteIndex = NOTE_MAJOR_LABEL.findIndex((element) => element === keyPressed);
+    const noteIndex = NOTE_LABEL.findIndex((element) => element === keyPressed);
     if (noteIndex > -1) {
         let ring = 0;
         if (event.shiftKey) {
@@ -146,6 +200,28 @@ function changeOutput(outputMode) {
     if (changeOutput === "0") {
     } else {
         initMidi();
+    }
+}
+
+function changeClef(outputMode) {
+    selectedClef = clefSelect.value;
+    for (let i = 0; i < CLEF_ROWS; i++) {
+        resetClefCell(i,0);
+    }
+    for (let i = 0; i < CLEF_CODE_ARRAY[selectedClef].length; i++) {
+        let noteIndex = -1;
+        let clefMidiNote = CLEF_CODE_ARRAY[selectedClef][i];
+        do {
+            noteIndex = NOTE_MIDI_CODE.findIndex(midiNote => midiNote === clefMidiNote);
+            clefMidiNote = clefMidiNote - NUM_NOTES;
+        } while(noteIndex < 0 && clefMidiNote > 0);
+        console.log("noteIndex:" + noteIndex + " midiNote:" + clefMidiNote);
+        let noteClass = "note-on-line";
+        let clefIndex = CLEF_ROWS - Math.floor(i / 2) - 1;
+        if (i % 2 === 0) {
+            noteClass = "note-on-space";
+        }
+        setClefText(NOTE_LABEL[noteIndex], noteClass, clefIndex, 0);
     }
 }
 

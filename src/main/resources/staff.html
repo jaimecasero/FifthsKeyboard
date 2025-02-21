@@ -52,7 +52,7 @@
     <BR></BR>
 
     <label for="clefSelect">Clef:</label>
-    <select id="clefSelect">
+    <select id="clefSelect" onchange="changeClef();">
         <option value="0" selected>&#119070;</option>
         <option value="1">&#119074;</option>
     </select>
@@ -83,14 +83,13 @@
     <BR><BR>
 
     <table id="clefTable">
-        <tr class="middle-row"><td class="middle-row"><span class="note-on-line">C</span><span class="note-on-space">B</span></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-        <tr class="treble-row"><td class="clef-row"  ><span class="note-on-line">F</span><span class="note-on-space">E</span></td><td class="clef-row"><td class="clef-row"></td><td class="clef-row"><td class="clef-row"></td><td class="clef-row"><td class="clef-row"></td><td class="clef-row"><td></tr>
-        <tr class="treble-row"><td class="clef-row"  ><span class="note-on-line">D</span><span class="note-on-space">C</span></td><td class="clef-row"><td class="clef-row"></td><td class="clef-row"><td class="clef-row"></td><td class="clef-row"><td class="clef-row"></td><td class="clef-row"><td></tr>
-        <tr class="treble-row"><td class="clef-row"  ><span class="note-on-line">B</span><span class="note-on-space">A</span></td><td class="clef-row"><td class="clef-row"></td><td class="clef-row"><td class="clef-row"></td><td class="clef-row"><td class="clef-row"></td><td class="clef-row"><td></tr>
-        <tr class="treble-row"><td class="clef-row"  ><span class="note-on-line">G</span><span class="note-on-space">F</span></td><td class="clef-row"><td class="clef-row"></td><td class="clef-row"><td class="clef-row"></td><td class="clef-row"><td class="clef-row"></td><td class="clef-row"><td></tr>
-        <tr class="treble-row"><td class="clef-row"  ><span class="note-on-line">E</span><span class="note-on-space">D</span></td><td class="clef-row"><td class="clef-row"></td><td class="clef-row"><td class="clef-row"></td><td class="clef-row"><td class="clef-row"></td><td class="clef-row"><td></tr>
-        <tr class="middle-row"><td class="middle-row"><span class="note-on-line">C</span><span class="note-on-space">B</span></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-
+        <tr class="middle-row"><td class="middle-row"></td><td class="middle-row"></td><td class="middle-row"></td><td class="middle-row"></td><td class="middle-row"></td><td class="middle-row"></td><td class="middle-row"></td></tr>
+        <tr class="treble-row"><td class="clef-row"  ></td><td class="clef-row"><td class="clef-row"></td><td class="clef-row"><td class="clef-row"></td><td class="clef-row"><td class="clef-row"></td><td class="clef-row"><td></tr>
+        <tr class="treble-row"><td class="clef-row"  ></td><td class="clef-row"><td class="clef-row"></td><td class="clef-row"><td class="clef-row"></td><td class="clef-row"><td class="clef-row"></td><td class="clef-row"><td></tr>
+        <tr class="treble-row"><td class="clef-row"  ></td><td class="clef-row"><td class="clef-row"></td><td class="clef-row"><td class="clef-row"></td><td class="clef-row"><td class="clef-row"></td><td class="clef-row"><td></tr>
+        <tr class="treble-row"><td class="clef-row"  ></td><td class="clef-row"><td class="clef-row"></td><td class="clef-row"><td class="clef-row"></td><td class="clef-row"><td class="clef-row"></td><td class="clef-row"><td></tr>
+        <tr class="treble-row"><td class="clef-row"  ></td><td class="clef-row"><td class="clef-row"></td><td class="clef-row"><td class="clef-row"></td><td class="clef-row"><td class="clef-row"></td><td class="clef-row"><td></tr>
+        <tr class="middle-row"><td class="middle-row"></td><td class="middle-row"></td><td class="middle-row"></td><td class="middle-row"></td><td class="middle-row"></td><td class="middle-row"></td><td class="middle-row"></td></tr>
     </table>
 
 
