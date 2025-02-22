@@ -13,25 +13,37 @@ const HALF_CHAR = "&#119134;";
 const QUARTER_CHAR = "&#119135;";
 const EIGHTH_CHAR = "&#119136;";
 const SIXTEENTH_CHAR = "&#119137;";
+
 const INITIAL_MISTAKES = 5;
-const SPEED_CHANGE_SCORE = 10;
 const SPEED_CHANGE_RATIO = 0.9;
 
 const CLEF_TABLE_ROWS = 7;
 const CLEF_ROWS = 14;
+
 const TREBLE_MIDI_CODE = [59, 60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 77, 79, 81]; //[C4-B5]
 const TREBLE_OCTAVE = 4;
 const BASS_MIDI_CODE = [39, 40, 41, 43, 45, 47, 48, 50, 52, 53, 55, 57, 59, 60]; //[E2-C4]
 const BASS_OCTAVE = 2;
-
 const CLEF_CODE_ARRAY = [TREBLE_MIDI_CODE, BASS_MIDI_CODE];
 const CLEF_OCTAVE_ARRAY = [TREBLE_OCTAVE, BASS_OCTAVE];
 
-let HARRY_SONG = [];//[71, 76, 79, 77, 69, 71, 72, 74, 74, 71, 76, 71, 76, 74];
-const WAKA_SONG = [76, 76, 76, 77, 69, 71, 72, 74, 74, 71, 76, 71, 76, 74];
-const THUNDER_SONG = [71, 76, 79, 77, 69, 71, 72, 74, 74, 71, 76, 71, 76, 74];
-const POTRA_SONG = [71, 76, 79, 77, 69, 71, 72, 74, 74, 71, 76, 71, 76, 74];
-const SONG_ARRAY = [HARRY_SONG, WAKA_SONG, THUNDER_SONG, POTRA_SONG];
+
+SIGNATURE_MOD=[7,3,6,2,5,1,4];
+
+let HARRY_SONG = "midi/harry.mid"
+const WAKA_SONG = "midi/waka.mid";
+const THUNDER_SONG = "midi/thunder.mid";
+const POTRA_SONG = "midi/potra.mid";
+const SONG_PATHS = [HARRY_SONG, WAKA_SONG, THUNDER_SONG, POTRA_SONG];
+
+
+const SONG_SIGNATURE= [];
+
+let HARRY_TRACK = 0;
+const WAKA_TRACK = 0;
+const THUNDER_TRACK = 0;
+const POTRA_TRACK = 0;
+const SONG_TRACKS = [HARRY_TRACK, WAKA_TRACK, THUNDER_TRACK, POTRA_TRACK];
 
 
 var currentNote = "";
@@ -77,7 +89,7 @@ let midiData;
         document.addEventListener("keyup", keyUpHandler, false);
 
         changeClef(selectedClef);
-        loadMidiFile();
+        loadSong();
     }
 })(window, document, undefined);
 
@@ -105,14 +117,11 @@ function noteDurationToSymbol(duration, ppq) {
 }
 
 
-async function loadMidiFile() {
-    const response = await fetch('midi/harry.mid');
+async function loadSong() {
+    const response = await fetch(SONG_PATHS[currentSongIndex]);
     const arrayBuffer = await response.arrayBuffer();
     midiData = new Midi(arrayBuffer);
     console.log(midiData);
-    for (let i=0 ;i< midiData.tracks[0].notes.length;i++) {
-        HARRY_SONG.push(midiData.tracks[0].notes[i].midi);
-    }
 }
 
 function resetClefCell(clefIndex, column) {
@@ -185,13 +194,10 @@ function start() {
     currentNoteIndex = -1;
     currentNoteTablePos = clefTable.getElementsByTagName("tr")[0].getElementsByTagName("td").length;
     mistakesText.value = INITIAL_MISTAKES;
-    renderCurrentNote();
-
-    mistakesText.value = INITIAL_MISTAKES;
     levelText.value = 1;
     scoreText.value = 0;
     hintCheckbox.readOnly = true;
-
+    renderCurrentNote();
 }
 
 function stop() {
@@ -203,6 +209,11 @@ function stop() {
     }
 }
 
+/**
+ *
+ * @param midiNote
+ * @returns adjusted midi note to clef octave so midinote is within the clef coverage
+ */
 function adjustMidiToClef(midiNote) {
     let adjustedNote = midiNote;
     while (adjustedNote < CLEF_CODE_ARRAY[selectedClef][0]) {
@@ -218,7 +229,8 @@ function adjustMidiToClef(midiNote) {
 
 function renderCurrentNote() {
     if (currentNoteIndex >= 0) {
-        currentNote = SONG_ARRAY[currentSongIndex][currentNoteIndex];
+        currentNote = midiData.tracks[0].notes[currentNoteIndex].midi;
+        console.log("renderCurrentNote:" + currentNote);
         currentNote = adjustMidiToClef(currentNote);
         let clefIndex = midiToClefIndex(currentNote);
         resetClefCell(clefIndex[0], currentNoteTablePos);
@@ -231,11 +243,11 @@ function renderCurrentNote() {
         currentNoteTablePos = clefTable.getElementsByTagName("tr")[0].getElementsByTagName("td").length;
         //user didnt matched note, pass to next note
         currentNoteIndex = currentNoteIndex + 1;
-        if (currentNoteIndex >= SONG_ARRAY[currentSongIndex].length) {
+        if (currentNoteIndex >= midiData.tracks[0].notes.length) {
             currentNoteIndex = 0;
         }
     }
-    currentNote = SONG_ARRAY[currentSongIndex][currentNoteIndex];
+    currentNote = midiData.tracks[0].notes[currentNoteIndex].midi;
     currentNote = adjustMidiToClef(currentNote);
     let clefIndex = midiToClefIndex(currentNote);
     setClefCell(clefIndex, currentNoteTablePos);
@@ -303,7 +315,7 @@ function keyNoteDown(event, keyIndex) {
         resetClefCell(midiToClefIndex(currentNote)[0], currentNoteTablePos);
         currentNoteTablePos = clefTable.getElementsByTagName("tr")[0].getElementsByTagName("td").length;
         currentNoteIndex = currentNoteIndex + 1;
-        if (currentNoteIndex >= SONG_ARRAY[currentSongIndex].length) {
+        if (currentNoteIndex >= midiData.tracks[0].notes.length) {
             currentNoteIndex = 0;
         }
         if ( scoreText.value / (parseInt(levelText.value)*10) > 1 &&  (scoreText.value % (parseInt(levelText.value)*10)) > 0) {
@@ -338,6 +350,8 @@ function changeOutput(outputMode) {
 
 function changeSong(songIndex) {
     currentSongIndex = songIndex;
+    console.log("changeSong:" + currentSongIndex);
+    loadSong();
 }
 
 function changeClef(outputMode) {
