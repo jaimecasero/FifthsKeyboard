@@ -10,46 +10,15 @@
 </head>
 <body>
 <form id="settingsForm">
-    <label for="outputSelect">Output:</label>
-    <select id="outputSelect" onchange="changeOutput(this.value);">
-        <option value="0" selected="selected">midi</option>
-        <option value="1">ext midi</option>
-    </select>
-
-    <label for="midiOutputSelect">Midi Device:</label>
-    <select id="midiOutputSelect" onchange="changeMidiOutput();">
-    </select>
-
-    <label for="midiChannelSelect">Midi Channel:</label>
-    <select id="midiChannelSelect" onchange="changeMidiChannel(this.value);">
-        <option selected="selected">0</option>
-        <option>1</option>
-        <option>2</option>
-        <option>3</option>
-        <option>4</option>
-        <option>5</option>
-        <option>6</option>
-        <option>7</option>
-        <option>8</option>
-        <option>9</option>
-        <option>10</option>
-        <option>11</option>
-        <option>12</option>
-        <option>13</option>
-        <option>14</option>
-        <option>15</option>
-        <option>16</option>
-    </select>
-
-    <label for="gainSelect">Gain:</label>
-    <select id="gainSelect">
-        <option value="0.2">0.2</option>
-        <option value="0.4">0.4</option>
-        <option value="0.6">0.6</option>
-        <option value="0.8" selected>0.8</option>
-        <option value="1.0">1.0</option>
-    </select>
     <BR></BR>
+
+    <label for="SongSelect">Song:</label>
+    <select id="songSelect" onchange="changeSong(this.value);">
+        <option value="0" selected="selected">Harry</option>
+        <option value="1">waka waka</option>
+        <option value="1">Thunder</option>
+        <option value="1">Potra Salvaje</option>
+    </select>
 
     <label for="clefSelect">Clef:</label>
     <select id="clefSelect" onchange="changeClef();">
@@ -57,7 +26,7 @@
         <option value="1">&#119074;</option>
     </select>
     <label for="signatureSelect">Signature:</label>
-    <select id="signatureSelect">
+    <select id="signatureSelect" onchange="changeClef();">
         <option value="0" selected></option>
         <option value="1">&flat;</option>
         <option value="2">&flat;&flat;</option>
@@ -76,7 +45,7 @@
     </select>
 
     <label for="hintCheckbox">Sig Hint:</label>
-    <input type="checkbox" id="hintCheckbox" checked>
+    <input type="checkbox" id="hintCheckbox" checked onchange="changeClef();">
 
     <label for="playCheckbox">Play Note:</label>
     <input type="checkbox" id="playCheckbox" checked>
@@ -100,7 +69,6 @@
 
 
 <form id="displayForm">
-    <label>Key Notes:</label>
     <BR>
     <input type="button" id="NoteButton0" name="noteButton" class="natural-key" value="C" onpointerdown="keyNoteDown(event, 0)"
            onpointerup="keyNoteUp(event, 0)">
@@ -127,11 +95,13 @@
     <input type="button" id="NoteButton11" name="noteButton" class="natural-key" value="B" onpointerdown="keyNoteDown(event, 11)"
            onpointerup="keyNoteUp(event, 11)">
 
-    <BR>
+    <BR><BR>
     <label for="scoreText">Score:</label>
     <input type="text" readonly id="scoreText" value="0">
     <label for="mistakesText">Mistakes Left:</label>
     <input type="text" readonly id="mistakesText" value="5">
+    <label for="levelText">Level:</label>
+    <input type="text" readonly id="levelText" value="1">
 </form>
 
 <a href="https://paypal.me/jaimecasero?country.x=ES&locale.x=es_ES">Donate</a>

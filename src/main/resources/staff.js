@@ -5,34 +5,36 @@ const NOTE_MIDI_CODE = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
 const KEYBOARD_GAIN = 0.657;//the gain applied when note is pressed
 const FLAT_CHAR = "&flat;";
 const SHARP_CHAR = "&sharp;";
-const NAT_CHAR="&nat;";
-const NOTE_CHAR="&sung;";
+const NAT_CHAR = "&nat;";
+const NOTE_CHAR = "&sung;";
 const INITIAL_MISTAKES = 5;
 const SPEED_CHANGE_SCORE = 10;
 const SPEED_CHANGE_RATIO = 0.9;
 
-const CLEF_TABLE_ROWS=7;
-const CLEF_ROWS= 14;
-const TREBLE_MIDI_CODE = [59,60,62,64,65,67,69,71,72,74,76,77,79,81]; //[C4-B5]
+const CLEF_TABLE_ROWS = 7;
+const CLEF_ROWS = 14;
+const TREBLE_MIDI_CODE = [59, 60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 77, 79, 81]; //[C4-B5]
 const TREBLE_OCTAVE = 4;
-const BASS_MIDI_CODE =   [39,40,41,43,45,47,48,50,52,53,55,57,59,60]; //[E2-C4]
+const BASS_MIDI_CODE = [39, 40, 41, 43, 45, 47, 48, 50, 52, 53, 55, 57, 59, 60]; //[E2-C4]
 const BASS_OCTAVE = 2;
 
-const CLEF_CODE_ARRAY= [TREBLE_MIDI_CODE,BASS_MIDI_CODE];
-const CLEF_OCTAVE_ARRAY= [TREBLE_OCTAVE,BASS_OCTAVE];
+const CLEF_CODE_ARRAY = [TREBLE_MIDI_CODE, BASS_MIDI_CODE];
+const CLEF_OCTAVE_ARRAY = [TREBLE_OCTAVE, BASS_OCTAVE];
 
+const HARRY_SONG = [71, 76, 79, 77, 69, 71, 72, 74, 74, 71, 76, 71, 76, 74];
+const WAKA_SONG = [76, 76, 76, 77, 69, 71, 72, 74, 74, 71, 76, 71, 76, 74];
+const THUNDER_SONG = [71, 76, 79, 77, 69, 71, 72, 74, 74, 71, 76, 71, 76, 74];
+const POTRA_SONG = [71, 76, 79, 77, 69, 71, 72, 74, 74, 71, 76, 71, 76, 74];
+const SONG_ARRAY = [HARRY_SONG, WAKA_SONG, THUNDER_SONG, POTRA_SONG];
 
-
-var currentNote="";
-var currentNoteTablePos=1;
-var currentNoteIndex=-1;
-var song=[71,76,79,77,69,71,72,74, 74,71,76,71,76,74];
+var currentNote = "";
+var currentNoteTablePos = 1;
+var currentNoteIndex = -1;
+var currentSongIndex = 0;
 var nextNoteTimer;
 var selectedClef = 0;
 var octave = 4;
 var speed = 1;
-
-
 
 
 ////////DOM CACHING//////////////////
@@ -43,6 +45,7 @@ var scoreText;
 var hintCheckbox;
 var playCheckbox;
 var mistakesText;
+var levelText;
 
 (function (window, document, undefined) {
     window.onload = init;
@@ -60,6 +63,7 @@ var mistakesText;
         hintCheckbox = document.getElementById('hintCheckbox');
         playCheckbox = document.getElementById('playCheckbox');
         mistakesText = document.getElementById('mistakesText');
+        levelText = document.getElementById('levelText');
         //register key handlers
         document.addEventListener("keydown", keyDownHandler, false);
         document.addEventListener("keyup", keyUpHandler, false);
@@ -68,7 +72,7 @@ var mistakesText;
     }
 })(window, document, undefined);
 
-function resetClefCell(clefIndex,column) {
+function resetClefCell(clefIndex, column) {
     console.log("resetClefCell:" + clefIndex);
     const clefRowIndex = CLEF_TABLE_ROWS - Math.floor(clefIndex / 2) - 1;
     let clefRow = clefTable.getElementsByTagName("tr")[clefRowIndex];
@@ -92,9 +96,10 @@ function midiToClefIndex(midiNote) {
     console.log("midiToClefIndex:" + midiNote + ".index:" + clefIndex + "");
     return clefIndex;
 }
+
 function setClefCell(clefIndex, column) {
     console.log("setClefCell:" + clefIndex);
-    if (clefIndex > 0){
+    if (clefIndex > 0) {
         const clefRowIndex = CLEF_TABLE_ROWS - Math.floor(clefIndex / 2) - 1;
         let noteClass = "note-on-line";
         if (clefIndex % 2 === 0) {
@@ -123,19 +128,26 @@ function start() {
     mistakesText.value = INITIAL_MISTAKES;
     renderCurrentNote();
 
+    mistakesText.value = INITIAL_MISTAKES;
+    levelText.value = 1;
+    scoreText.value = 0;
+    hintCheckbox.readOnly = true;
+
 }
 
 function stop() {
     if (nextNoteTimer !== undefined) {
         clearTimeout(nextNoteTimer);
         nextNoteTimer = undefined;
+        hintCheckbox.readOnly = false;
+
     }
 }
 
 
 function renderCurrentNote() {
     if (currentNoteIndex >= 0) {
-        currentNote = song[currentNoteIndex];
+        currentNote = SONG_ARRAY[currentSongIndex][currentNoteIndex];
         let clefIndex = midiToClefIndex(currentNote);
         resetClefCell(clefIndex, currentNoteTablePos);
     }
@@ -147,11 +159,11 @@ function renderCurrentNote() {
         currentNoteTablePos = clefTable.getElementsByTagName("tr")[0].getElementsByTagName("td").length;
         //user didnt matched note, pass to next note
         currentNoteIndex = currentNoteIndex + 1;
-        if (currentNoteIndex >= song.length) {
+        if (currentNoteIndex >= SONG_ARRAY[currentSongIndex].length) {
             currentNoteIndex = 0;
         }
     }
-    currentNote = song[currentNoteIndex];
+    currentNote = SONG_ARRAY[currentSongIndex][currentNoteIndex];
     let clefIndex = midiToClefIndex(currentNote);
     setClefCell(clefIndex, currentNoteTablePos);
     if (playCheckbox.checked) {
@@ -162,7 +174,7 @@ function renderCurrentNote() {
 
 ///////////////INPUT HANDLING/////////////////////////////////////////
 var shiftPressed = false;
-var pressedKeys=[];
+var pressedKeys = [];
 
 function keyDownHandler(event) {
     let keyPressed = String.fromCharCode(event.keyCode);
@@ -210,18 +222,21 @@ function keyUpHandler(event) {
 function keyNoteDown(event, keyIndex) {
     const pressure = ((event.pressure == null) ? KEYBOARD_GAIN : event.pressure);
     console.log("keyNoteDown:" + keyIndex + " pressure:" + pressure);
-    playMidiNote(NOTE_MIDI_CODE[keyIndex] + (NUM_NOTES*octave), pressure);
+    playMidiNote(NOTE_MIDI_CODE[keyIndex] + (NUM_NOTES * octave), pressure);
     if (isSamePitch(currentNote, NOTE_MIDI_CODE[keyIndex])) {
         console.log("same pitch");
-        scoreText.value = parseInt(scoreText.value) + 1;
+        let hintRatio = hintCheckbox.checked ? 1 : 3;
+        scoreText.value = parseInt(scoreText.value) + hintRatio;
         resetClefCell(midiToClefIndex(currentNote), currentNoteTablePos);
         currentNoteTablePos = clefTable.getElementsByTagName("tr")[0].getElementsByTagName("td").length;
         currentNoteIndex = currentNoteIndex + 1;
-        if (currentNoteIndex >= song.length) {
+        if (currentNoteIndex >= SONG_ARRAY[currentSongIndex].length) {
             currentNoteIndex = 0;
         }
-        if (scoreText.value % SPEED_CHANGE_SCORE === 0) {
+        if ( scoreText.value / (parseInt(levelText.value)*10) > 1 &&  (scoreText.value % (parseInt(levelText.value)*10)) > 0) {
+            console.log("score:" + scoreText.value + " level:" + levelText.value);
             speed = speed * (SPEED_CHANGE_RATIO);
+            levelText.value = parseInt(levelText.value) + 1;
         }
     } else {
         mistakesText.value = parseInt(mistakesText.value) - 1;
@@ -233,7 +248,7 @@ function keyNoteDown(event, keyIndex) {
 }
 
 function keyNoteUp(event, keyIndex) {
-    playMidiNoteOff(NOTE_MIDI_CODE[keyIndex] + (NUM_NOTES*octave));
+    playMidiNoteOff(NOTE_MIDI_CODE[keyIndex] + (NUM_NOTES * octave));
 }
 
 function isSamePitch(midiNote1, midiNote2) {
@@ -248,10 +263,14 @@ function changeOutput(outputMode) {
     }
 }
 
+function changeSong(songIndex) {
+    currentSongIndex = songIndex;
+}
+
 function changeClef(outputMode) {
     selectedClef = clefSelect.value;
     for (let i = 0; i < CLEF_ROWS; i++) {
-        resetClefCell(i,0);
+        resetClefCell(i, 0);
     }
     if (hintCheckbox.checked) {
         for (let i = 0; i < CLEF_CODE_ARRAY[selectedClef].length; i++) {
@@ -278,23 +297,12 @@ function changeClef(outputMode) {
 }
 
 
-
-
 function playMidiNote(adjustedMidiNote, force) {
-    console.log("playMidiNote:" + adjustedMidiNote + " force:" + force);
-    if (outputSelect.value === "0") {
-        playOscillatorNote(adjustedMidiNote, force);
-    } else {
-        playExtMidiNote(adjustedMidiNote, force);
-    }
+    playOscillatorNote(adjustedMidiNote, force);
 }
 
 function playMidiNoteOff(adjustedMidiNote) {
-    if (outputSelect.value === "0") {
-        playOscillatorNoteOff(adjustedMidiNote);
-    } else {
-        playExtMidiNoteOff(adjustedMidiNote);
-    }
+    playOscillatorNoteOff(adjustedMidiNote);
 }
 
 
@@ -339,61 +347,4 @@ function playOscillatorNote(adjustedMidiNote, force) {
 
 function playOscillatorNoteOff(adjustedMidiNote) {
     MIDI.noteOff(0, adjustedMidiNote, 0);
-}
-
-/////////////////////////////Ext MIDI OUTPUT///////////1///////////
-const NOTE_ON = 0x90;
-const NOTE_OFF = 0x80;
-var extMidiOutput;
-var midiOut;
-var midiVelocity = 127;
-var midiChannel = 0;
-
-function initMidi() {
-    if (navigator.requestMIDIAccess) {
-        navigator.requestMIDIAccess({sysex: true}).then(onMIDISuccess, onMIDIFailure);
-    } else {
-        console.log("no midi support");
-    }
-}
-
-function changeMidiChannel(channel) {
-    midiChannel = channel;
-}
-
-function onMIDISuccess(midiAccess) {
-    console.log(midiAccess);
-    extMidiOutput = midiAccess.outputs;
-    const midiOutputSelect = document.getElementById('midiOutputSelect');
-    for (let output of extMidiOutput.values()) {
-        const opt = document.createElement('option');
-        opt.value = output.id;
-        opt.innerHTML = output.name;
-        midiOutputSelect.appendChild(opt);
-        midiOut = output;
-    }
-}
-
-function changeMidiOutput() {
-    const midiOutputSelect = document.getElementById('midiOutputSelect');
-    for (let output of extMidiOutput.values()) {
-        if (output.id === midiOutputSelect.value) {
-            midiOut = output;
-            break;
-        }
-    }
-}
-
-function playExtMidiNote(midiNote, force) {
-    console.log("turn on:" + midiNote);
-    midiOut.send([NOTE_ON | midiChannel, midiNote, midiVelocity * force]);
-}
-
-function playExtMidiNoteOff(midiNote) {
-    console.log("turn off:" + midiNote);
-    midiOut.send([NOTE_OFF | midiChannel, midiNote, midiVelocity]);
-}
-
-function onMIDIFailure() {
-    console.log('Could not access your MIDI devices.');
 }
