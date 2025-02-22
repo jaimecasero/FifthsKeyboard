@@ -11,9 +11,6 @@ td {
     position: relative;
 }
 
-.middle-row {
-    text-decoration: line-through;
-}
 
 .clef-row {
     border-top: 2px solid black; /* Creates the staff lines */
