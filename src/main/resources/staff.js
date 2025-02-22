@@ -7,6 +7,9 @@ const FLAT_CHAR = "&flat;";
 const SHARP_CHAR = "&sharp;";
 const NAT_CHAR="&nat;";
 const NOTE_CHAR="&sung;";
+const INITIAL_MISTAKES = 5;
+const SPEED_CHANGE_SCORE = 10;
+const SPEED_CHANGE_RATIO = 0.9;
 
 const CLEF_TABLE_ROWS=7;
 const CLEF_ROWS= 14;
@@ -39,6 +42,7 @@ var clefSelect;
 var scoreText;
 var hintCheckbox;
 var playCheckbox;
+var mistakesText;
 
 (function (window, document, undefined) {
     window.onload = init;
@@ -55,6 +59,7 @@ var playCheckbox;
         scoreText = document.getElementById('scoreText');
         hintCheckbox = document.getElementById('hintCheckbox');
         playCheckbox = document.getElementById('playCheckbox');
+        mistakesText = document.getElementById('mistakesText');
         //register key handlers
         document.addEventListener("keydown", keyDownHandler, false);
         document.addEventListener("keyup", keyUpHandler, false);
@@ -115,6 +120,7 @@ function setClefText(text, textClass, clefRowIndex, column) {
 function start() {
     currentNoteIndex = -1;
     currentNoteTablePos = clefTable.getElementsByTagName("tr")[0].getElementsByTagName("td").length;
+    mistakesText.value = INITIAL_MISTAKES;
     renderCurrentNote();
 
 }
@@ -213,6 +219,15 @@ function keyNoteDown(event, keyIndex) {
         currentNoteIndex = currentNoteIndex + 1;
         if (currentNoteIndex >= song.length) {
             currentNoteIndex = 0;
+        }
+        if (scoreText.value % SPEED_CHANGE_SCORE === 0) {
+            speed = speed * (SPEED_CHANGE_RATIO);
+        }
+    } else {
+        mistakesText.value = parseInt(mistakesText.value) - 1;
+        if (mistakesText.value <= 0) {
+            stop();
+            window.alert("You run out of mistakes, Your score is " + scoreText.value + ". Press OK to restart");
         }
     }
 }
