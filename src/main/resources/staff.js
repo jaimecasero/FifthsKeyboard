@@ -23,7 +23,7 @@ const CLEF_OCTAVE_ARRAY= [TREBLE_OCTAVE,BASS_OCTAVE];
 var currentNote="";
 var currentNoteTablePos=1;
 var currentNoteIndex=-1;
-var song=[71,76]; //,79,77,69,71,72,74];
+var song=[71,76,79,77,69,71,72,74, 74,71,76,71,76,74];
 var nextNoteTimer;
 var selectedClef = 0;
 var octave = 4;
