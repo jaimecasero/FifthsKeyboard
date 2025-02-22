@@ -76,9 +76,14 @@
     </select>
 
     <label for="hintCheckbox">Sig Hint:</label>
-    <input type="checkbox" id="hintCheckbox">
+    <input type="checkbox" id="hintCheckbox" checked>
 
-    <input type="button" id="clefButton" value="Start" onclick="start()">
+    <label for="playCheckbox">Play Note:</label>
+    <input type="checkbox" id="playCheckbox" checked>
+
+
+    <input type="button" id="startButton" value="Start" onclick="start()">
+    <input type="button" id="stopButton" value="stop" onclick="stop()">
 
     <BR><BR>
 
@@ -121,6 +126,10 @@
            onpointerup="keyNoteUp(event, 10)">
     <input type="button" id="NoteButton11" name="noteButton" class="natural-key" value="B" onpointerdown="keyNoteDown(event, 11)"
            onpointerup="keyNoteUp(event, 11)">
+
+    <BR>
+    <label for="scoreText">Score:</label>
+    <input type="text" readonly id="scoreText" value="0">
 
 </form>
 

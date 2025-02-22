@@ -36,6 +36,14 @@ input[name="noteButton"] {
 
 /* Notes on the lines (row upper border) */
 .note-on-line {
+    position: absolute;
+    left: 50%;
+    top: 0; /* Align with the top border */
+    transform: translate(-50%, -50%);
+    font-size: 24px;
+}
+
+.note-on-line-striked {
     text-decoration: line-through;
     position: absolute;
     left: 50%;
