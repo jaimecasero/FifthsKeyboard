@@ -2,6 +2,8 @@
 const NUM_NOTES = 12;
 const NOTE_LABEL = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 const NOTE_MIDI_CODE = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
+const MAJOR_MIDI_CODE = [12, 14, 16, 17, 19, 21, 23];
+const SIGNATURE_MAJOR_MOD = [MAJOR_MIDI_CODE[7 - 1], MAJOR_MIDI_CODE[3 - 1], MAJOR_MIDI_CODE[6 - 1], MAJOR_MIDI_CODE[2 - 1], MAJOR_MIDI_CODE[5 - 1], MAJOR_MIDI_CODE[1 - 1], MAJOR_MIDI_CODE[4 - 1]];//B, E, A, D, G, C, F
 const KEYBOARD_GAIN = 0.657;//the gain applied when note is pressed
 const FLAT_CHAR = "&flat;";
 const SHARP_CHAR = "&sharp;";
@@ -28,16 +30,15 @@ const CLEF_CODE_ARRAY = [TREBLE_MIDI_CODE, BASS_MIDI_CODE];
 const CLEF_OCTAVE_ARRAY = [TREBLE_OCTAVE, BASS_OCTAVE];
 
 
-SIGNATURE_MOD=[7,3,6,2,5,1,4];
 
-let HARRY_SONG = "midi/harry.mid"
+let HARRY_SONG = "midi/HarryPotter.mid"
 const WAKA_SONG = "midi/waka.mid";
 const THUNDER_SONG = "midi/thunder.mid";
 const POTRA_SONG = "midi/potra.mid";
 const SONG_PATHS = [HARRY_SONG, WAKA_SONG, THUNDER_SONG, POTRA_SONG];
 
 
-const SONG_SIGNATURE= [];
+const SONG_SIGNATURE = [];
 
 let HARRY_TRACK = 0;
 const WAKA_TRACK = 0;
@@ -51,9 +52,9 @@ var currentNoteTablePos = 1;
 var currentNoteIndex = -1;
 var currentSongIndex = 0;
 var nextNoteTimer;
-var selectedClef = 0;
 var octave = 4;
 var speed = 1;
+var resultingClef = [];
 
 
 ////////DOM CACHING//////////////////
@@ -65,7 +66,10 @@ var hintCheckbox;
 var playCheckbox;
 var mistakesText;
 var levelText;
-let midiData;
+var midiData;
+var signatureSelect;
+var signatureType = 0;
+var signatureArtificials = 0;
 
 (function (window, document, undefined) {
     window.onload = init;
@@ -84,11 +88,12 @@ let midiData;
         playCheckbox = document.getElementById('playCheckbox');
         mistakesText = document.getElementById('mistakesText');
         levelText = document.getElementById('levelText');
+        signatureSelect = document.getElementById('signatureSelect');
         //register key handlers
         document.addEventListener("keydown", keyDownHandler, false);
         document.addEventListener("keyup", keyUpHandler, false);
 
-        changeClef(selectedClef);
+        changeClef();
         loadSong();
     }
 })(window, document, undefined);
@@ -121,6 +126,7 @@ async function loadSong() {
     const response = await fetch(SONG_PATHS[currentSongIndex]);
     const arrayBuffer = await response.arrayBuffer();
     midiData = new Midi(arrayBuffer);
+
     console.log(midiData);
 }
 
@@ -138,12 +144,12 @@ function midiToClefIndex(midiNote) {
 
     let clefIndex = -1;
     let matchType = 0; //natural, flat, sharp
-    for (let i = 0; i < CLEF_CODE_ARRAY[selectedClef].length; i++) {
-        if (midiNote === CLEF_CODE_ARRAY[selectedClef][i]) {
+    for (let i = 0; i < resultingClef.length; i++) {
+        if (midiNote === resultingClef[i]) {
             clefIndex = i;
             break;
         }
-        if ( midiNote < CLEF_CODE_ARRAY[selectedClef][i]) {
+        if (midiNote < resultingClef[i]) {
             if (i % 2 === 0) {
                 console.log("flatten detected")
                 clefIndex = i - 1;
@@ -157,7 +163,7 @@ function midiToClefIndex(midiNote) {
         }
     }
     console.log("midiToClefIndex:" + midiNote + ".index:" + clefIndex + "");
-    return  [clefIndex, matchType];
+    return [clefIndex, matchType];
 }
 
 function setClefCell(clefIndex, column) {
@@ -216,11 +222,11 @@ function stop() {
  */
 function adjustMidiToClef(midiNote) {
     let adjustedNote = midiNote;
-    while (adjustedNote < CLEF_CODE_ARRAY[selectedClef][0]) {
+    while (adjustedNote < resultingClef[0]) {
         adjustedNote = adjustedNote + NUM_NOTES;
     }
 
-    while (adjustedNote > CLEF_CODE_ARRAY[selectedClef][CLEF_CODE_ARRAY[selectedClef].length - 1]) {
+    while (adjustedNote > resultingClef[resultingClef.length - 1]) {
         adjustedNote = adjustedNote - NUM_NOTES;
     }
     console.log("adjustMidiToClef:" + midiNote + " adjusted:" + adjustedNote);
@@ -308,7 +314,7 @@ function keyNoteDown(event, keyIndex) {
     const pressure = ((event.pressure == null) ? KEYBOARD_GAIN : event.pressure);
     console.log("keyNoteDown:" + keyIndex + " pressure:" + pressure);
     playMidiNote(NOTE_MIDI_CODE[keyIndex] + (NUM_NOTES * octave), pressure);
-    if (isSamePitch(currentNote, NOTE_MIDI_CODE[keyIndex])) {
+    if (isSameNote(currentNote, NOTE_MIDI_CODE[keyIndex])) {
         console.log("same pitch");
         let hintRatio = hintCheckbox.checked ? 1 : 3;
         scoreText.value = parseInt(scoreText.value) + hintRatio;
@@ -318,7 +324,7 @@ function keyNoteDown(event, keyIndex) {
         if (currentNoteIndex >= midiData.tracks[0].notes.length) {
             currentNoteIndex = 0;
         }
-        if ( scoreText.value / (parseInt(levelText.value)*10) > 1 &&  (scoreText.value % (parseInt(levelText.value)*10)) > 0) {
+        if (scoreText.value / (parseInt(levelText.value) * 10) > 1 && (scoreText.value % (parseInt(levelText.value) * 10)) > 0) {
             console.log("score:" + scoreText.value + " level:" + levelText.value);
             speed = speed * (SPEED_CHANGE_RATIO);
             levelText.value = parseInt(levelText.value) + 1;
@@ -336,7 +342,7 @@ function keyNoteUp(event, keyIndex) {
     playMidiNoteOff(NOTE_MIDI_CODE[keyIndex] + (NUM_NOTES * octave));
 }
 
-function isSamePitch(midiNote1, midiNote2) {
+function isSameNote(midiNote1, midiNote2) {
     return midiNote1 % NUM_NOTES === midiNote2 % NUM_NOTES;
 }
 
@@ -354,15 +360,52 @@ function changeSong(songIndex) {
     loadSong();
 }
 
-function changeClef(outputMode) {
-    selectedClef = clefSelect.value;
+function changeClef() {
+    let selectedClef = clefSelect.value;
     for (let i = 0; i < CLEF_ROWS; i++) {
         resetClefCell(i, 0);
     }
+    resultingClef = [];
+    signatureType = 0;
+    signatureArtificials = 0;
+    console.log("signatureSelect:" + signatureSelect.value);
+    if (signatureSelect.value > 0 && signatureSelect.value < 8) {
+        //its a flat signature
+        signatureArtificials = signatureSelect.value ;
+        signatureType = -1;
+    }
+    if (signatureSelect.value > 7) {
+        //its a sharp signature
+        signatureArtificials = signatureSelect.value - 7;
+        signatureType = 1;
+    }
+    console.log("signatureArtificials:" + signatureArtificials + " signatureType:" + signatureType + ".signature mod:" + SIGNATURE_MAJOR_MOD );
+
+    for (let i = 0; i < CLEF_CODE_ARRAY[selectedClef].length; i++) {
+        let nextNote = CLEF_CODE_ARRAY[selectedClef][i];
+        if (signatureType !== 0) {
+            for (let j = 0; j < signatureArtificials; j++) {
+                if (signatureType < 0) {
+                    if (isSameNote(nextNote, SIGNATURE_MAJOR_MOD[j])) {
+                        nextNote = nextNote + signatureType;
+                        break;
+                    }
+                } else {
+                    if (isSameNote(nextNote, SIGNATURE_MAJOR_MOD[SIGNATURE_MAJOR_MOD.length - j - 1])) {
+                        console.log("nextNote:" + nextNote + " SIGNATURE_MAJOR_MOD:" + SIGNATURE_MAJOR_MOD[SIGNATURE_MAJOR_MOD.length - j - 1]);
+                        nextNote = nextNote + signatureType;
+                        break;
+                    }
+                }
+            }
+        }
+        resultingClef.push(nextNote);
+    }
+    console.log("resultingClef:" + resultingClef);
     if (hintCheckbox.checked) {
-        for (let i = 0; i < CLEF_CODE_ARRAY[selectedClef].length; i++) {
+        for (let i = 0; i < resultingClef.length; i++) {
             let noteIndex = -1;
-            let clefMidiNote = CLEF_CODE_ARRAY[selectedClef][i];
+            let clefMidiNote = resultingClef[i];
             do {
                 noteIndex = NOTE_MIDI_CODE.findIndex(midiNote => midiNote === clefMidiNote);
                 clefMidiNote = clefMidiNote - NUM_NOTES;
@@ -376,8 +419,18 @@ function changeClef(outputMode) {
                     noteClass = "note-on-line-striked";
                 }
             }
-            console.log("clefIndex:" + clefIndex + " class:" + noteClass + " midiNote:" + clefMidiNote)
-            setClefText(NOTE_LABEL[noteIndex], noteClass, clefIndex, 0);
+            console.log("clefIndex:" + clefIndex + " class:" + noteClass + " midiNote:" + clefMidiNote);
+            let noteLabel = NOTE_LABEL[noteIndex];
+            if (noteLabel.includes('#')) {
+                if (signatureType < 0) {
+                    let adjustedIndex = noteIndex +1;
+                    if (adjustedIndex > NOTE_LABEL.length) {
+                        adjustedIndex = 0;
+                    }
+                    noteLabel = NOTE_LABEL[noteIndex + 1] + FLAT_CHAR;
+                }
+            }
+            setClefText(noteLabel, noteClass, clefIndex, 0);
         }
     }
 }
