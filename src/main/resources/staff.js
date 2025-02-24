@@ -131,6 +131,15 @@ async function loadSong() {
         newOption.value = i;
         trackSelect.appendChild(newOption);
     }
+    signatureSelect.value = 0;
+    if (midiData.header.keySignatures.length > 0) {
+        let noteIndex = NOTE_LABEL.indexOf(midiData.header.keySignatures[0].key);
+        if (noteIndex > -1) {
+            signatureSelect.value = MAJOR_TO_SIGNATURE_INDEX[noteIndex];
+        }
+
+    }
+    changeClef();
     console.log(midiData);
 }
 
