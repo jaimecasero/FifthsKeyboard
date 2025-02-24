@@ -16,19 +16,16 @@ const QUARTER_CHAR = "&#119135;";
 const EIGHTH_CHAR = "&#119136;";
 const SIXTEENTH_CHAR = "&#119137;";
 
-const INITIAL_MISTAKES = 5;
+const INITIAL_MISTAKES = 0;
 const SPEED_CHANGE_RATIO = 0.9;
 
-const CLEF_TABLE_ROWS = 7;
-const CLEF_ROWS = 14;
 
-const TREBLE_MIDI_CODE = [59, 60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 77, 79, 81]; //[C4-B5]
+const TREBLE_MIDI_CODE = [60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 77, 79, 81]; //[C4-B5]
 const TREBLE_OCTAVE = 4;
-const BASS_MIDI_CODE = [39, 40, 41, 43, 45, 47, 48, 50, 52, 53, 55, 57, 59, 60]; //[E2-C4]
+const BASS_MIDI_CODE = [40, 41, 43, 45, 47, 48, 50, 52, 53, 55, 57, 59, 60]; //[E2-C4]
 const BASS_OCTAVE = 2;
 const CLEF_CODE_ARRAY = [TREBLE_MIDI_CODE, BASS_MIDI_CODE];
 const CLEF_OCTAVE_ARRAY = [TREBLE_OCTAVE, BASS_OCTAVE];
-
 
 
 let HARRY_SONG = "midi/HarryPotter.mid"
@@ -128,8 +125,7 @@ async function loadSong() {
 }
 
 function resetClefCell(clefIndex, column) {
-    const clefRowIndex = CLEF_TABLE_ROWS - Math.floor(clefIndex / 2) - 1;
-    let clefRow = clefTable.getElementsByTagName("tr")[clefRowIndex];
+    let clefRow = clefTable.getElementsByTagName("tr")[clefIndex];
     let clefCell = clefRow.getElementsByTagName("td");
     if (clefCell.length > 0 && clefCell.length > column) {
         clefCell = clefCell[column];
@@ -138,12 +134,11 @@ function resetClefCell(clefIndex, column) {
 }
 
 function midiToClefIndex(midiNote) {
-
     let clefIndex = -1;
     let matchType = 0; //natural, flat, sharp
     for (let i = 0; i < resultingClef.length; i++) {
         if (midiNote === resultingClef[i]) {
-            clefIndex = i;
+            clefIndex = clefTable.getElementsByTagName("tr").length - i - 1;
             break;
         }
         if (midiNote < resultingClef[i]) {
@@ -164,11 +159,14 @@ function midiToClefIndex(midiNote) {
 }
 
 function setClefCell(clefIndex, column) {
-    if (clefIndex[0] > 0) {
-        const clefRowIndex = CLEF_TABLE_ROWS - Math.floor(clefIndex[0] / 2) - 1;
-        let noteClass = "note-on-line";
+    if (clefIndex[0] >= 0) {
+        let noteClass = "note-on-space";
         if (clefIndex[0] % 2 === 0) {
-            noteClass = "note-on-space";
+            noteClass = "note-on-line";
+            //outer lines are just striked
+            if (clefIndex[0] < 2 || clefIndex[0] > 10) {
+                noteClass = "note-on-line-striked";
+            }
         }
         let matchType = "";
         if (clefIndex[1] < 0) {
@@ -177,19 +175,19 @@ function setClefCell(clefIndex, column) {
         if (clefIndex[1] > 0) {
             matchType = SHARP_CHAR;
         }
-        console.log("clefRowIndex:" + clefRowIndex + " class:" + noteClass);
+        console.log("clefRowIndex:" + clefIndex + " class:" + noteClass);
         let noteSymbol = noteDurationToSymbol(midiData.tracks[0].notes[currentNoteIndex].durationTicks, midiData.header.ppq);
-        setClefText(matchType + noteSymbol, noteClass, clefRowIndex, column);
+        setClefText(matchType + noteSymbol, noteClass, clefIndex[0], column);
     }
 }
 
-function setClefText(text, textClass, clefRowIndex, column) {
-    console.log("setClefText:" + text + " " + textClass + " " + clefRowIndex + " " + column);
-    let clefRow = clefTable.getElementsByTagName("tr")[clefRowIndex];
+function setClefText(text, textClass, clefIndex, column) {
+    console.log("setClefText:" + text + " " + textClass + " " + clefIndex + " " + column);
+    let clefRow = clefTable.getElementsByTagName("tr")[clefIndex];
     let clefCell = clefRow.getElementsByTagName("td");
     if (clefCell.length > 0 && clefCell.length > column) {
         clefCell = clefCell[column];
-        clefCell.innerHTML = clefCell.innerHTML + "<span class='" + textClass + "'>" + text + "</span>";
+        clefCell.innerHTML = "<span class='" + textClass + "'>" + text + "</span>";
     }
 }
 
@@ -330,11 +328,7 @@ function keyNoteDown(event, keyIndex) {
             levelText.value = parseInt(levelText.value) + 1;
         }
     } else {
-        mistakesText.value = parseInt(mistakesText.value) - 1;
-        if (mistakesText.value <= 0) {
-            stop();
-            window.alert("You run out of mistakes, Your score is " + scoreText.value + ". Press OK to restart");
-        }
+        mistakesText.value = parseInt(mistakesText.value) + 1;
     }
 }
 
@@ -369,14 +363,14 @@ function calculateNewClef() {
     console.log("signatureSelect:" + signatureSelect.value);
     if (signatureSelect.value > 0 && signatureSelect.value < 8) {
         //its a flat signature
-        signatureArtificials = signatureSelect.value ;
+        signatureArtificials = signatureSelect.value;
         signatureType = -1;
     } else if (signatureSelect.value > 7) {
         //its a sharp signature
         signatureArtificials = signatureSelect.value - 7;
         signatureType = 1;
     }
-    console.log("signatureArtificials:" + signatureArtificials + " signatureType:" + signatureType + ".signature mod:" + SIGNATURE_MAJOR_MOD );
+    console.log("signatureArtificials:" + signatureArtificials + " signatureType:" + signatureType + ".signature mod:" + SIGNATURE_MAJOR_MOD);
 
     for (let i = 0; i < CLEF_CODE_ARRAY[selectedClef].length; i++) {
         let nextNote = CLEF_CODE_ARRAY[selectedClef][i];
@@ -403,7 +397,7 @@ function calculateNewClef() {
 
 function changeClef() {
 
-    for (let i = 0; i < CLEF_ROWS; i++) {
+    for (let i = 0; i < clefTable.getElementsByTagName("tr").length; i++) {
         resetClefCell(i, 0);
     }
     calculateNewClef();
@@ -420,21 +414,20 @@ function displaySignatureHint() {
             noteIndex = NOTE_MIDI_CODE.findIndex(midiNote => midiNote === clefMidiNote);
             clefMidiNote = clefMidiNote - NUM_NOTES;
         } while (noteIndex < 0 && clefMidiNote > 0);
-        let noteClass = "note-on-line";
-        let clefIndex = CLEF_TABLE_ROWS - Math.floor(i / 2) - 1;
+        let noteClass = "note-on-space";
+        let clefIndex = clefTable.getElementsByTagName("tr").length - i - 1;
         if (i % 2 === 0) {
-            noteClass = "note-on-space";
-        } else {
+            noteClass = "note-on-line";
             //outer lines are just striked
-            if (clefIndex === 0 || clefIndex === 6) {
+            if (clefIndex < 2 || clefIndex > 10) {
                 noteClass = "note-on-line-striked";
             }
         }
         console.log("clefIndex:" + clefIndex + " class:" + noteClass + " midiNote:" + clefMidiNote);
         let noteLabel = NOTE_LABEL[noteIndex];
-        if (noteLabel.includes('#') ) {
+        if (noteLabel.includes('#')) {
             if (signatureType < 0) {
-                let adjustedIndex = noteIndex +1;
+                let adjustedIndex = noteIndex + 1;
                 if (adjustedIndex >= NOTE_LABEL.length) {
                     adjustedIndex = 0;
                 }

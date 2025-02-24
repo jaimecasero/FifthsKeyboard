@@ -1,27 +1,44 @@
 table {
     border-collapse: collapse;
     position: relative;
+    font-size: 24px;
 }
 body {
     touch-action: manipulation;
 }
 td {
     width: 50px;
-    height: 35px; /* Adjust for line spacing */
+    height: 35px;
     position: relative;
 }
 
-
-.clef-row {
+.line-clef-row {
     border-top: 2px solid black; /* Creates the staff lines */
 }
-/* Notes between the lines */
+
+.note-on-line {
+    position: absolute;
+    left: 20%;
+    top: 0; /* Align with the top border */
+    transform: translate(-50%, -50%);
+}
+
+.note-on-line-striked {
+    position: absolute;
+    left: 20%;
+    top: 0; /* Align with the top border */
+    transform: translate(-50%, -50%);
+    text-decoration: line-through;
+}
+
 .note-on-space {
     position: absolute;
-    left: 50%;
+    left: 20%;
+    top: 0; /* Align with the top border */
     transform: translate(-50%, -50%);
-    font-size: 24px;
 }
+
+
 .natural-key {
     background: white; /* Ensures readability */
 }
@@ -31,21 +48,5 @@ input[name="noteButton"] {
     height: 30px;
 }
 
-/* Notes on the lines (row upper border) */
-.note-on-line {
-    position: absolute;
-    left: 50%;
-    top: 0; /* Align with the top border */
-    transform: translate(-50%, -50%);
-    font-size: 24px;
-}
 
-.note-on-line-striked {
-    text-decoration: line-through;
-    position: absolute;
-    left: 50%;
-    top: 0; /* Align with the top border */
-    transform: translate(-50%, -50%);
-    font-size: 24px;
-}
 
