@@ -7,7 +7,7 @@ const SIGNATURE_MAJOR_MOD = [MAJOR_MIDI_CODE[7 - 1], MAJOR_MIDI_CODE[3 - 1], MAJ
 const KEYBOARD_GAIN = 0.657;//the gain applied when note is pressed
 const FLAT_CHAR = "&flat;";
 const SHARP_CHAR = "&sharp;";
-const NAT_CHAR = "&nat;";
+const NAT_CHAR = "&natur;";
 const NOTE_CHAR = "&sung;";
 
 const WHOLE_CHAR = "&#119133;";
@@ -49,6 +49,7 @@ var nextNoteTimer = undefined;//holds promise for timer
 var octave = 4;
 var speed = 1;//current speed,
 var resultingClef = [];//contains midi notes of resulting clef after calculating artificial modifiers
+var resultingClefArtificials = []; //contains -1 for flatten notes or  1 for sharpen
 var midiData;//contains midi object after parsing midi file
 var signatureType = 0; //negative for flat sigs and positive for sharp signatures. defaults to no flat/sharp
 var signatureArtificials = 0; //number of artificials  in signature. defaults to no artificials
@@ -144,36 +145,61 @@ async function loadSong() {
 }
 
 function resetClefCell(clefIndex, column) {
-    let clefRow = clefTable.getElementsByTagName("tr")[clefIndex];
-    let clefCell = clefRow.getElementsByTagName("td");
-    if (clefCell.length > 0 && clefCell.length > column) {
-        clefCell = clefCell[column];
-        clefCell.innerHTML = "";
+    let cell = getClefCell(clefIndex, column);
+    if (cell !== undefined) {
+        cell.innerHTML = "";
     }
 }
 
 function midiToClefIndex(midiNote) {
     let clefIndex = -1;
-    let matchType = 0; //natural, flat, sharp
+    let matchType = 9999; //natural, flat, sharp
     for (let i = 0; i < resultingClef.length; i++) {
         if (midiNote === resultingClef[i]) {
             clefIndex = clefTable.getElementsByTagName("tr").length - i - 1;
             break;
         }
-        if (midiNote < resultingClef[i]) {
-            if (i % 2 === 0) {
-                console.log("flatten detected")
-                clefIndex = i - 1;
+        if (midiNote < resultingClef[i - 1]) {
+            //previous note is bigger, so the note is not in the current key
+            if (signatureType === 1) {
+                //for sharp keys set match type to flat
+                clefIndex = clefTable.getElementsByTagName("tr").length - i + 1;
                 matchType = 1;
-            } else {
-                console.log("sharp detected:" + i);
-                clefIndex = i - 1;
+            } else if (signatureType === -1) {
+                //for flat keys set match type to flat
+                clefIndex = clefTable.getElementsByTagName("tr").length - i;
+                matchType = -1;
+            }
+            if (resultingClefArtificials[i - 1] !== 0) {
+                //previous note was already altered, so this is natural switch
+                //keep clefIndex on current row
+                clefIndex = clefTable.getElementsByTagName("tr").length - i;
+                matchType = 0;
+            }
+            break;
+        }
+
+        if (i === resultingClef.length - 1) {
+            //no more notes in the array
+            if (signatureType === 1) {
+                //for sharp keys set match type to flat
+                clefIndex = clefTable.getElementsByTagName("tr").length - i;
                 matchType = 1;
+            } else if (signatureType === -1) {
+                //for flat keys set match type to flat
+                clefIndex = clefTable.getElementsByTagName("tr").length - i;
+                matchType = -1;
+            }
+            if (resultingClefArtificials[i - 1] !== 0) {
+                //previous note was already altered, so this is natural switch
+                //keep clefIndex on current row
+                clefIndex = clefTable.getElementsByTagName("tr").length - i;
+                matchType = 0;
             }
             break;
         }
     }
-    console.log("midiToClefIndex:" + midiNote + ".index:" + clefIndex + "");
+    console.log("midiToClefIndex:" + midiNote + ".index:" + clefIndex + " matchtype:" + matchType);
     return [clefIndex, matchType];
 }
 
@@ -188,11 +214,14 @@ function setClefCell(clefIndex, column) {
             }
         }
         let matchType = "";
-        if (clefIndex[1] < 0) {
+        if (clefIndex[1] === -1) {
             matchType = FLAT_CHAR;
         }
-        if (clefIndex[1] > 0) {
+        if (clefIndex[1] === 1) {
             matchType = SHARP_CHAR;
+        }
+        if (clefIndex[1] === 0) {
+            matchType = NAT_CHAR;
         }
         console.log("clefRowIndex:" + clefIndex + " class:" + noteClass);
         let noteSymbol = noteDurationToSymbol(midiData.tracks[0].notes[currentNoteIndex].durationTicks, midiData.header.ppq);
@@ -200,12 +229,23 @@ function setClefCell(clefIndex, column) {
     }
 }
 
+function getClefCell(clefRowIndex, column) {
+    let clefRow = clefTable.getElementsByTagName("tr");
+    let cell = undefined;
+    if (clefRow.length > 0 && clefRow.length > clefRowIndex) {
+        clefRow = clefRow[clefRowIndex];
+        let clefCell = clefRow.getElementsByTagName("td");
+        if (clefCell.length > 0 && clefCell.length > column) {
+            cell = clefCell[column];
+        }
+    }
+    return cell;
+}
+
 function setClefText(text, textClass, clefIndex, column) {
     console.log("setClefText:" + text + " " + textClass + " " + clefIndex + " " + column);
-    let clefRow = clefTable.getElementsByTagName("tr")[clefIndex];
-    let clefCell = clefRow.getElementsByTagName("td");
-    if (clefCell.length > 0 && clefCell.length > column) {
-        clefCell = clefCell[column];
+    let clefCell = getClefCell(clefIndex, column);
+    if (clefCell !== undefined) {
         clefCell.innerHTML = "<span class='" + textClass + "'>" + text + "</span>";
     }
 }
@@ -330,8 +370,10 @@ function keyUpHandler(event) {
 function keyNoteDown(event, keyIndex) {
     const pressure = ((event.pressure == null) ? KEYBOARD_GAIN : event.pressure);
     console.log("keyNoteDown:" + keyIndex + " pressure:" + pressure);
-    playMidiNote(NOTE_MIDI_CODE[keyIndex] + (NUM_NOTES * octave), pressure);
+
+    console.log("keyNoteDown:" + NOTE_MIDI_CODE[keyIndex]);
     if (isSameNote(currentNote, NOTE_MIDI_CODE[keyIndex])) {
+        playMidiNote(currentNote, pressure);
         console.log("same pitch");
         let hintRatio = hintCheckbox.checked ? 1 : 3;
         scoreText.value = parseInt(scoreText.value) + hintRatio;
@@ -352,7 +394,7 @@ function keyNoteDown(event, keyIndex) {
 }
 
 function keyNoteUp(event, keyIndex) {
-    playMidiNoteOff(NOTE_MIDI_CODE[keyIndex] + (NUM_NOTES * octave));
+    playMidiNoteOff(currentNote);
 }
 
 function isSameNote(midiNote1, midiNote2) {
@@ -377,6 +419,7 @@ function changeSong(songIndex) {
 function calculateNewClef() {
     let selectedClef = clefSelect.value;
     resultingClef = [];
+    resultingClefArtificials = [];
     signatureType = 0;
     signatureArtificials = 0;
     console.log("signatureSelect:" + signatureSelect.value);
@@ -393,25 +436,29 @@ function calculateNewClef() {
 
     for (let i = 0; i < CLEF_CODE_ARRAY[selectedClef].length; i++) {
         let nextNote = CLEF_CODE_ARRAY[selectedClef][i];
+        let artificialType = 0;
         if (signatureType !== 0) {
             for (let j = 0; j < signatureArtificials; j++) {
                 if (signatureType < 0) {
                     if (isSameNote(nextNote, SIGNATURE_MAJOR_MOD[j])) {
                         nextNote = nextNote + signatureType;
+                        artificialType = -1;
                         break;
                     }
                 } else {
                     if (isSameNote(nextNote, SIGNATURE_MAJOR_MOD[SIGNATURE_MAJOR_MOD.length - j - 1])) {
                         console.log("nextNote:" + nextNote + " SIGNATURE_MAJOR_MOD:" + SIGNATURE_MAJOR_MOD[SIGNATURE_MAJOR_MOD.length - j - 1]);
                         nextNote = nextNote + signatureType;
+                        artificialType = -1;
                         break;
                     }
                 }
             }
         }
         resultingClef.push(nextNote);
+        resultingClefArtificials.push(artificialType);
     }
-    console.log("resultingClef:" + resultingClef);
+    console.log("resultingClef:" + resultingClef + " resultingClefArtificials:" + resultingClefArtificials);
 }
 
 function changeClef() {
