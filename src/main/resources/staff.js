@@ -19,7 +19,7 @@ const SIXTEENTH_CHAR = "&#119137;";
 const INITIAL_MISTAKES = 0;
 const SPEED_CHANGE_RATIO = 0.9;
 
-
+const MAJOR_TO_SIGNATURE_INDEX = [0, 5, 9, 3, 11, 1, 6, 8, 4, 10, 2, 7];
 const TREBLE_MIDI_CODE = [60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 77, 79, 81]; //[C4-B5]
 const TREBLE_OCTAVE = 4;
 const BASS_MIDI_CODE = [40, 41, 43, 45, 47, 48, 50, 52, 53, 55, 57, 59, 60]; //[E2-C4]
@@ -64,6 +64,7 @@ var playCheckbox;
 var mistakesText;
 var levelText;
 var signatureSelect;
+var trackSelect;
 
 (function (window, document, undefined) {
     window.onload = init;
@@ -83,6 +84,7 @@ var signatureSelect;
         mistakesText = document.getElementById('mistakesText');
         levelText = document.getElementById('levelText');
         signatureSelect = document.getElementById('signatureSelect');
+        trackSelect = document.getElementById('trackSelect');
         //register key handlers
         document.addEventListener("keydown", keyDownHandler, false);
         document.addEventListener("keyup", keyUpHandler, false);
@@ -120,7 +122,15 @@ async function loadSong() {
     const response = await fetch(SONG_PATHS[currentSongIndex]);
     const arrayBuffer = await response.arrayBuffer();
     midiData = new Midi(arrayBuffer);
-
+    while (trackSelect.options.length > 0) {
+        trackSelect.remove(0);
+    }
+    for (let i = 0; i < midiData.tracks.length; i++) {
+        let newOption = document.createElement("option");
+        newOption.text = midiData.tracks[i].name + "-" + midiData.tracks[i].instrument.name;
+        newOption.value = i;
+        trackSelect.appendChild(newOption);
+    }
     console.log(midiData);
 }
 
