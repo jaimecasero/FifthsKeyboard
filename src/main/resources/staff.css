@@ -42,13 +42,18 @@ td {
 .natural-key {
     background: white; /* Ensures readability */
     width: 25px;
-    height: 200px;
+    height: 50px;
+
 }
 
 .artificial-key {
     background: grey; /* Ensures readability */
     width: 25px;
-    height: 150px;
+    height: 50px;
+    position: absolute;
+    left: 50%;
+    top: 0; /* Align with the top border */
+    transform: translate(-50%, -50%);
 }
 
 .gameConsoleText {
