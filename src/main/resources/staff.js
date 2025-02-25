@@ -402,6 +402,9 @@ function keyNoteDown(event, keyIndex) {
             setTimeout(function() {changeTextColor(levelText, "black")}, 500);
         }
     } else {
+        if ("vibrate" in navigator) {
+            navigator.vibrate(200); // Vibrate for 200ms
+        }
         mistakesText.value = parseInt(mistakesText.value) + 1;
         changeTextColor(mistakesText,"red");
         setTimeout(function() {changeTextColor(mistakesText, "black")}, 500);
