@@ -99,6 +99,7 @@ var trackSelect;
 
         changeClef();
         loadSong();
+        connectMIDI();
     }
 })(window, document, undefined);
 
@@ -372,12 +373,15 @@ function keyUpHandler(event) {
 
 }
 
-
 function keyNoteDown(event, keyIndex) {
+    return midiNoteDown(event, NOTE_MIDI_CODE[keyIndex]);
+}
+
+function midiNoteDown(event, midiNote) {
     const pressure = ((event.pressure == null) ? KEYBOARD_GAIN : event.pressure);
     console.log( event);
     let matched = false;
-    if (isSameNote(currentNote, NOTE_MIDI_CODE[keyIndex])) {
+    if (isSameNote(currentNote, midiNote)) {
         matched = true;
         playMidiNote(currentNote, pressure);
         console.log("same pitch");
@@ -385,8 +389,8 @@ function keyNoteDown(event, keyIndex) {
         scoreText.value = parseInt(scoreText.value) + hintRatio;
         setTimeout(function() {changeTextColor(scoreText, "black")}, 500);
         changeTextColor(scoreText, "green");
-        event.srcElement.style.borderColor = "green";
-        setTimeout(function() {event.srcElement.style.borderColor = "black";}, 500);
+        //event.srcElement.style.borderColor = "green";
+        //setTimeout(function() {event.srcElement.style.borderColor = "black";}, 500);
 
         resetClefCell(midiToClefIndex(currentNote)[0], currentNoteTablePos);
         currentNoteTablePos = clefTable.getElementsByTagName("tr")[0].getElementsByTagName("td").length;
@@ -408,8 +412,8 @@ function keyNoteDown(event, keyIndex) {
         mistakesText.value = parseInt(mistakesText.value) + 1;
         changeTextColor(mistakesText,"red");
         setTimeout(function() {changeTextColor(mistakesText, "black")}, 500);
-        event.srcElement.style.borderColor = "red";
-        setTimeout(function() {event.srcElement.style.borderColor = "black";}, 500);
+        //event.srcElement.style.borderColor = "red";
+        //setTimeout(function() {event.srcElement.style.borderColor = "black";}, 500);
 
     }
     return matched;
@@ -581,4 +585,47 @@ function playOscillatorNote(adjustedMidiNote, force) {
 
 function playOscillatorNoteOff(adjustedMidiNote) {
     MIDI.noteOff(0, adjustedMidiNote, 0);
+}
+
+
+//////////////////////  midi INPUT //////////////////////
+
+// create web audio api context
+
+async function connectMIDI() {
+    if (!navigator.requestMIDIAccess) {
+        console.error("Web MIDI API is not supported in this browser.");
+        return;
+    }
+
+    try {
+        const midiAccess = await navigator.requestMIDIAccess();
+        console.log("MIDI Access Granted");
+
+        // List all available MIDI inputs
+        for (let input of midiAccess.inputs.values()) {
+            console.log(`MIDI Device Found: ${input.name}`);
+            input.onmidimessage = handleMIDIMessage;
+        }
+
+        // Handle device connection/disconnection
+        midiAccess.onstatechange = (event) => {
+            console.log(`MIDI Device: ${event.port.name}, State: ${event.port.state}`);
+        };
+    } catch (error) {
+        console.error("MIDI Access Denied:", error);
+    }
+}
+
+function handleMIDIMessage(event) {
+    const [status, key, velocity] = event.data; // MIDI message bytes
+    // Example: Detect Note On (Key Pressed)
+    if (status === 144 && velocity > 0) {
+        midiNoteDown(event, key);
+    }
+
+    // Example: Detect Note Off (Key Released)
+    if (status === 128 || (status === 144 && velocity === 0)) {
+        playMidiNoteOff(currentNote);
+    }
 }
