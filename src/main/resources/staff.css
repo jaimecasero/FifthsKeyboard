@@ -42,14 +42,17 @@ td {
 .natural-key {
     background: white; /* Ensures readability */
     width: 25px;
-    height: 50px;
-
+    height: 100px;
+    position: absolute;
+    left: 50%;
+    top: 30; /* Align with the top border */
+    transform: translate(-50%, -50%);
 }
 
 .artificial-key {
     background: grey; /* Ensures readability */
     width: 25px;
-    height: 50px;
+    height: 60px;
     position: absolute;
     left: 50%;
     top: 0; /* Align with the top border */
