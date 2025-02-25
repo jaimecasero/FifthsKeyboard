@@ -26,7 +26,7 @@ const BASS_MIDI_CODE = [40, 41, 43, 45, 47, 48, 50, 52, 53, 55, 57, 59, 60]; //[
 const BASS_OCTAVE = 2;
 const CLEF_CODE_ARRAY = [TREBLE_MIDI_CODE, BASS_MIDI_CODE];
 const CLEF_OCTAVE_ARRAY = [TREBLE_OCTAVE, BASS_OCTAVE];
-const CLEF_COLUMNS = 15;
+const CLEF_COLUMNS = 12;
 
 let HARRY_SONG = "midi/HarryPotter.mid"
 const WAKA_SONG = "midi/waka.mid";
