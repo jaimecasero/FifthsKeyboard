@@ -26,7 +26,7 @@ const BASS_MIDI_CODE = [40, 41, 43, 45, 47, 48, 50, 52, 53, 55, 57, 59, 60]; //[
 const BASS_OCTAVE = 2;
 const CLEF_CODE_ARRAY = [TREBLE_MIDI_CODE, BASS_MIDI_CODE];
 const CLEF_OCTAVE_ARRAY = [TREBLE_OCTAVE, BASS_OCTAVE];
-
+const CLEF_COLUMNS = 15;
 
 let HARRY_SONG = "midi/HarryPotter.mid"
 const WAKA_SONG = "midi/waka.mid";
@@ -89,6 +89,13 @@ var trackSelect;
         //register key handlers
         document.addEventListener("keydown", keyDownHandler, false);
         document.addEventListener("keyup", keyUpHandler, false);
+
+        for (let i = 0; i < clefTable.getElementsByTagName("tr").length; i++) {
+            for (let j = 0; j < CLEF_COLUMNS; j++) {
+                let newTableCell = document.createElement("td");
+                clefTable.getElementsByTagName("tr")[i].appendChild(newTableCell);
+            }
+        }
 
         changeClef();
         loadSong();
@@ -341,7 +348,6 @@ function keyDownHandler(event) {
         }
         console.log("keyDownHandler:" + keyPressed + " index:" + noteIndex);
         keyNoteDown(event, noteIndex);
-    } else {
     }
 }
 
@@ -369,16 +375,19 @@ function keyUpHandler(event) {
 
 function keyNoteDown(event, keyIndex) {
     const pressure = ((event.pressure == null) ? KEYBOARD_GAIN : event.pressure);
-    console.log("keyNoteDown:" + keyIndex + " pressure:" + pressure);
-
-    console.log("keyNoteDown:" + NOTE_MIDI_CODE[keyIndex]);
+    console.log( event);
+    let matched = false;
     if (isSameNote(currentNote, NOTE_MIDI_CODE[keyIndex])) {
+        matched = true;
         playMidiNote(currentNote, pressure);
         console.log("same pitch");
         let hintRatio = hintCheckbox.checked ? 1 : 3;
         scoreText.value = parseInt(scoreText.value) + hintRatio;
-        changeTextColor(scoreText, "green");
         setTimeout(function() {changeTextColor(scoreText, "black")}, 500);
+        changeTextColor(scoreText, "green");
+        event.srcElement.style.borderColor = "green";
+        setTimeout(function() {event.srcElement.style.borderColor = "black";}, 500);
+
         resetClefCell(midiToClefIndex(currentNote)[0], currentNoteTablePos);
         currentNoteTablePos = clefTable.getElementsByTagName("tr")[0].getElementsByTagName("td").length;
         currentNoteIndex = currentNoteIndex + 1;
@@ -396,7 +405,11 @@ function keyNoteDown(event, keyIndex) {
         mistakesText.value = parseInt(mistakesText.value) + 1;
         changeTextColor(mistakesText,"red");
         setTimeout(function() {changeTextColor(mistakesText, "black")}, 500);
+        event.srcElement.style.borderColor = "red";
+        setTimeout(function() {event.srcElement.style.borderColor = "black";}, 500);
+
     }
+    return matched;
 }
 
 function changeTextColor(input, newColor) {
