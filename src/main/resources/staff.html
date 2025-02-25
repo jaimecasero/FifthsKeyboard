@@ -14,7 +14,6 @@
 </head>
 <body>
 <form id="settingsForm">
-    <BR></BR>
 
     <label for="SongSelect">Song:</label>
     <select id="songSelect" onchange="changeSong(this.value);">
@@ -51,16 +50,6 @@
         <option value="13">&sharp;&sharp;&sharp;&sharp;&sharp;&sharp;</option>
         <option value="14">&sharp;&sharp;&sharp;&sharp;&sharp;&sharp;&sharp;</option>
     </select>
-
-    <label for="hintCheckbox">Sig Hint:</label>
-    <input type="checkbox" id="hintCheckbox" checked onchange="changeClef();">
-
-    <label for="playCheckbox">Play Note:</label>
-    <input type="checkbox" id="playCheckbox">
-
-
-    <input type="button" id="startButton" value="Start" onclick="start()">
-    <input type="button" id="stopButton" value="stop" onclick="stop()">
 
     <BR><BR>
 
@@ -110,12 +99,22 @@
            onpointerup="keyNoteUp(event, 11)">
 
     <BR><BR>
+    <label for="hintCheckbox">Sig Hint:</label>
+    <input type="checkbox" id="hintCheckbox" checked onchange="changeClef();">
+
+    <label for="playCheckbox">Ear Tr:</label>
+    <input type="checkbox" id="playCheckbox">
+    <input type="button" id="startButton" value="Start" onclick="start()">
+    <input type="button" id="stopButton" value="stop" onclick="stop()">
+
+
+    <BR><BR>
     <label for="scoreText">Score:</label>
-    <input type="text" readonly id="scoreText" value="0">
+    <input type="text" class="gameConsoleText" readonly id="scoreText" value="0">
     <label for="mistakesText">Mistakes:</label>
-    <input type="text" readonly id="mistakesText" value="0">
+    <input type="text" class="gameConsoleText" readonly id="mistakesText" value="0">
     <label for="levelText">Level:</label>
-    <input type="text" readonly id="levelText" value="1">
+    <input type="text" class="gameConsoleText" readonly id="levelText" value="1">
 </form>
 
 <a href="https://paypal.me/jaimecasero?country.x=ES&locale.x=es_ES">Donate</a>

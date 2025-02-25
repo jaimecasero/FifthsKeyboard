@@ -41,12 +41,20 @@ td {
 
 .natural-key {
     background: white; /* Ensures readability */
+    width: 25px;
+    height: 200px;
 }
 
-input[name="noteButton"] {
-    width: 50px;
-    height: 30px;
+.artificial-key {
+    background: grey; /* Ensures readability */
+    width: 25px;
+    height: 150px;
 }
+
+.gameConsoleText {
+    border-color: black;
+}
+
 
 
 

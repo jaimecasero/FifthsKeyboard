@@ -377,6 +377,8 @@ function keyNoteDown(event, keyIndex) {
         console.log("same pitch");
         let hintRatio = hintCheckbox.checked ? 1 : 3;
         scoreText.value = parseInt(scoreText.value) + hintRatio;
+        changeTextColor(scoreText, "green");
+        setTimeout(function() {changeTextColor(scoreText, "black")}, 500);
         resetClefCell(midiToClefIndex(currentNote)[0], currentNoteTablePos);
         currentNoteTablePos = clefTable.getElementsByTagName("tr")[0].getElementsByTagName("td").length;
         currentNoteIndex = currentNoteIndex + 1;
@@ -387,12 +389,19 @@ function keyNoteDown(event, keyIndex) {
             console.log("score:" + scoreText.value + " level:" + levelText.value);
             speed = speed * (SPEED_CHANGE_RATIO);
             levelText.value = parseInt(levelText.value) + 1;
+            changeTextColor(levelText, "green");
+            setTimeout(function() {changeTextColor(levelText, "black")}, 500);
         }
     } else {
         mistakesText.value = parseInt(mistakesText.value) + 1;
+        changeTextColor(mistakesText,"red");
+        setTimeout(function() {changeTextColor(mistakesText, "black")}, 500);
     }
 }
 
+function changeTextColor(input, newColor) {
+    input.style.borderColor = newColor;
+}
 function keyNoteUp(event, keyIndex) {
     playMidiNoteOff(currentNote);
 }
