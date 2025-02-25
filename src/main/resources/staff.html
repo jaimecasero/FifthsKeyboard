@@ -69,10 +69,6 @@
         <tr class="outside-line-clef-row"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
     </table>
 
-
-
-<form id="displayForm">
-    <BR>
     <input type="button" id="NoteButton0" name="noteButton" class="natural-key" value="C" onpointerdown="keyNoteDown(event, 0)"
            onpointerup="keyNoteUp(event, 0)">
     <input type="button" id="NoteButton1" name="noteButton" class="artificial-key" value="C#/Db" onpointerdown="keyNoteDown(event, 1)"
@@ -98,7 +94,7 @@
     <input type="button" id="NoteButton11" name="noteButton" class="natural-key" value="B" onpointerdown="keyNoteDown(event, 11)"
            onpointerup="keyNoteUp(event, 11)">
 
-    <BR><BR>
+    <BR><BR><BR><BR>
     <label for="hintCheckbox">Sig Hint:</label>
     <input type="checkbox" id="hintCheckbox" checked onchange="changeClef();">
 
@@ -108,6 +104,7 @@
     <input type="button" id="stopButton" value="stop" onclick="stop()">
 
 
+    <BR><BR>
     <BR><BR>
     <label for="scoreText">Score:</label>
     <input type="text" class="gameConsoleText" readonly id="scoreText" value="0">
