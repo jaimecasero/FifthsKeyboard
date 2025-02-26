@@ -409,6 +409,8 @@ function midiNoteDown(event, midiNote) {
         if ("vibrate" in navigator) {
             navigator.vibrate(200); // Vibrate for 200ms
         }
+        //play user note to throw feedback, that should hurt your ear
+        playMidiNote(midiNote +  36, pressure);
         mistakesText.value = parseInt(mistakesText.value) + 1;
         changeTextColor(mistakesText,"red");
         setTimeout(function() {changeTextColor(mistakesText, "black")}, 500);
