@@ -8,6 +8,7 @@
             type="text/javascript"
             src="https://unpkg.com/@tonejs/midi"
     ></script>
+    <script src="https://unpkg.com/meyda/dist/web/meyda.min.js"></script>
     <script src="staff.js"></script>
     <link rel="stylesheet" href="staff.css">
 
@@ -128,6 +129,15 @@
 
 <label for="playCheckbox">Ear Tr:</label>
 <input type="checkbox" id="playCheckbox">
+
+<label for="inputSelect">Input:</label>
+<select id="inputSelect" onchange="document.dispatchEvent(new Event(this.value));">
+    <option value="buttons_selected" selected>buttons</option>
+    <option value="keyboard_selected">keyboard</option>
+    <option value="midi_selected">midi keyboard</option>
+    <option value="microphone_selected">microphone</option>
+
+</select>
 <input type="button" id="startButton" value="Start" onclick="start()">
 <input type="button" id="stopButton" value="stop" onclick="stop()">
 

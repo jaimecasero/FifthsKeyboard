@@ -10,6 +10,10 @@ const SHARP_CHAR = "&sharp;";
 const NAT_CHAR = "&natur;";
 const NOTE_CHAR = "&sung;";
 
+const USER_FAILED_EVENT="user_failed";
+const MICRO_SELECTED_EVENT="microphone_selected";
+const MIDI_SELECTED_EVENT="midi_selected";
+
 const WHOLE_CHAR = "&#119133;";
 const HALF_CHAR = "&#119134;";
 const QUARTER_CHAR = "&#119135;";
@@ -89,6 +93,10 @@ var trackSelect;
         //register key handlers
         document.addEventListener("keydown", keyDownHandler, false);
         document.addEventListener("keyup", keyUpHandler, false);
+        document.addEventListener(USER_FAILED_EVENT, renderUserFailed, false);
+        document.addEventListener(MIDI_SELECTED_EVENT, connectMIDI, false);
+        document.addEventListener(MICRO_SELECTED_EVENT, connectMicro, false);
+
 
         for (let i = 0; i < clefTable.getElementsByTagName("tr").length; i++) {
             for (let j = 0; j < CLEF_COLUMNS; j++) {
@@ -99,10 +107,18 @@ var trackSelect;
 
         changeClef();
         loadSong();
-        connectMIDI();
+
     }
 })(window, document, undefined);
 
+function renderUserFailed() {
+    mistakesText.value = parseInt(mistakesText.value) + 1;
+    changeTextColor(mistakesText,"red");
+    setTimeout(function() {changeTextColor(mistakesText, "black")}, 500);
+    //event.srcElement.style.borderColor = "red";
+    //setTimeout(function() {event.srcElement.style.borderColor = "black";}, 500);
+
+}
 
 function noteDurationToSymbol(duration, ppq) {
     console.log("noteDurationToSymbol:" + duration + " ppq:" + ppq);
@@ -308,6 +324,7 @@ function renderCurrentNote() {
     }
     currentNoteTablePos = currentNoteTablePos - 1;
     if (currentNoteTablePos < 1) {
+        document.dispatchEvent(new Event(USER_FAILED_EVENT));
         currentNoteTablePos = clefTable.getElementsByTagName("tr")[0].getElementsByTagName("td").length;
         //user didnt matched note, pass to next note
         currentNoteIndex = currentNoteIndex + 1;
@@ -319,7 +336,8 @@ function renderCurrentNote() {
     currentNote = adjustMidiToClef(currentNote);
     let clefIndex = midiToClefIndex(currentNote);
     setClefCell(clefIndex, currentNoteTablePos);
-    if (playCheckbox.checked) {
+    if (playCheckbox.checked && currentNoteTablePos === clefTable.getElementsByTagName("tr")[0].getElementsByTagName("td").length - 1) {
+        //play only once in the beginning
         playMidiNote(currentNote, KEYBOARD_GAIN);
     }
     nextNoteTimer = setTimeout(renderCurrentNote, 1000 * speed);
@@ -406,17 +424,12 @@ function midiNoteDown(event, midiNote) {
             setTimeout(function() {changeTextColor(levelText, "black")}, 500);
         }
     } else {
+        document.dispatchEvent(new Event(USER_FAILED_EVENT));
         if ("vibrate" in navigator) {
             navigator.vibrate(200); // Vibrate for 200ms
         }
         //play user note to throw feedback, that should hurt your ear
         playMidiNote(midiNote +  CLEF_OCTAVE_ARRAY[clefSelect.value] * NUM_NOTES, pressure);
-        mistakesText.value = parseInt(mistakesText.value) + 1;
-        changeTextColor(mistakesText,"red");
-        setTimeout(function() {changeTextColor(mistakesText, "black")}, 500);
-        //event.srcElement.style.borderColor = "red";
-        //setTimeout(function() {event.srcElement.style.borderColor = "black";}, 500);
-
     }
     return matched;
 }
@@ -490,6 +503,10 @@ function calculateNewClef() {
         resultingClefArtificials.push(artificialType);
     }
     console.log("resultingClef:" + resultingClef + " resultingClefArtificials:" + resultingClefArtificials);
+}
+
+function changeInput(inputIndex) {
+    if (inputIndex === "0") {}
 }
 
 function changeClef() {
@@ -587,6 +604,110 @@ function playOscillatorNote(adjustedMidiNote, force) {
 
 function playOscillatorNoteOff(adjustedMidiNote) {
     MIDI.noteOff(0, adjustedMidiNote, 0);
+}
+
+//////////////////////  micro INPUT //////////////////////
+
+
+var audioContext;
+var microphone;
+var pitch;
+var analyser;
+var buf;
+var detectedCycles = 0; //number of cycles where same note was detected
+const CYCLE_THRESHOLD= 25; //how many cycles to trigger use note
+var lastDetectedNote=0;
+// create web audio api context
+async function connectMicro() {
+    console.log("micro selected");
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+        audioContext = new AudioContext();
+        microphone = audioContext.createMediaStreamSource(stream);
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 2048;
+        buf = new Float32Array( 2048 );
+        microphone.connect(analyser);
+
+
+        updatePitch();
+
+    }).catch(err => console.error(err));
+}
+
+
+function updatePitch( time ) {
+    analyser.getFloatTimeDomainData( buf );
+    const ac = autoCorrelate( buf, audioContext.sampleRate );
+    if (ac === -1) {
+    } else {
+        pitch = ac;
+        const note =  noteFromPitch( pitch );
+        if (note === lastDetectedNote) {
+            detectedCycles = detectedCycles + 1;
+            if (detectedCycles >= CYCLE_THRESHOLD) {
+                detectedCycles = 0;
+                lastDetectedNote = note;
+                //pitch stable enough to trigger note
+                midiNoteDown(new Event("midi_note"), note);
+            }
+        } else {
+            detectedCycles = 0;
+            lastDetectedNote = note;
+        }
+
+    }
+
+    window.requestAnimationFrame( updatePitch );
+}
+
+function noteFromPitch( frequency ) {
+    let noteNum = 12 * (Math.log( frequency / 440 )/Math.log(2) );
+    return Math.round( noteNum ) + 69;
+}
+
+function autoCorrelate( buf, sampleRate ) {
+    // Implements the ACF2+ algorithm
+    var SIZE = buf.length;
+    var rms = 0;
+
+    for (var i=0;i<SIZE;i++) {
+        var val = buf[i];
+        rms += val*val;
+    }
+    rms = Math.sqrt(rms/SIZE);
+    if (rms<0.01) // not enough signal
+        return -1;
+
+    var r1=0, r2=SIZE-1, thres=0.2;
+    for (var i=0; i<SIZE/2; i++)
+        if (Math.abs(buf[i])<thres) { r1=i; break; }
+    for (var i=1; i<SIZE/2; i++)
+        if (Math.abs(buf[SIZE-i])<thres) { r2=SIZE-i; break; }
+
+    buf = buf.slice(r1,r2);
+    SIZE = buf.length;
+
+    var c = new Array(SIZE).fill(0);
+    for (var i=0; i<SIZE; i++)
+        for (var j=0; j<SIZE-i; j++)
+            c[i] = c[i] + buf[j]*buf[j+i];
+
+    var d=0; while (c[d]>c[d+1]) d++;
+    var maxval=-1, maxpos=-1;
+    for (var i=d; i<SIZE; i++) {
+        if (c[i] > maxval) {
+            maxval = c[i];
+            maxpos = i;
+        }
+    }
+    var T0 = maxpos;
+
+    var x1=c[T0-1], x2=c[T0], x3=c[T0+1];
+    a = (x1 + x3 - 2*x2)/2;
+    b = (x3 - x1)/2;
+    if (a) T0 = T0 - b/(2*a);
+
+    return sampleRate/T0;
 }
 
 
