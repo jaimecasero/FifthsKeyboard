@@ -19,6 +19,7 @@ const HALF_CHAR = "&#119134;";
 const QUARTER_CHAR = "&#119135;";
 const EIGHTH_CHAR = "&#119136;";
 const SIXTEENTH_CHAR = "&#119137;";
+const THIRTY_SECOND_CHAR = "&#119138;";
 
 const INITIAL_MISTAKES = 0;
 const SPEED_CHANGE_RATIO = 0.9;
@@ -70,6 +71,7 @@ var mistakesText;
 var levelText;
 var signatureSelect;
 var trackSelect;
+var detectedText;
 
 (function (window, document, undefined) {
     window.onload = init;
@@ -90,10 +92,12 @@ var trackSelect;
         levelText = document.getElementById('levelText');
         signatureSelect = document.getElementById('signatureSelect');
         trackSelect = document.getElementById('trackSelect');
+        detectedText = document.getElementById('detectedText');
         //register key handlers
         document.addEventListener("keydown", keyDownHandler, false);
         document.addEventListener("keyup", keyUpHandler, false);
         document.addEventListener(USER_FAILED_EVENT, renderUserFailed, false);
+        document.addEventListener(USER_FAILED_EVENT, vibrateAction, false);
         document.addEventListener(MIDI_SELECTED_EVENT, connectMIDI, false);
         document.addEventListener(MICRO_SELECTED_EVENT, connectMicro, false);
 
@@ -111,17 +115,36 @@ var trackSelect;
     }
 })(window, document, undefined);
 
-function renderUserFailed() {
+function playMidiNoteAction(event) {
+    //play user note to throw feedback, that should hurt your ear
+    playMidiNote(event.detail.midiNote +  CLEF_OCTAVE_ARRAY[clefSelect.value] * NUM_NOTES, event.detail.pressure);
+}
+
+function vibrateAction() {
+    if ("vibrate" in navigator) {
+        navigator.vibrate(200); // Vibrate for 200ms
+    }
+}
+
+function midiToNote(midiNote) {
+    for (let i = 0; i < NOTE_LABEL.length; i++) {
+        if (isSameNote(midiNote, NOTE_MIDI_CODE[i])) {
+            return NOTE_LABEL[i];
+        }
+    }
+    return "";
+}
+
+function renderUserFailed(event) {
     mistakesText.value = parseInt(mistakesText.value) + 1;
+    detectedText.value = event.detail.midiNote + " " + midiToNote(event.detail.midiNote);
     changeTextColor(mistakesText,"red");
     setTimeout(function() {changeTextColor(mistakesText, "black")}, 500);
     //event.srcElement.style.borderColor = "red";
     //setTimeout(function() {event.srcElement.style.borderColor = "black";}, 500);
-
 }
 
 function noteDurationToSymbol(duration, ppq) {
-    console.log("noteDurationToSymbol:" + duration + " ppq:" + ppq);
     let beats = duration / ppq;
     let symbol = "";
     if (beats >= 4) {
@@ -139,6 +162,11 @@ function noteDurationToSymbol(duration, ppq) {
     if (beats >= 0.25) {
         return SIXTEENTH_CHAR;
     }
+    if (beats < 0.25) {
+        return THIRTY_SECOND_CHAR;
+    }
+    console.log("noteDurationToSymbol:" + duration + " ppq:" + ppq + " symbol:" + symbol);
+
     return symbol;
 }
 
@@ -151,10 +179,13 @@ async function loadSong() {
         trackSelect.remove(0);
     }
     for (let i = 0; i < midiData.tracks.length; i++) {
-        let newOption = document.createElement("option");
-        newOption.text = midiData.tracks[i].name + "-" + midiData.tracks[i].instrument.name;
-        newOption.value = i;
-        trackSelect.appendChild(newOption);
+        //only add tracks with notes
+        if (midiData.tracks[i].notes.length > 0) {
+            let newOption = document.createElement("option");
+            newOption.text = midiData.tracks[i].name + "-" + midiData.tracks[i].instrument.name;
+            newOption.value = i;
+            trackSelect.appendChild(newOption);
+        }
     }
     signatureSelect.value = 0;
     if (midiData.header.keySignatures.length > 0) {
@@ -169,9 +200,11 @@ async function loadSong() {
 }
 
 function resetClefCell(clefIndex, column) {
-    let cell = getClefCell(clefIndex, column);
-    if (cell !== undefined) {
-        cell.innerHTML = "";
+    if (clefIndex > 0) {
+        let cell = getClefCell(clefIndex, column);
+        if (cell !== undefined) {
+            cell.innerHTML = "";
+        }
     }
 }
 
@@ -183,13 +216,13 @@ function midiToClefIndex(midiNote) {
             clefIndex = clefTable.getElementsByTagName("tr").length - i - 1;
             break;
         }
-        if (midiNote < resultingClef[i - 1]) {
-            //previous note is bigger, so the note is not in the current key
+        if ( resultingClef[i - 1] > midiNote) {
+            console.log("previous note is bigger, so the note is not in the current key");
             if (signatureType === 1) {
                 //for sharp keys set match type to flat
                 clefIndex = clefTable.getElementsByTagName("tr").length - i + 1;
                 matchType = 1;
-            } else if (signatureType === -1) {
+            } else if (signatureType === -1 || signatureType === 0) {
                 //for flat keys set match type to flat
                 clefIndex = clefTable.getElementsByTagName("tr").length - i;
                 matchType = -1;
@@ -248,7 +281,7 @@ function setClefCell(clefIndex, column) {
             matchType = NAT_CHAR;
         }
         console.log("clefRowIndex:" + clefIndex + " class:" + noteClass);
-        let noteSymbol = noteDurationToSymbol(midiData.tracks[0].notes[currentNoteIndex].durationTicks, midiData.header.ppq);
+        let noteSymbol = noteDurationToSymbol(midiData.tracks[trackSelect.value].notes[currentNoteIndex].durationTicks, midiData.header.ppq);
         setClefText(matchType + noteSymbol, noteClass, clefIndex[0], column);
     }
 }
@@ -313,7 +346,7 @@ function adjustMidiToClef(midiNote) {
 
 function renderCurrentNote() {
     if (currentNoteIndex >= 0) {
-        currentNote = midiData.tracks[0].notes[currentNoteIndex].midi;
+        currentNote = midiData.tracks[trackSelect.value].notes[currentNoteIndex].midi;
         console.log("renderCurrentNote:" + currentNote);
         currentNote = adjustMidiToClef(currentNote);
         let clefIndex = midiToClefIndex(currentNote);
@@ -324,15 +357,20 @@ function renderCurrentNote() {
     }
     currentNoteTablePos = currentNoteTablePos - 1;
     if (currentNoteTablePos < 1) {
-        document.dispatchEvent(new Event(USER_FAILED_EVENT));
+        document.dispatchEvent(new CustomEvent(USER_FAILED_EVENT, {
+            detail: {
+                midiNote: 0,
+                pressure: KEYBOARD_GAIN,
+            }
+        }));
         currentNoteTablePos = clefTable.getElementsByTagName("tr")[0].getElementsByTagName("td").length;
         //user didnt matched note, pass to next note
         currentNoteIndex = currentNoteIndex + 1;
-        if (currentNoteIndex >= midiData.tracks[0].notes.length) {
+        if (currentNoteIndex >= midiData.tracks[trackSelect.value].notes.length) {
             currentNoteIndex = 0;
         }
     }
-    currentNote = midiData.tracks[0].notes[currentNoteIndex].midi;
+    currentNote = midiData.tracks[trackSelect.value].notes[currentNoteIndex].midi;
     currentNote = adjustMidiToClef(currentNote);
     let clefIndex = midiToClefIndex(currentNote);
     setClefCell(clefIndex, currentNoteTablePos);
@@ -345,9 +383,11 @@ function renderCurrentNote() {
 
 ///////////////INPUT HANDLING/////////////////////////////////////////
 var shiftPressed = false;
+var altPressed = false;
 var pressedKeys = [];
 
 function keyDownHandler(event) {
+    console.log("keyDownHandler:" + event.keyCode);
     let keyPressed = String.fromCharCode(event.keyCode);
     if (pressedKeys.indexOf(keyPressed) !== -1) {
         return;
@@ -357,14 +397,21 @@ function keyDownHandler(event) {
     if (event.keyCode === 16) {
         shiftPressed = true;
     }
+    if (event.keyCode === 18) {
+        altPressed = true;
+    }
 
 
     let noteIndex = NOTE_LABEL.findIndex((element) => element === keyPressed);
     if (noteIndex > -1 && !event.repeat) {
-        if (shiftPressed) {
+        if (shiftPressed && !altPressed) {
             //sharp the note by adding semitone
             noteIndex = noteIndex + 1;
+        } else if (shiftPressed && altPressed) {
+            //flat the note by substracting semitone
+            noteIndex = noteIndex - 1;
         }
+
         console.log("keyDownHandler:" + keyPressed + " index:" + noteIndex);
         keyNoteDown(event, noteIndex);
     }
@@ -379,12 +426,18 @@ function keyUpHandler(event) {
     if (event.keyCode === 16) {
         shiftPressed = false;
     }
+    if (event.keyCode === 18) {
+        shiftPressed = false;
+    }
 
     let noteIndex = NOTE_LABEL.findIndex((element) => element === keyPressed);
     if (noteIndex > -1) {
-        if (shiftPressed) {
+        if (shiftPressed && !altPressed) {
             //sharp the note by adding semitone
             noteIndex = noteIndex + 1;
+        } else if (shiftPressed && altPressed) {
+            //flat the note by substracting semitone
+            noteIndex = noteIndex - 1;
         }
         keyNoteUp(event, noteIndex);
     }
@@ -413,7 +466,7 @@ function midiNoteDown(event, midiNote) {
         resetClefCell(midiToClefIndex(currentNote)[0], currentNoteTablePos);
         currentNoteTablePos = clefTable.getElementsByTagName("tr")[0].getElementsByTagName("td").length;
         currentNoteIndex = currentNoteIndex + 1;
-        if (currentNoteIndex >= midiData.tracks[0].notes.length) {
+        if (currentNoteIndex >= midiData.tracks[trackSelect.value].notes.length) {
             currentNoteIndex = 0;
         }
         if (scoreText.value / (parseInt(levelText.value) * 10) > 1 && (scoreText.value % (parseInt(levelText.value) * 10)) > 0) {
@@ -424,12 +477,12 @@ function midiNoteDown(event, midiNote) {
             setTimeout(function() {changeTextColor(levelText, "black")}, 500);
         }
     } else {
-        document.dispatchEvent(new Event(USER_FAILED_EVENT));
-        if ("vibrate" in navigator) {
-            navigator.vibrate(200); // Vibrate for 200ms
-        }
-        //play user note to throw feedback, that should hurt your ear
-        playMidiNote(midiNote +  CLEF_OCTAVE_ARRAY[clefSelect.value] * NUM_NOTES, pressure);
+        document.dispatchEvent(new CustomEvent(USER_FAILED_EVENT, {
+            detail: {
+                midiNote: midiNote,
+                pressure: pressure,
+            }
+        }));
     }
     return matched;
 }
@@ -442,7 +495,6 @@ function keyNoteUp(event, keyIndex) {
 }
 
 function isSameNote(midiNote1, midiNote2) {
-    console.log("midiNote1:" + midiNote1 + ".midi2:" + midiNote2);
     return midiNote1 % NUM_NOTES === midiNote2 % NUM_NOTES;
 }
 
@@ -459,6 +511,7 @@ function changeSong(songIndex) {
     console.log("changeSong:" + currentSongIndex);
     loadSong();
 }
+
 
 function calculateNewClef() {
     let selectedClef = clefSelect.value;
@@ -615,7 +668,7 @@ var pitch;
 var analyser;
 var buf;
 var detectedCycles = 0; //number of cycles where same note was detected
-const CYCLE_THRESHOLD= 25; //how many cycles to trigger use note
+const CYCLE_THRESHOLD= 20; //how many cycles to trigger use note
 var lastDetectedNote=0;
 // create web audio api context
 async function connectMicro() {
@@ -648,7 +701,7 @@ function updatePitch( time ) {
                 detectedCycles = 0;
                 lastDetectedNote = note;
                 //pitch stable enough to trigger note
-                midiNoteDown(new Event("midi_note"), note);
+                midiNoteDown(new CustomEvent("midi_note"), note);
             }
         } else {
             detectedCycles = 0;
