@@ -10,6 +10,7 @@ const SHARP_CHAR = "&sharp;";
 const NAT_CHAR = "&natur;";
 const NOTE_CHAR = "&sung;";
 
+const USER_NOTE_ON_HIT_EVENT = "user_note_on_hit";
 const USER_FAILED_EVENT = "user_failed";
 const MICRO_SELECTED_EVENT = "microphone_selected";
 const MIDI_SELECTED_EVENT = "midi_selected";
@@ -96,6 +97,7 @@ var detectedText;
         //register key handlers
         document.addEventListener("keydown", keyDownHandler, false);
         document.addEventListener("keyup", keyUpHandler, false);
+        document.addEventListener(USER_NOTE_ON_HIT_EVENT, midiNoteDown, false);
         document.addEventListener(USER_FAILED_EVENT, renderUserFailed, false);
         document.addEventListener(USER_FAILED_EVENT, vibrateAction, false);
         document.addEventListener(MIDI_SELECTED_EVENT, connectMIDI, false);
@@ -201,7 +203,8 @@ async function loadSong() {
 }
 
 function resetClefCell(clefIndex, column) {
-    if (clefIndex > 0) {
+    console.log("resetClefCell:" + clefIndex + " " + column);
+    if (clefIndex >= 0) {
         let cell = getClefCell(clefIndex, column);
         if (cell !== undefined) {
             cell.innerHTML = "";
@@ -446,10 +449,16 @@ function keyUpHandler(event) {
 }
 
 function keyNoteDown(event, keyIndex) {
-    return midiNoteDown(event, NOTE_MIDI_CODE[keyIndex]);
+    document.dispatchEvent(new CustomEvent(USER_NOTE_ON_HIT_EVENT, {
+        detail: {
+            midiNote: NOTE_MIDI_CODE[keyIndex],
+            pressure: event.pressure,
+        }
+    }));
 }
 
-function midiNoteDown(event, midiNote) {
+function midiNoteDown(event) {
+    let midiNote = event.detail.midiNote;
     const pressure = ((event.pressure == null) ? KEYBOARD_GAIN : event.pressure);
     console.log(midiNote);
     let matched = false;
@@ -708,7 +717,12 @@ function updatePitch() {
                 lastDetectedNote = note;
                 //pitch stable enough to trigger note
                 detectedText.value = note + " " + midiToNote(note);
-                midiNoteDown(new CustomEvent("midi_note", {detail : {midiNote : note}}), note);
+                document.dispatchEvent(new CustomEvent(USER_NOTE_ON_HIT_EVENT, {
+                    detail: {
+                        midiNote: note,
+                        pressure: KEYBOARD_GAIN,
+                    }
+                }));
             }
         } else {
             detectedCycles = 0;
@@ -811,7 +825,12 @@ function handleMIDIMessage(event) {
     const [status, key, velocity] = event.data; // MIDI message bytes
     // Example: Detect Note On (Key Pressed)
     if (status === 144 && velocity > 0) {
-        midiNoteDown(event, key);
+        document.dispatchEvent(new CustomEvent(USER_NOTE_ON_HIT_EVENT, {
+            detail: {
+                midiNote: key,
+                pressure: velocity,
+            }
+        }));
     }
 
     // Example: Detect Note Off (Key Released)
