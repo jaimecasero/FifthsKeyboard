@@ -10,9 +10,9 @@ const SHARP_CHAR = "&sharp;";
 const NAT_CHAR = "&natur;";
 const NOTE_CHAR = "&sung;";
 
-const USER_FAILED_EVENT="user_failed";
-const MICRO_SELECTED_EVENT="microphone_selected";
-const MIDI_SELECTED_EVENT="midi_selected";
+const USER_FAILED_EVENT = "user_failed";
+const MICRO_SELECTED_EVENT = "microphone_selected";
+const MIDI_SELECTED_EVENT = "midi_selected";
 
 const WHOLE_CHAR = "&#119133;";
 const HALF_CHAR = "&#119134;";
@@ -117,7 +117,7 @@ var detectedText;
 
 function playMidiNoteAction(event) {
     //play user note to throw feedback, that should hurt your ear
-    playMidiNote(event.detail.midiNote +  CLEF_OCTAVE_ARRAY[clefSelect.value] * NUM_NOTES, event.detail.pressure);
+    playMidiNote(event.detail.midiNote + CLEF_OCTAVE_ARRAY[clefSelect.value] * NUM_NOTES, event.detail.pressure);
 }
 
 function vibrateAction() {
@@ -137,9 +137,10 @@ function midiToNote(midiNote) {
 
 function renderUserFailed(event) {
     mistakesText.value = parseInt(mistakesText.value) + 1;
-    detectedText.value = event.detail.midiNote + " " + midiToNote(event.detail.midiNote);
-    changeTextColor(mistakesText,"red");
-    setTimeout(function() {changeTextColor(mistakesText, "black")}, 500);
+    changeTextColor(mistakesText, "red");
+    setTimeout(function () {
+        changeTextColor(mistakesText, "black")
+    }, 500);
     //event.srcElement.style.borderColor = "red";
     //setTimeout(function() {event.srcElement.style.borderColor = "black";}, 500);
 }
@@ -216,7 +217,7 @@ function midiToClefIndex(midiNote) {
             clefIndex = clefTable.getElementsByTagName("tr").length - i - 1;
             break;
         }
-        if ( resultingClef[i - 1] > midiNote) {
+        if (resultingClef[i - 1] > midiNote) {
             console.log("previous note is bigger, so the note is not in the current key");
             if (signatureType === 1) {
                 //for sharp keys set match type to flat
@@ -450,15 +451,16 @@ function keyNoteDown(event, keyIndex) {
 
 function midiNoteDown(event, midiNote) {
     const pressure = ((event.pressure == null) ? KEYBOARD_GAIN : event.pressure);
-    console.log( event);
+    console.log(midiNote);
     let matched = false;
     if (isSameNote(currentNote, midiNote)) {
         matched = true;
         playMidiNote(currentNote, pressure);
-        console.log("same pitch");
         let hintRatio = hintCheckbox.checked ? 1 : 3;
         scoreText.value = parseInt(scoreText.value) + hintRatio;
-        setTimeout(function() {changeTextColor(scoreText, "black")}, 500);
+        setTimeout(function () {
+            changeTextColor(scoreText, "black")
+        }, 500);
         changeTextColor(scoreText, "green");
         //event.srcElement.style.borderColor = "green";
         //setTimeout(function() {event.srcElement.style.borderColor = "black";}, 500);
@@ -474,7 +476,9 @@ function midiNoteDown(event, midiNote) {
             speed = speed * (SPEED_CHANGE_RATIO);
             levelText.value = parseInt(levelText.value) + 1;
             changeTextColor(levelText, "green");
-            setTimeout(function() {changeTextColor(levelText, "black")}, 500);
+            setTimeout(function () {
+                changeTextColor(levelText, "black")
+            }, 500);
         }
     } else {
         document.dispatchEvent(new CustomEvent(USER_FAILED_EVENT, {
@@ -490,6 +494,7 @@ function midiNoteDown(event, midiNote) {
 function changeTextColor(input, newColor) {
     input.style.borderColor = newColor;
 }
+
 function keyNoteUp(event, keyIndex) {
     playMidiNoteOff(currentNote);
 }
@@ -559,7 +564,8 @@ function calculateNewClef() {
 }
 
 function changeInput(inputIndex) {
-    if (inputIndex === "0") {}
+    if (inputIndex === "0") {
+    }
 }
 
 function changeClef() {
@@ -668,17 +674,18 @@ var pitch;
 var analyser;
 var buf;
 var detectedCycles = 0; //number of cycles where same note was detected
-const CYCLE_THRESHOLD= 20; //how many cycles to trigger use note
-var lastDetectedNote=0;
+const CYCLE_THRESHOLD = 10; //how many cycles to trigger use note
+var lastDetectedNote = 0;
+
 // create web audio api context
 async function connectMicro() {
     console.log("micro selected");
-    navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+    navigator.mediaDevices.getUserMedia({audio: true}).then(stream => {
         audioContext = new AudioContext();
         microphone = audioContext.createMediaStreamSource(stream);
         analyser = audioContext.createAnalyser();
         analyser.fftSize = 2048;
-        buf = new Float32Array( 2048 );
+        buf = new Float32Array(2048);
         microphone.connect(analyser);
 
 
@@ -688,20 +695,20 @@ async function connectMicro() {
 }
 
 
-function updatePitch( time ) {
-    analyser.getFloatTimeDomainData( buf );
-    const ac = autoCorrelate( buf, audioContext.sampleRate );
+function updatePitch() {
+    analyser.getFloatTimeDomainData(buf);
+    const ac = autoCorrelate(buf, audioContext.sampleRate);
     if (ac === -1) {
     } else {
         pitch = ac;
-        const note =  noteFromPitch( pitch );
+        const note = noteFromPitch(pitch);
         if (note === lastDetectedNote) {
             detectedCycles = detectedCycles + 1;
-            if (detectedCycles >= CYCLE_THRESHOLD) {
-                detectedCycles = 0;
+            if (detectedCycles === CYCLE_THRESHOLD) {
                 lastDetectedNote = note;
                 //pitch stable enough to trigger note
-                midiNoteDown(new CustomEvent("midi_note"), note);
+                detectedText.value = note + " " + midiToNote(note);
+                midiNoteDown(new CustomEvent("midi_note", {detail : {midiNote : note}}), note);
             }
         } else {
             detectedCycles = 0;
@@ -710,44 +717,51 @@ function updatePitch( time ) {
 
     }
 
-    window.requestAnimationFrame( updatePitch );
+    window.requestAnimationFrame(updatePitch);
 }
 
-function noteFromPitch( frequency ) {
-    let noteNum = 12 * (Math.log( frequency / 440 )/Math.log(2) );
-    return Math.round( noteNum ) + 69;
+function noteFromPitch(frequency) {
+    let noteNum = 12 * (Math.log(frequency / 440) / Math.log(2));
+    return Math.round(noteNum) + 69;
 }
 
-function autoCorrelate( buf, sampleRate ) {
+function autoCorrelate(buf, sampleRate) {
     // Implements the ACF2+ algorithm
     var SIZE = buf.length;
     var rms = 0;
 
-    for (var i=0;i<SIZE;i++) {
+    for (var i = 0; i < SIZE; i++) {
         var val = buf[i];
-        rms += val*val;
+        rms += val * val;
     }
-    rms = Math.sqrt(rms/SIZE);
-    if (rms<0.01) // not enough signal
+    rms = Math.sqrt(rms / SIZE);
+    if (rms < 0.01) // not enough signal
         return -1;
 
-    var r1=0, r2=SIZE-1, thres=0.2;
-    for (var i=0; i<SIZE/2; i++)
-        if (Math.abs(buf[i])<thres) { r1=i; break; }
-    for (var i=1; i<SIZE/2; i++)
-        if (Math.abs(buf[SIZE-i])<thres) { r2=SIZE-i; break; }
+    var r1 = 0, r2 = SIZE - 1, thres = 0.2;
+    for (var i = 0; i < SIZE / 2; i++)
+        if (Math.abs(buf[i]) < thres) {
+            r1 = i;
+            break;
+        }
+    for (var i = 1; i < SIZE / 2; i++)
+        if (Math.abs(buf[SIZE - i]) < thres) {
+            r2 = SIZE - i;
+            break;
+        }
 
-    buf = buf.slice(r1,r2);
+    buf = buf.slice(r1, r2);
     SIZE = buf.length;
 
     var c = new Array(SIZE).fill(0);
-    for (var i=0; i<SIZE; i++)
-        for (var j=0; j<SIZE-i; j++)
-            c[i] = c[i] + buf[j]*buf[j+i];
+    for (var i = 0; i < SIZE; i++)
+        for (var j = 0; j < SIZE - i; j++)
+            c[i] = c[i] + buf[j] * buf[j + i];
 
-    var d=0; while (c[d]>c[d+1]) d++;
-    var maxval=-1, maxpos=-1;
-    for (var i=d; i<SIZE; i++) {
+    var d = 0;
+    while (c[d] > c[d + 1]) d++;
+    var maxval = -1, maxpos = -1;
+    for (var i = d; i < SIZE; i++) {
         if (c[i] > maxval) {
             maxval = c[i];
             maxpos = i;
@@ -755,12 +769,12 @@ function autoCorrelate( buf, sampleRate ) {
     }
     var T0 = maxpos;
 
-    var x1=c[T0-1], x2=c[T0], x3=c[T0+1];
-    a = (x1 + x3 - 2*x2)/2;
-    b = (x3 - x1)/2;
-    if (a) T0 = T0 - b/(2*a);
+    var x1 = c[T0 - 1], x2 = c[T0], x3 = c[T0 + 1];
+    a = (x1 + x3 - 2 * x2) / 2;
+    b = (x3 - x1) / 2;
+    if (a) T0 = T0 - b / (2 * a);
 
-    return sampleRate/T0;
+    return sampleRate / T0;
 }
 
 
