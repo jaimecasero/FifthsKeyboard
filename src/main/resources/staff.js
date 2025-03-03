@@ -35,16 +35,10 @@ const TREBLE_OCTAVE = 4;
 const ALTO_OCTAVE = 3;
 const TENOR_OCTAVE = 3;
 const BASS_OCTAVE = 2;
+const GRAND_OCTAVE = 2;
 const CLEF_CODE_ARRAY = [TREBLE_MIDI_CODE, ALTO_MIDI_CODE, TENOR_MIDI_CODE, BASS_MIDI_CODE, GRAND_MIDI_CODE];
-const CLEF_OCTAVE_ARRAY = [TREBLE_OCTAVE, ALTO_OCTAVE, TENOR_OCTAVE, BASS_OCTAVE];
+const CLEF_OCTAVE_ARRAY = [TREBLE_OCTAVE, ALTO_OCTAVE, TENOR_OCTAVE, BASS_OCTAVE, GRAND_OCTAVE];
 const CLEF_COLUMNS = 12;
-
-let HARRY_TRACK = 0;
-const WAKA_TRACK = 0;
-const THUNDER_TRACK = 0;
-const POTRA_TRACK = 0;
-const SONG_TRACKS = [HARRY_TRACK, WAKA_TRACK, THUNDER_TRACK, POTRA_TRACK];
-
 
 var currentNote = "";//midi code for current note
 var currentNoteTablePos = 1; //current note table column
@@ -576,7 +570,52 @@ function changeInput(inputIndex) {
 }
 
 function changeClef() {
-
+    let previousLength = clefTable.getElementsByTagName("tr").length;
+    if (clefSelect.value === "4") {
+        let tBody = clefTable.getElementsByTagName("tbody")[0];
+        let newTableRow = document.createElement("tr");
+        newTableRow.className = "outside-space-clef-row";
+        tBody.appendChild(newTableRow);
+        newTableRow = document.createElement("tr");
+        newTableRow.className = "line-clef-row";
+        tBody.appendChild(newTableRow);
+        newTableRow = document.createElement("tr");
+        newTableRow.className = "space-clef-row";
+        tBody.appendChild(newTableRow);
+        newTableRow = document.createElement("tr");
+        newTableRow.className = "line-clef-row";
+        tBody.appendChild(newTableRow);
+        newTableRow = document.createElement("tr");
+        newTableRow.className = "space-clef-row";
+        tBody.appendChild(newTableRow);
+        newTableRow = document.createElement("tr");
+        newTableRow.className = "line-clef-row";
+        tBody.appendChild(newTableRow);
+        newTableRow = document.createElement("tr");
+        newTableRow.className = "space-clef-row";
+        tBody.appendChild(newTableRow);
+        newTableRow = document.createElement("tr");
+        newTableRow.className = "line-clef-row";
+        tBody.appendChild(newTableRow);
+        newTableRow = document.createElement("tr");
+        newTableRow.className = "space-clef-row";
+        tBody.appendChild(newTableRow);
+        newTableRow = document.createElement("tr");
+        newTableRow.className = "line-clef-row";
+        tBody.appendChild(newTableRow);
+        newTableRow = document.createElement("tr");
+        newTableRow.className = "outside-space-clef-row";
+        tBody.appendChild(newTableRow);
+        newTableRow = document.createElement("tr");
+        newTableRow.className = "outside-line-clef-row";
+        tBody.appendChild(newTableRow);
+    }
+    for (let i = previousLength - 1; i < clefTable.getElementsByTagName("tr").length; i++) {
+        for (let j = 0; j < CLEF_COLUMNS; j++) {
+            let newTableCell = document.createElement("td");
+            clefTable.getElementsByTagName("tr")[i].appendChild(newTableCell);
+        }
+    }
     for (let i = 0; i < clefTable.getElementsByTagName("tr").length; i++) {
         resetClefCell(i, 0);
     }
