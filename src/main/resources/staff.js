@@ -39,12 +39,6 @@ const CLEF_CODE_ARRAY = [TREBLE_MIDI_CODE, ALTO_MIDI_CODE, TENOR_MIDI_CODE, BASS
 const CLEF_OCTAVE_ARRAY = [TREBLE_OCTAVE, ALTO_OCTAVE, TENOR_OCTAVE, BASS_OCTAVE];
 const CLEF_COLUMNS = 12;
 
-let HARRY_SONG = "midi/HarryPotter.mid"
-const WAKA_SONG = "midi/waka.mid";
-const THUNDER_SONG = "midi/thunder.mid";
-const POTRA_SONG = "midi/potra.mid";
-const SONG_PATHS = [HARRY_SONG, WAKA_SONG, THUNDER_SONG, POTRA_SONG];
-
 let HARRY_TRACK = 0;
 const WAKA_TRACK = 0;
 const THUNDER_TRACK = 0;
@@ -55,7 +49,6 @@ const SONG_TRACKS = [HARRY_TRACK, WAKA_TRACK, THUNDER_TRACK, POTRA_TRACK];
 var currentNote = "";//midi code for current note
 var currentNoteTablePos = 1; //current note table column
 var currentNoteIndex = -1; //index to NOTE_CODE arrray
-var currentSongIndex = 0;
 var nextNoteTimer = undefined;//holds promise for timer
 var octave = 4;
 var speed = 1;//current speed,
@@ -78,6 +71,7 @@ var levelText;
 var signatureSelect;
 var trackSelect;
 var detectedText;
+var songSelect;
 
 (function (window, document, undefined) {
     window.onload = init;
@@ -99,6 +93,7 @@ var detectedText;
         signatureSelect = document.getElementById('signatureSelect');
         trackSelect = document.getElementById('trackSelect');
         detectedText = document.getElementById('detectedText');
+        songSelect = document.getElementById('songSelect');
         //register key handlers
         document.addEventListener("keydown", keyDownHandler, false);
         document.addEventListener("keyup", keyUpHandler, false);
@@ -180,7 +175,7 @@ function noteDurationToSymbol(duration, ppq) {
 
 
 async function loadSong() {
-    const response = await fetch(SONG_PATHS[currentSongIndex]);
+    const response = await fetch("midi/" + songSelect.value + ".mid");
     const arrayBuffer = await response.arrayBuffer();
     midiData = new Midi(arrayBuffer);
     while (trackSelect.options.length > 0) {
@@ -526,8 +521,6 @@ function changeOutput(outputMode) {
 }
 
 function changeSong(songIndex) {
-    currentSongIndex = songIndex;
-    console.log("changeSong:" + currentSongIndex);
     loadSong();
 }
 

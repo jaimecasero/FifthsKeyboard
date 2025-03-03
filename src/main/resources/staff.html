@@ -17,19 +17,20 @@
 
 
 <label for="SongSelect">Song:</label>
-<select id="songSelect" onchange="changeSong(this.value);">
-    <option value="0" selected="selected">Harry</option>
-    <option value="1">waka waka</option>
-    <option value="2">Thunder</option>
-    <option value="3">Potra Salvaje</option>
+<select id="songSelect" class="gameConsoleText" onchange="changeSong(this.value);">
+    <option value="harry" selected="selected">Harry</option>
+    <option value="waka">waka waka</option>
+    <option value="thunder">Thunder</option>
+    <option value="potra">Potra Salvaje</option>
+    <option value="mario">Mario Bros</option>
 </select>
 <label for="trackSelect">Track:</label>
-<select id="trackSelect">
+<select id="trackSelect" class="gameConsoleText">
     <option value="0" selected="selected">Track0</option>
 </select>
 <BR>
 <label for="clefSelect">Clef:</label>
-<select id="clefSelect" onchange="changeClef();">
+<select id="clefSelect" class="gameConsoleText" onchange="changeClef();">
     <option value="0" selected>&#119070; Treble G</option>
     <option value="1">&#119073; Alto C</option>
     <option value="2">&#119073; Tenor C</option>
@@ -40,7 +41,7 @@
 
 </select>
 <label for="signatureSelect">Signature:</label>
-<select id="signatureSelect" onchange="changeClef();">
+<select id="signatureSelect" class="gameConsoleText" onchange="changeClef();">
     <option value="0" selected></option>
     <option value="1">&flat;</option>
     <option value="2">&flat;&flat;</option>
@@ -137,7 +138,7 @@
 <input type="checkbox" id="playCheckbox">
 
 <label for="inputSelect">Input:</label>
-<select id="inputSelect" onchange="document.dispatchEvent(new Event(this.value));">
+<select id="inputSelect" class="gameConsoleText" onchange="document.dispatchEvent(new Event(this.value));">
     <option value="buttons_selected" selected>buttons</option>
     <option value="keyboard_selected">keyboard</option>
     <option value="midi_selected">midi keyboard</option>
