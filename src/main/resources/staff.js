@@ -609,7 +609,14 @@ function changeClef() {
         newTableRow = document.createElement("tr");
         newTableRow.className = "outside-line-clef-row";
         tBody.appendChild(newTableRow);
+    } else {
+        if (previousLength > 13 ) {
+            for (let i = 0; i < 12; i++) {
+                clefTable.deleteRow(-1);
+            }
+        }
     }
+
     for (let i = previousLength - 1; i < clefTable.getElementsByTagName("tr").length; i++) {
         for (let j = 0; j < CLEF_COLUMNS; j++) {
             let newTableCell = document.createElement("td");
