@@ -583,6 +583,7 @@ function changeInput(inputIndex) {
 
 function changeClef() {
     let previousLength = clefTable.getElementsByTagName("tr").length;
+    // add rows for grand clef
     if (clefSelect.value === "4") {
         let tBody = clefTable.getElementsByTagName("tbody")[0];
         let newTableRow = document.createElement("tr");
@@ -621,7 +622,15 @@ function changeClef() {
         newTableRow = document.createElement("tr");
         newTableRow.className = "outside-line-clef-row";
         tBody.appendChild(newTableRow);
+        //add table cells
+        for (let i = previousLength - 1; i < clefTable.getElementsByTagName("tr").length; i++) {
+            for (let j = 0; j < CLEF_COLUMNS; j++) {
+                let newTableCell = document.createElement("td");
+                clefTable.getElementsByTagName("tr")[i].appendChild(newTableCell);
+            }
+        }
     } else {
+        //remove rows from grand clef
         if (previousLength > 13 ) {
             for (let i = 0; i < 12; i++) {
                 clefTable.deleteRow(-1);
@@ -629,12 +638,9 @@ function changeClef() {
         }
     }
 
-    for (let i = previousLength - 1; i < clefTable.getElementsByTagName("tr").length; i++) {
-        for (let j = 0; j < CLEF_COLUMNS; j++) {
-            let newTableCell = document.createElement("td");
-            clefTable.getElementsByTagName("tr")[i].appendChild(newTableCell);
-        }
-    }
+
+
+    //reset first colum before calculating the new clef
     for (let i = 0; i < clefTable.getElementsByTagName("tr").length; i++) {
         resetClefCell(i, 0);
     }
