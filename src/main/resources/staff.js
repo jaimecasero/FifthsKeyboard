@@ -68,7 +68,7 @@ var detectedText;
 var songSelect;
 
 // Selecciona todos los botones del teclado
-const keyboardButtons = document.querySelectorAll(".keyboard-button");
+const keyboardButtons = document.getElementsByName("noteButton");
 
 // Previene el menú contextual en todos los botones
 keyboardButtons.forEach(button => {
