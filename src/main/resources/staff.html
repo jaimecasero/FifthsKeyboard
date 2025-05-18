@@ -16,50 +16,6 @@
 <body>
 
 
-<label for="SongSelect">Song:</label>
-<select id="songSelect" class="gameConsoleText" onchange="changeSong(this.value);">
-    <option value="harry" selected="selected">Harry</option>
-    <option value="waka">waka waka</option>
-    <option value="thunder">Thunder</option>
-    <option value="potra">Potra Salvaje</option>
-    <option value="mario">Mario Bros</option>
-    <option value="perfect">Perfect</option>
-</select>
-<label for="trackSelect">Track:</label>
-<select id="trackSelect" class="gameConsoleText">
-    <option value="0" selected="selected">Track0</option>
-</select>
-<BR>
-<label for="clefSelect">Clef:</label>
-<select id="clefSelect" class="gameConsoleText" onchange="changeClef();">
-    <option value="0" selected>&#119070; Treble G</option>
-    <option value="1">&#119073; Alto C</option>
-    <option value="2">&#119073; Tenor C</option>
-    <option value="3">&#119074; Bass F</option>
-    <option value="4">&#119070; + &#119074; Grand</option>
-</select>
-
-<label for="signatureSelect">Signature:</label>
-<select id="signatureSelect" class="gameConsoleText" onchange="changeClef();">
-    <option value="0" selected></option>
-    <option value="1">&flat;</option>
-    <option value="2">&flat;&flat;</option>
-    <option value="3">&flat;&flat;&flat;</option>
-    <option value="4">&flat;&flat;&flat;&flat;</option>
-    <option value="5">&flat;&flat;&flat;&flat;&flat;</option>
-    <option value="6">&flat;&flat;&flat;&flat;&flat;&flat;</option>
-    <option value="7">&flat;&flat;&flat;&flat;&flat;&flat;&flat;</option>
-    <option value="8">&sharp;</option>
-    <option value="9">&sharp;&sharp;</option>
-    <option value="10">&sharp;&sharp;&sharp;</option>
-    <option value="11">&sharp;&sharp;&sharp;&sharp;</option>
-    <option value="12">&sharp;&sharp;&sharp;&sharp;&sharp;</option>
-    <option value="13">&sharp;&sharp;&sharp;&sharp;&sharp;&sharp;</option>
-    <option value="14">&sharp;&sharp;&sharp;&sharp;&sharp;&sharp;&sharp;</option>
-</select>
-
-<BR><BR>
-
 <table id="clefTable">
     <tbody>
         <tr class="outside-line-clef-row"></tr>
@@ -132,8 +88,52 @@
     </tr>
 </table>
 <BR><BR><BR><BR>
+<label for="SongSelect">Song:</label>
+<select id="songSelect" class="gameConsoleText" onchange="changeSong(this.value);">
+    <option value="harry" selected="selected">Harry</option>
+    <option value="waka">waka waka</option>
+    <option value="thunder">Thunder</option>
+    <option value="potra">Potra Salvaje</option>
+    <option value="mario">Mario Bros</option>
+    <option value="perfect">Perfect</option>
+</select>
+<label for="trackSelect">Track:</label>
+<select id="trackSelect" class="gameConsoleText">
+    <option value="0" selected="selected">Track0</option>
+</select>
+<BR>
+<label for="clefSelect">Clef:</label>
+<select id="clefSelect" class="gameConsoleText" onchange="changeClef();">
+    <option value="0" selected>&#119070; Treble G</option>
+    <option value="1">&#119073; Alto C</option>
+    <option value="2">&#119073; Tenor C</option>
+    <option value="3">&#119074; Bass F</option>
+    <option value="4">&#119070; + &#119074; Grand</option>
+</select>
+
+<label for="signatureSelect">Signature:</label>
+<select id="signatureSelect" class="gameConsoleText" onchange="changeClef();">
+    <option value="0" selected></option>
+    <option value="1">&flat;</option>
+    <option value="2">&flat;&flat;</option>
+    <option value="3">&flat;&flat;&flat;</option>
+    <option value="4">&flat;&flat;&flat;&flat;</option>
+    <option value="5">&flat;&flat;&flat;&flat;&flat;</option>
+    <option value="6">&flat;&flat;&flat;&flat;&flat;&flat;</option>
+    <option value="7">&flat;&flat;&flat;&flat;&flat;&flat;&flat;</option>
+    <option value="8">&sharp;</option>
+    <option value="9">&sharp;&sharp;</option>
+    <option value="10">&sharp;&sharp;&sharp;</option>
+    <option value="11">&sharp;&sharp;&sharp;&sharp;</option>
+    <option value="12">&sharp;&sharp;&sharp;&sharp;&sharp;</option>
+    <option value="13">&sharp;&sharp;&sharp;&sharp;&sharp;&sharp;</option>
+    <option value="14">&sharp;&sharp;&sharp;&sharp;&sharp;&sharp;&sharp;</option>
+</select>
+
+<BR><BR>
+<BR><BR>
 <label for="hintCheckbox">Sig Hint:</label>
-<input type="checkbox" id="hintCheckbox" checked onchange="changeClef();">
+<input type="checkbox" id="hintCheckbox" onchange="changeClef();">
 
 <label for="playCheckbox">Ear Tr:</label>
 <input type="checkbox" id="playCheckbox">
@@ -150,19 +150,18 @@
 <input type="button" id="stopButton" value="stop" onclick="stop()">
 
 
-<BR><BR>
-<BR><BR>
+<BR>
 <label for="scoreText">Score:</label>
 <input type="text" class="gameConsoleText" readonly id="scoreText" value="0">
 <label for="mistakesText">Mistakes:</label>
 <input type="text" class="gameConsoleText" readonly id="mistakesText" value="0">
 <label for="levelText">Level:</label>
 <input type="text" class="gameConsoleText" readonly id="levelText" value="1">
-<BR><BR>
+<BR>
 <label for="detectedText">Detected:</label>
 <input type="text" class="gameConsoleText" readonly id="detectedText" value="">
 
-<BR><BR>
+<BR><BR><BR><BR>
 <a href="https://paypal.me/jaimecasero?country.x=ES&locale.x=es_ES">Donate</a>
 </body>
 </html>

@@ -67,6 +67,16 @@ var trackSelect;
 var detectedText;
 var songSelect;
 
+// Selecciona todos los botones del teclado
+const keyboardButtons = document.querySelectorAll(".keyboard-button");
+
+// Previene el menú contextual en todos los botones
+keyboardButtons.forEach(button => {
+    button.addEventListener("contextmenu", (event) => {
+        event.preventDefault(); // Bloquear el menú contextual
+    });
+});
+
 (function (window, document, undefined) {
     window.onload = init;
 
