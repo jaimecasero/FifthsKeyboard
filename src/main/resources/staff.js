@@ -67,15 +67,7 @@ var trackSelect;
 var detectedText;
 var songSelect;
 
-// Selecciona todos los botones del teclado
-const keyboardButtons = document.getElementsByName("noteButton");
 
-// Previene el menú contextual en todos los botones
-keyboardButtons.forEach(button => {
-    button.addEventListener("contextmenu", (event) => {
-        event.preventDefault(); // Bloquear el menú contextual
-    });
-});
 
 (function (window, document, undefined) {
     window.onload = init;
@@ -98,6 +90,16 @@ keyboardButtons.forEach(button => {
         trackSelect = document.getElementById('trackSelect');
         detectedText = document.getElementById('detectedText');
         songSelect = document.getElementById('songSelect');
+
+        const keyboardButtons = document.getElementsByName("noteButton");
+
+// Previene el menú contextual en todos los botones
+        keyboardButtons.forEach(button => {
+            console.log("preventing context menu on button");
+            button.addEventListener("contextmenu", (event) => {
+                event.preventDefault(); // block context menu
+            });
+        });
         //register key handlers
         document.addEventListener("keydown", keyDownHandler, false);
         document.addEventListener("keyup", keyUpHandler, false);
