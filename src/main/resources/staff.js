@@ -497,9 +497,25 @@ function changeOutput(outputMode) {
     }
 }
 
-function changeSong(songIndex) {
+function changeSong() {
+    for (let i = 0; i < clefTable.getElementsByTagName("tr").length; i++) {
+        for (let j = 1; j < CLEF_COLUMNS; j++) {
+            resetClefCell(i, j);
+        }
+    }
     loadSong();
 }
+
+function changeTrack() {
+    for (let i = 0; i < clefTable.getElementsByTagName("tr").length; i++) {
+        for (let j = 1; j < CLEF_COLUMNS; j++) {
+            resetClefCell(i, j);
+        }
+    }
+    start();
+}
+
+
 
 
 function calculateNewClef() {
