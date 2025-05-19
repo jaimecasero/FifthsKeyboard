@@ -41,7 +41,6 @@ const CLEF_OCTAVE_ARRAY = [TREBLE_OCTAVE, ALTO_OCTAVE, TENOR_OCTAVE, BASS_OCTAVE
 const CLEF_COLUMNS = 12;
 
 var currentNote = "";//midi code for current note
-var currentNoteTablePos = 1; //current note table column
 var currentNoteIndex = -1; //index to NOTE_CODE arrray
 var nextNoteTimer = undefined;//holds promise for timer
 var octave = 4;
@@ -205,7 +204,7 @@ async function loadSong() {
 
     }
     changeClef();
-    console.log(midiData);
+    start();
 }
 
 function resetClefCell(clefIndex, column) {
@@ -319,21 +318,11 @@ function setClefText(text, textClass, clefIndex, column) {
 
 function start() {
     currentNoteIndex = 0;
-    currentNoteTablePos = clefTable.getElementsByTagName("tr")[0].getElementsByTagName("td").length;
     mistakesText.value = INITIAL_MISTAKES;
     levelText.value = 1;
     scoreText.value = 0;
     hintCheckbox.readOnly = true;
     renderCurrentNote();
-}
-
-function stop() {
-    if (nextNoteTimer !== undefined) {
-        clearTimeout(nextNoteTimer);
-        nextNoteTimer = undefined;
-        hintCheckbox.readOnly = false;
-
-    }
 }
 
 /**
@@ -355,41 +344,21 @@ function adjustMidiToClef(midiNote) {
 }
 
 function renderCurrentNote() {
-    currentNoteTablePos = currentNoteTablePos - 1;
-    if (currentNoteTablePos < 1) {
-        let noteAux = adjustMidiToClef(midiData.tracks[trackSelect.value].notes[currentNoteIndex].midi);
-        let clefIndex = midiToClefIndex(noteAux);
-        resetClefCell(clefIndex[0], currentNoteTablePos +1);
-        document.dispatchEvent(new CustomEvent(USER_FAILED_EVENT, {
-            detail: {
-                midiNote: 0,
-                pressure: KEYBOARD_GAIN,
-            }
-        }));
-        currentNoteTablePos = currentNoteTablePos + 1;
-        //user didn't match note, pass to next note
-        currentNoteIndex = currentNoteIndex + 1;
-        if (currentNoteIndex >= midiData.tracks[trackSelect.value].notes.length) {
-            currentNoteIndex = 0;
-        }
-    }
 
     currentNote = adjustMidiToClef(midiData.tracks[trackSelect.value].notes[currentNoteIndex].midi);
-    for (let i = 0; i < clefTable.getElementsByTagName("tr").length - currentNoteTablePos; i++) {
+    for (let i = 1; i < clefTable.getElementsByTagName("tr").length ; i++) {
         console.log("renderCurrentNote:" + currentNote);
-        let noteAux = adjustMidiToClef(midiData.tracks[trackSelect.value].notes[currentNoteIndex + i].midi);
+        let noteAux = adjustMidiToClef(midiData.tracks[trackSelect.value].notes[currentNoteIndex + i -1].midi);
         let clefIndex = midiToClefIndex(noteAux);
-        resetClefCell(clefIndex[0], currentNoteTablePos + i + 1);
-        setClefCell(clefIndex, currentNoteTablePos + i, midiData.tracks[trackSelect.value].notes[currentNoteIndex + i].durationTicks);
+        setClefCell(clefIndex,  i, midiData.tracks[trackSelect.value].notes[currentNoteIndex + i -1].durationTicks);
     }
 
 
-
-    if (playCheckbox.checked && currentNoteTablePos === clefTable.getElementsByTagName("tr")[0].getElementsByTagName("td").length - 1) {
-        //play only once in the beginning
-        playMidiNote(currentNote, KEYBOARD_GAIN);
+    if (playCheckbox.checked) {
+        setTimeout(() => {
+            playMidiNote(currentNote, KEYBOARD_GAIN);
+        }, 500);
     }
-    nextNoteTimer = setTimeout(renderCurrentNote, 1000 * speed);
 }
 
 ///////////////INPUT HANDLING/////////////////////////////////////////
@@ -478,24 +447,25 @@ function midiNoteDown(event) {
             changeTextColor(scoreText, "black")
         }, 500);
         changeTextColor(scoreText, "green");
-        //event.srcElement.style.borderColor = "green";
-        //setTimeout(function() {event.srcElement.style.borderColor = "black";}, 500);
 
-        resetClefCell(midiToClefIndex(currentNote)[0], currentNoteTablePos);
-        currentNoteTablePos = currentNoteTablePos + 1;
+        for (let i = 0; i < clefTable.getElementsByTagName("tr").length; i++) {
+            for (let j = 1; j < CLEF_COLUMNS; j++) {
+                resetClefCell(i, j);
+            }
+        }
         currentNoteIndex = currentNoteIndex + 1;
         if (currentNoteIndex >= midiData.tracks[trackSelect.value].notes.length) {
             currentNoteIndex = 0;
         }
         if (scoreText.value / (parseInt(levelText.value) * 10) > 1 && (scoreText.value % (parseInt(levelText.value) * 10)) > 0) {
             console.log("score:" + scoreText.value + " level:" + levelText.value);
-            //speed = speed * (SPEED_CHANGE_RATIO);
             levelText.value = parseInt(levelText.value) + 1;
             changeTextColor(levelText, "green");
             setTimeout(function () {
                 changeTextColor(levelText, "black")
             }, 500);
         }
+        renderCurrentNote();
     } else {
         document.dispatchEvent(new CustomEvent(USER_FAILED_EVENT, {
             detail: {
