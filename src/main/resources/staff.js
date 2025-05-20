@@ -101,7 +101,6 @@ var songSelect;
             }
         }
 
-        changeClef();
         loadSong();
 
     }
@@ -189,7 +188,6 @@ async function loadSong() {
 
     }
     changeClef();
-    start();
 }
 
 function resetClefCell(clefIndex, column) {
@@ -354,6 +352,11 @@ function adjustMidiToClef(midiNote) {
 }
 
 function renderCurrentNote() {
+    for (let i = 0; i < clefTable.getElementsByTagName("tr").length; i++) {
+        for (let j = 1; j < CLEF_COLUMNS; j++) {
+            resetClefCell(i, j);
+        }
+    }
 
     currentNote = adjustMidiToClef(midiData.tracks[trackSelect.value].notes[currentNoteIndex].midi);
     for (let i = 1; i < clefTable.getElementsByTagName("tr").length ; i++) {
@@ -458,11 +461,6 @@ function midiNoteDown(event) {
         }, 500);
         changeTextColor(scoreText, "green");
 
-        for (let i = 0; i < clefTable.getElementsByTagName("tr").length; i++) {
-            for (let j = 1; j < CLEF_COLUMNS; j++) {
-                resetClefCell(i, j);
-            }
-        }
         currentNoteIndex = currentNoteIndex + 1;
         if (currentNoteIndex >= midiData.tracks[trackSelect.value].notes.length) {
             currentNoteIndex = 0;
@@ -501,11 +499,7 @@ function changeOutput(outputMode) {
 }
 
 function changeSong() {
-    for (let i = 0; i < clefTable.getElementsByTagName("tr").length; i++) {
-        for (let j = 1; j < CLEF_COLUMNS; j++) {
-            resetClefCell(i, j);
-        }
-    }
+
     loadSong();
 }
 
@@ -638,6 +632,7 @@ function changeClef() {
     if (hintCheckbox.checked) {
         displaySignatureHint();
     }
+    start();
 }
 
 function displaySignatureHint() {
