@@ -193,7 +193,6 @@ async function loadSong() {
 }
 
 function resetClefCell(clefIndex, column) {
-    console.log("resetClefCell:" + clefIndex + " " + column);
     if (clefIndex >= 0) {
         let cell = getClefCell(clefIndex, column);
         if (cell !== undefined) {
@@ -262,25 +261,35 @@ function setClefCell(clefIndex, column, durationTicks) {
             //outer lines are just striked
             if (clefIndex[0] < 6 || clefIndex[0] > 14) {
                 noteClass = "note-on-line-striked";
-                switch (clefIndex[0]) {
-                    case 0:
-                        setClefText("-", noteClass, clefIndex[0] + 2, column);
-                        setClefText("-", noteClass, clefIndex[0] + 4, column);
-                        break;
-                    case 2:
-                        setClefText("-", noteClass, clefIndex[0] + 2, column);
-                        break;
-                    case 20:
-                        setClefText("-", noteClass, clefIndex[0] - 2, column);
-                        setClefText("-", noteClass, clefIndex[0] - 4, column);
-                        break;
-                    case 18:
-                        setClefText("-", noteClass, clefIndex[0] - 2, column);
-                        break;
 
-                }
             }
         }
+
+        switch (clefIndex[0]) {
+            case 0:
+                setClefText("-", noteClass, clefIndex[0] + 2, column);
+                setClefText("-", noteClass, clefIndex[0] + 4, column);
+                break;
+            case 1:
+                setClefText("-", noteClass, clefIndex[0] + 1, column);
+                setClefText("-", noteClass, clefIndex[0] + 3, column);
+                break;
+            case 2:
+                setClefText("-", noteClass, clefIndex[0] + 2, column);
+                break;
+            case 3:
+                setClefText("-", noteClass, clefIndex[0] + 1, column);
+                break;
+            case 20:
+                setClefText("-", noteClass, clefIndex[0] - 2, column);
+                setClefText("-", noteClass, clefIndex[0] - 4, column);
+                break;
+            case 18:
+                setClefText("-", noteClass, clefIndex[0] - 2, column);
+                break;
+
+        }
+
         let matchType = "";
         if (clefIndex[1] === -1) {
             matchType = FLAT_CHAR;
