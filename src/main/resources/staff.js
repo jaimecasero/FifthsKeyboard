@@ -260,7 +260,7 @@ function setClefCell(clefIndex, column, durationTicks) {
         if (clefIndex[0] % 2 === 0) {
             noteClass = "note-on-line";
             //outer lines are just striked
-            if (clefIndex[0] < 2 || clefIndex[0] > 10) {
+            if (clefIndex[0] < 6 || clefIndex[0] > 14) {
                 noteClass = "note-on-line-striked";
             }
         }
@@ -274,7 +274,7 @@ function setClefCell(clefIndex, column, durationTicks) {
         if (clefIndex[1] === 0) {
             matchType = NAT_CHAR;
         }
-        console.log("clefRowIndex:" + clefIndex + " class:" + noteClass);
+        console.log("clefRowIndex:" + clefIndex + " class:" + " noteClass: " + noteClass);
         let noteSymbol = noteDurationToSymbol(durationTicks, midiData.header.ppq);
         setClefText(matchType + noteSymbol, noteClass, clefIndex[0], column);
     }
