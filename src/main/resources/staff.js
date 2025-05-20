@@ -262,6 +262,23 @@ function setClefCell(clefIndex, column, durationTicks) {
             //outer lines are just striked
             if (clefIndex[0] < 6 || clefIndex[0] > 14) {
                 noteClass = "note-on-line-striked";
+                switch (clefIndex[0]) {
+                    case 0:
+                        setClefText("-", noteClass, clefIndex[0] + 2, column);
+                        setClefText("-", noteClass, clefIndex[0] + 4, column);
+                        break;
+                    case 2:
+                        setClefText("-", noteClass, clefIndex[0] + 2, column);
+                        break;
+                    case 20:
+                        setClefText("-", noteClass, clefIndex[0] - 2, column);
+                        setClefText("-", noteClass, clefIndex[0] - 4, column);
+                        break;
+                    case 18:
+                        setClefText("-", noteClass, clefIndex[0] - 2, column);
+                        break;
+
+                }
             }
         }
         let matchType = "";
