@@ -64,6 +64,14 @@ td {
     width:45px;
 }
 
+#songSelect, #trackSelect, #clefSelect, #signatureSelect, #inputSelect {
+    width: 150px;
+}
+
+#scoreText, #mistakesText, #detectedText {
+    width: 30px;
+}
+
 
 
 

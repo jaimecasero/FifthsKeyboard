@@ -23,14 +23,13 @@ const SIXTEENTH_CHAR = "&#119137;";
 const THIRTY_SECOND_CHAR = "&#119138;";
 
 const INITIAL_MISTAKES = 0;
-const SPEED_CHANGE_RATIO = 0.9;
 
 const MAJOR_TO_SIGNATURE_INDEX = [0, 5, 9, 3, 11, 1, 6, 8, 4, 10, 2, 7];
-const TREBLE_MIDI_CODE = [60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 77, 79, 81]; //[C4-B5]
-const ALTO_MIDI_CODE =   [50, 52, 53, 55, 57, 59, 60, 62, 64, 65, 67, 69, 71]; //[D3-B4]
-const TENOR_MIDI_CODE =  [47, 48, 50, 52, 53, 55, 57, 59, 60, 62, 64, 65, 67]; //[B2-G4]
-const BASS_MIDI_CODE =   [40, 41, 43, 45, 47, 48, 50, 52, 53, 55, 57, 59, 60]; //[E2-C4]
-const GRAND_MIDI_CODE =  [40, 41, 43, 45, 47, 48, 50, 52, 53, 55, 57, 59, 60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 77, 79, 81]; //[E2,B5]
+const TREBLE_MIDI_CODE = [53, 55, 57, 59, 60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 77, 79, 81, 83, 84, 86, 88]; //[F3-E6]
+const ALTO_MIDI_CODE =   [43,45,47,48,50, 52, 53, 55, 57, 59, 60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 77]; //[G2-F5]
+const TENOR_MIDI_CODE =  [40,41,43,45,47, 48, 50, 52, 53, 55, 57, 59, 60, 62, 64, 65, 67, 69, 71, 72, 74]; //[E2-D5]
+const BASS_MIDI_CODE =   [33,35,36,38,40, 41, 43, 45, 47, 48, 50, 52, 53, 55, 57, 59, 60, 62, 64,65, 67]; //[A1-G5]
+const GRAND_MIDI_CODE =  [33,35,36,38,40, 41, 43, 45, 47, 48, 50, 52, 53, 55, 57, 59, 60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 77, 79, 81, 83, 84, 86, 88]; //[A1,E6]
 const TREBLE_OCTAVE = 4;
 const ALTO_OCTAVE = 3;
 const TENOR_OCTAVE = 3;
@@ -42,9 +41,6 @@ const CLEF_COLUMNS = 12;
 
 var currentNote = "";//midi code for current note
 var currentNoteIndex = -1; //index to NOTE_CODE arrray
-var nextNoteTimer = undefined;//holds promise for timer
-var octave = 4;
-var speed = 1;//current speed,
 var resultingClef = [];//contains midi notes of resulting clef after calculating artificial modifiers
 var resultingClefArtificials = []; //contains -1 for flatten notes or  1 for sharpen
 var midiData;//contains midi object after parsing midi file
@@ -60,7 +56,6 @@ var scoreText;
 var hintCheckbox;
 var playCheckbox;
 var mistakesText;
-var levelText;
 var signatureSelect;
 var trackSelect;
 var detectedText;
@@ -84,21 +79,11 @@ var songSelect;
         hintCheckbox = document.getElementById('hintCheckbox');
         playCheckbox = document.getElementById('playCheckbox');
         mistakesText = document.getElementById('mistakesText');
-        levelText = document.getElementById('levelText');
         signatureSelect = document.getElementById('signatureSelect');
         trackSelect = document.getElementById('trackSelect');
         detectedText = document.getElementById('detectedText');
         songSelect = document.getElementById('songSelect');
 
-        const keyboardButtons = document.getElementsByName("noteButton");
-
-// Previene el menú contextual en todos los botones
-        keyboardButtons.forEach(button => {
-            console.log("preventing context menu on button");
-            button.addEventListener("contextmenu", (event) => {
-                event.preventDefault(); // block context menu
-            });
-        });
         //register key handlers
         document.addEventListener("keydown", keyDownHandler, false);
         document.addEventListener("keyup", keyUpHandler, false);
@@ -319,7 +304,6 @@ function setClefText(text, textClass, clefIndex, column) {
 function start() {
     currentNoteIndex = 0;
     mistakesText.value = INITIAL_MISTAKES;
-    levelText.value = 1;
     scoreText.value = 0;
     hintCheckbox.readOnly = true;
     renderCurrentNote();
@@ -457,14 +441,7 @@ function midiNoteDown(event) {
         if (currentNoteIndex >= midiData.tracks[trackSelect.value].notes.length) {
             currentNoteIndex = 0;
         }
-        if (scoreText.value / (parseInt(levelText.value) * 10) > 1 && (scoreText.value % (parseInt(levelText.value) * 10)) > 0) {
-            console.log("score:" + scoreText.value + " level:" + levelText.value);
-            levelText.value = parseInt(levelText.value) + 1;
-            changeTextColor(levelText, "green");
-            setTimeout(function () {
-                changeTextColor(levelText, "black")
-            }, 500);
-        }
+
         renderCurrentNote();
     } else {
         document.dispatchEvent(new CustomEvent(USER_FAILED_EVENT, {
@@ -618,7 +595,7 @@ function changeClef() {
         }
     } else {
         //remove rows from grand clef
-        if (previousLength > 13 ) {
+        if (previousLength > 22 ) {
             for (let i = 0; i < 12; i++) {
                 clefTable.deleteRow(-1);
             }

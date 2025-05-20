@@ -20,6 +20,10 @@
     <tbody>
         <tr class="outside-line-clef-row"></tr>
         <tr class="outside-space-clef-row"></tr>
+        <tr class="outside-line-clef-row"></tr>
+        <tr class="outside-space-clef-row"></tr>
+        <tr class="outside-line-clef-row"></tr>
+        <tr class="outside-space-clef-row"></tr>
         <tr class="line-clef-row"></tr>
         <tr class="space-clef-row"></tr>
         <tr class="line-clef-row"></tr>
@@ -29,6 +33,10 @@
         <tr class="line-clef-row"></tr>
         <tr class="space-clef-row"></tr>
         <tr class="line-clef-row"></tr>
+        <tr class="outside-space-clef-row"></tr>
+        <tr class="outside-line-clef-row"></tr>
+        <tr class="outside-space-clef-row"></tr>
+        <tr class="outside-line-clef-row"></tr>
         <tr class="outside-space-clef-row"></tr>
         <tr class="outside-line-clef-row"></tr>
     </tbody>
@@ -88,7 +96,6 @@
     </tr>
 </table>
 <BR><BR><BR><BR>
-<label for="SongSelect">Song:</label>
 <select id="songSelect" class="gameConsoleText" onchange="changeSong();">
     <option value="harry" selected="selected">Harry</option>
     <option value="waka">waka waka</option>
@@ -97,12 +104,10 @@
     <option value="mario">Mario Bros</option>
     <option value="perfect">Perfect</option>
 </select>
-<label for="trackSelect">Track:</label>
 <select id="trackSelect" class="gameConsoleText" onchange="changeSong();">
     <option value="0" selected="selected">Track0</option>
 </select>
 <BR>
-<label for="clefSelect">Clef:</label>
 <select id="clefSelect" class="gameConsoleText" onchange="changeClef();">
     <option value="0" selected>&#119070; Treble G</option>
     <option value="1">&#119073; Alto C</option>
@@ -111,9 +116,9 @@
     <option value="4">&#119070; + &#119074; Grand</option>
 </select>
 
-<label for="signatureSelect">Signature:</label>
 <select id="signatureSelect" class="gameConsoleText" onchange="changeClef();">
-    <option value="0" selected></option>
+    <option value="8">&sharp;</option>
+    <option value="0" selected>no &flat;/&sharp;</option>
     <option value="1">&flat;</option>
     <option value="2">&flat;&flat;</option>
     <option value="3">&flat;&flat;&flat;</option>
@@ -136,7 +141,6 @@
 <label for="playCheckbox">Ear Tr:</label>
 <input type="checkbox" id="playCheckbox">
 
-<label for="inputSelect">Input:</label>
 <select id="inputSelect" class="gameConsoleText" onchange="document.dispatchEvent(new Event(this.value));">
     <option value="buttons_selected" selected>buttons</option>
     <option value="keyboard_selected">keyboard</option>
@@ -150,10 +154,7 @@
 <input type="text" class="gameConsoleText" readonly id="scoreText" value="0">
 <label for="mistakesText">Mistakes:</label>
 <input type="text" class="gameConsoleText" readonly id="mistakesText" value="0">
-<label for="levelText">Level:</label>
-<input type="text" class="gameConsoleText" readonly id="levelText" value="1">
-<BR>
-<label for="detectedText">Detected:</label>
+<label for="detectedText">Mic Detection:</label>
 <input type="text" class="gameConsoleText" readonly id="detectedText" value="">
 
 <BR><BR><BR><BR>
