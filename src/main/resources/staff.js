@@ -511,12 +511,7 @@ function changeSong() {
 }
 
 function changeTrack() {
-    for (let i = 0; i < clefTable.getElementsByTagName("tr").length; i++) {
-        for (let j = 1; j < CLEF_COLUMNS; j++) {
-            resetClefCell(i, j);
-        }
-    }
-    start();
+    changeClef();
 }
 
 
