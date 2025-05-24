@@ -282,8 +282,15 @@ function setClefCell(clefIndex, column, durationTicks) {
                 setClefText("-", noteClass, clefIndex[0] - 2, column);
                 setClefText("-", noteClass, clefIndex[0] - 4, column);
                 break;
+            case 19:
+                setClefText("-", noteClass, clefIndex[0] - 1, column);
+                setClefText("-", noteClass, clefIndex[0] - 3, column);
+                break;
             case 18:
                 setClefText("-", noteClass, clefIndex[0] - 2, column);
+                break;
+            case 17:
+                setClefText("-", noteClass, clefIndex[0] - 1, column);
                 break;
 
         }
