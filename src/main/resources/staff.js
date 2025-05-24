@@ -460,7 +460,10 @@ function midiNoteDown(event) {
     let matched = false;
     if (isSameNote(currentNote, midiNote)) {
         matched = true;
-        playMidiNote(currentNote, pressure);
+        if (!playCheckbox.checked) {
+            //dont play note on ear training mode
+            playMidiNote(currentNote, pressure);
+        }
         let hintRatio = hintCheckbox.checked ? 1 : 3;
         scoreText.value = parseInt(scoreText.value) + hintRatio;
         setTimeout(function () {
