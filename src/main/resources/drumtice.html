@@ -1,0 +1,135 @@
+<html lang="eng">
+<head>
+    <title>Drum Practice</title>
+
+    <!-- midi.js package -->
+    <script src="https://cdn.jsdelivr.net/npm/midi.js"></script>
+    <script
+            type="text/javascript"
+            src="https://unpkg.com/@tonejs/midi"
+    ></script>
+    <script src="https://unpkg.com/meyda/dist/web/meyda.min.js"></script>
+    <script src="drumtice.js"></script>
+    <link rel="stylesheet" href="drumtice.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+
+<table id="clefTable">
+    <tbody>
+        <tr class="outside-line-clef-row"></tr>
+        <tr class="outside-space-clef-row"></tr>
+        <tr class="outside-line-clef-row"></tr>
+        <tr class="outside-space-clef-row"></tr>
+        <tr class="outside-line-clef-row"></tr>
+        <tr class="outside-space-clef-row"></tr>
+        <tr class="line-clef-row"></tr>
+        <tr class="space-clef-row"></tr>
+        <tr class="line-clef-row"></tr>
+        <tr class="space-clef-row"></tr>
+        <tr class="line-clef-row"></tr>
+        <tr class="space-clef-row"></tr>
+        <tr class="line-clef-row"></tr>
+        <tr class="space-clef-row"></tr>
+        <tr class="line-clef-row"></tr>
+        <tr class="outside-space-clef-row"></tr>
+        <tr class="outside-line-clef-row"></tr>
+        <tr class="outside-space-clef-row"></tr>
+        <tr class="outside-line-clef-row"></tr>
+        <tr class="outside-space-clef-row"></tr>
+        <tr class="outside-line-clef-row"></tr>
+    </tbody>
+</table>
+
+<BR><BR>
+
+
+<table id="padTable">
+    <tbody>
+    <tr>
+        <td><button class="padButtonClass" onclick="playMidiNote(41,1)">Low T</button></td>
+        <td><button class="padButtonClass" onclick="playMidiNote(47,1)">Mid T</button></td>
+        <td><button class="padButtonClass" onclick="playMidiNote(43,1)">Hi T</button></td>
+        <td><button class="padButtonClass" onclick="playMidiNote(49,1)">Cym A</button></td>
+    </tr>
+    <tr>
+        <td><button class="padButtonClass" onclick="playMidiNote(42,1)">Hi Hat</button></td>
+        <td><button class="padButtonClass" onclick="playMidiNote(46,1)">O Hi Hat</button></td>
+        <td><button class="padButtonClass" onclick="playMidiNote(44,1)">Hi Hat</button></td>
+        <td><button class="padButtonClass" onclick="playMidiNote(51,1)">Ride</button></td>
+    </tr>
+    <tr>
+        <td><button class="padButtonClass" onclick="playMidiNote(37,1)">Side Stick</button></td>
+        <td><button class="padButtonClass" onclick="playMidiNote(38,1)">Snare</button></td>
+        <td><button class="padButtonClass" onclick="playMidiNote(40,1)">Snare</button></td>
+        <td><button class="padButtonClass" onclick="playMidiNote(37,1)">Side Stick</button></td>
+    </tr>
+    <tr>
+        <td><button class="padButtonClass" onclick="playMidiNote(48,1)">Cym B</button></td>
+        <td><button class="padButtonClass" onclick="playMidiNote(35,1)">Kick</button></td>
+        <td><button class="padButtonClass" onclick="playMidiNote(36,1)">Kick</button></td>
+        <td><button class="padButtonClass" onclick="playMidiNote(59,1)">Cym C</button></td>
+    </tr>
+    </tbody>
+</table>
+
+<BR><BR><BR><BR>
+<select id="beatSelect"  onchange="changeBeat();">
+    <option value="0" selected="selected">Rock</option>
+</select>
+<BR>
+
+
+<BR>
+
+
+<select id="inputSelect" class="gameConsoleText" onchange="document.dispatchEvent(new Event(this.value));">
+    <option value="buttons_selected" selected>buttons</option>
+    <option value="keyboard_selected" selected>keyboard</option>
+    <option value="midi_selected">midi</option>
+</select>
+
+<BR><BR>
+<label for="scoreText">Score:</label>
+<input type="text" class="gameConsoleText" readonly id="scoreText" value="0">
+<label for="mistakesText">Mistakes:</label>
+<input type="text" class="gameConsoleText" readonly id="mistakesText" value="0">
+<label for="detectedText">Mic Detection:</label>
+<input type="text" class="gameConsoleText" readonly id="detectedText" value="">
+
+<label for="outputSelect">Output:</label>
+<select id="outputSelect" onchange="changeOutput(this.value);">
+    <option value="0" selected="selected">midi</option>
+    <option value="1">ext midi</option>
+</select>
+
+<label for="midiOutputSelect">Midi Device:</label>
+<select id="midiOutputSelect" onchange="changeMidiOutput();">
+</select>
+
+<label for="midiChannelSelect">Midi Channel:</label>
+<select id="midiChannelSelect" onchange="changeMidiChannel(this.value);">
+    <option selected="selected">0</option>
+    <option>1</option>
+    <option>2</option>
+    <option>3</option>
+    <option>4</option>
+    <option>5</option>
+    <option>6</option>
+    <option>7</option>
+    <option>8</option>
+    <option>9</option>
+    <option>10</option>
+    <option>11</option>
+    <option>12</option>
+    <option>13</option>
+    <option>14</option>
+    <option>15</option>
+    <option>16</option>
+</select>
+
+<BR><BR><BR><BR>
+<a href="https://paypal.me/jaimecasero?country.x=ES&locale.x=es_ES">Donate</a>
+</body>
+</html>
