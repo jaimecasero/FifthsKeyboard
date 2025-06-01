@@ -444,10 +444,10 @@ function isSameNote(midiNote1, midiNote2) {
 
 
 
-function playMidiNote(adjustedMidiNote, force) {
-    console.log("playMidiNote:" + adjustedMidiNote + " force:" + force);
+function playMidiNote(event, adjustedMidiNote) {
+    console.log("playMidiNote:" + adjustedMidiNote + " force:" + event.pressure);
 
-    playExtMidiNote(adjustedMidiNote, force);
+    playExtMidiNote(adjustedMidiNote, event.pressure);
 }
 
 function playMidiNoteOff(adjustedMidiNote) {
