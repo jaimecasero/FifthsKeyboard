@@ -59,37 +59,31 @@
 <select id="beatSelect"  onchange="changeBeat();">
     <option value="0" selected="selected">Rock</option>
 </select>
-<BR>
 
-
-<BR>
-
+<select id="bpmSelect" title="Select music speed" onchange="changeBpm()">
+    <option value="40">Largo (40)</option>
+    <option value="60">Adagio (60)</option>
+    <option value="76">Andante (76)</option>
+    <option value="108">Moderato (108)</option>
+    <option value="120">Allegro (120)</option>
+    <option value="168">Vivace (168)</option>
+    <option value="176">Presto (176)</option>
+    <option value="200">Prestissimo (200)</option>
+</select>
 
 <select id="inputSelect" class="gameConsoleText" onchange="document.dispatchEvent(new Event(this.value));">
     <option value="buttons_selected" selected>buttons</option>
     <option value="keyboard_selected" selected>keyboard</option>
     <option value="midi_selected">midi</option>
 </select>
+<BR>
 
-<BR><BR>
-<label for="scoreText">Score:</label>
-<input type="text" class="gameConsoleText" readonly id="scoreText" value="0">
-<label for="mistakesText">Mistakes:</label>
-<input type="text" class="gameConsoleText" readonly id="mistakesText" value="0">
-<label for="detectedText">Mic Detection:</label>
-<input type="text" class="gameConsoleText" readonly id="detectedText" value="">
-
-<label for="outputSelect">Output:</label>
 <select id="outputSelect" onchange="changeOutput(this.value);">
     <option value="0" selected="selected">midi</option>
     <option value="1">ext midi</option>
 </select>
-
-<label for="midiOutputSelect">Midi Device:</label>
 <select id="midiOutputSelect" onchange="changeMidiOutput();">
 </select>
-
-<label for="midiChannelSelect">Midi Channel:</label>
 <select id="midiChannelSelect" onchange="changeMidiChannel(this.value);">
     <option selected="selected">0</option>
     <option>1</option>
@@ -109,6 +103,14 @@
     <option>15</option>
     <option>16</option>
 </select>
+<BR>
+<label for="scoreText">Score:</label>
+<input type="text" class="gameConsoleText" readonly id="scoreText" value="0">
+<label for="mistakesText">Mistakes:</label>
+<input type="text" class="gameConsoleText" readonly id="mistakesText" value="0">
+<label for="detectedText">Mic Detection:</label>
+<input type="text" class="gameConsoleText" readonly id="detectedText" value="">
+
 
 <BR><BR><BR><BR>
 <a href="https://paypal.me/jaimecasero?country.x=ES&locale.x=es_ES">Donate</a>

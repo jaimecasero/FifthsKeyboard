@@ -18,7 +18,7 @@ const INITIAL_MISTAKES = 0;
 const DRUM_MIDI_CODE = [53, 55, 57, 59, 60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 77, 79, 81, 83, 84, 86, 88]; //[F3-E6]
 
 const CLEF_CODE_ARRAY = [DRUM_MIDI_CODE];
-const CLEF_COLUMNS = 12;
+const CLEF_COLUMNS = 16;
 
 var currentNote = "";//midi code for current note
 var currentNoteIndex = -1; //index to NOTE_CODE arrray
