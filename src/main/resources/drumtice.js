@@ -15,18 +15,17 @@ const THIRTY_SECOND_CHAR = "&#119138;";
 
 const INITIAL_MISTAKES = 0;
 
-const DRUM_MIDI_CODE = [53, 55, 57, 59, 60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 77, 79, 81, 83, 84, 86, 88]; //[F3-E6]
+const DRUM_MIDI_CODE = [0,49,42,51,50,47,40,0,45,0,36,0,44,0,0]; //[accent,Cymbal,hh,ride,ht,mt,s,lt,k,ph]
 
-const CLEF_CODE_ARRAY = [DRUM_MIDI_CODE];
+
 const CLEF_COLUMNS = 16;
+
+BEAT_ARRAY = ["pop_rock"];
 
 var currentNote = "";//midi code for current note
 var currentNoteIndex = -1; //index to NOTE_CODE arrray
-var resultingClef = [];//contains midi notes of resulting clef after calculating artificial modifiers
-var resultingClefArtificials = []; //contains -1 for flatten notes or  1 for sharpen
+var drumTrack=0; //track in midi with channel 10
 var midiData;//contains midi object after parsing midi file
-var signatureType = 0; //negative for flat sigs and positive for sharp signatures. defaults to no flat/sharp
-var signatureArtificials = 0; //number of artificials  in signature. defaults to no artificials
 
 
 ////////DOM CACHING//////////////////
@@ -96,8 +95,6 @@ function renderUserFailed(event) {
     setTimeout(function () {
         changeTextColor(mistakesText, "black")
     }, 500);
-    //event.srcElement.style.borderColor = "red";
-    //setTimeout(function() {event.srcElement.style.borderColor = "black";}, 500);
 }
 
 function noteDurationToSymbol(duration, ppq) {
@@ -128,7 +125,20 @@ function noteDurationToSymbol(duration, ppq) {
 
 
 async function loadSong() {
+    const response = await fetch("midi/" + BEAT_ARRAY[beatSelect.value] + ".mid");
+    const arrayBuffer = await response.arrayBuffer();
+    midiData = new Midi(arrayBuffer);
+    console.log(midiData);
+    for (let i = 0; i < midiData.tracks.length; i++) {
+        //only add tracks with notes
+        if (midiData.tracks[i].instrument.percussion) {
+            drumTrack = i;
+            console.log("drumTrack:" + drumTrack);
+            break;
+        }
+    }
 
+    start();
 }
 
 function resetClefCell(clefIndex, column) {
@@ -141,115 +151,20 @@ function resetClefCell(clefIndex, column) {
 }
 
 function midiToClefIndex(midiNote) {
-    let clefIndex = -1;
-    let matchType = 9999; //natural, flat, sharp
-    for (let i = 0; i < resultingClef.length; i++) {
-        if (midiNote === resultingClef[i]) {
-            clefIndex = clefTable.getElementsByTagName("tr").length - i - 1;
-            break;
-        }
-        if (resultingClef[i - 1] > midiNote) {
-            console.log("previous note is bigger, so the note is not in the current key");
-            if (signatureType === 1) {
-                //for sharp keys set match type to flat
-                clefIndex = clefTable.getElementsByTagName("tr").length - i + 1;
-                matchType = 1;
-            } else if (signatureType === -1 || signatureType === 0) {
-                //for flat keys set match type to flat
-                clefIndex = clefTable.getElementsByTagName("tr").length - i;
-                matchType = -1;
-            }
-            if (resultingClefArtificials[i - 1] !== 0) {
-                //previous note was already altered, so this is natural switch
-                //keep clefIndex on current row
-                clefIndex = clefTable.getElementsByTagName("tr").length - i;
-                matchType = 0;
-            }
-            break;
-        }
-
-        if (i === resultingClef.length - 1) {
-            //no more notes in the array
-            if (signatureType === 1) {
-                //for sharp keys set match type to flat
-                clefIndex = clefTable.getElementsByTagName("tr").length - i;
-                matchType = 1;
-            } else if (signatureType === -1) {
-                //for flat keys set match type to flat
-                clefIndex = clefTable.getElementsByTagName("tr").length - i;
-                matchType = -1;
-            }
-            if (resultingClefArtificials[i - 1] !== 0) {
-                //previous note was already altered, so this is natural switch
-                //keep clefIndex on current row
-                clefIndex = clefTable.getElementsByTagName("tr").length - i;
-                matchType = 0;
-            }
-            break;
-        }
-    }
-    console.log("midiToClefIndex:" + midiNote + ".index:" + clefIndex + " matchtype:" + matchType);
-    return [clefIndex, matchType];
+    console.log("midiToClefIndex:" + midiNote);
+    return DRUM_MIDI_CODE.indexOf(midiNote)
 }
 
 function setClefCell(clefIndex, column, durationTicks) {
-    if (clefIndex[0] >= 0) {
-        let noteClass = "note-on-space";
-        if (clefIndex[0] % 2 === 0) {
-            noteClass = "note-on-line";
-            //outer lines are just striked
-            if (clefIndex[0] < 6 || clefIndex[0] > 14) {
-                noteClass = "note-on-line-striked";
-
-            }
-        }
-
-        switch (clefIndex[0]) {
-            case 0:
-                setClefText("-", noteClass, clefIndex[0] + 2, column);
-                setClefText("-", noteClass, clefIndex[0] + 4, column);
-                break;
-            case 1:
-                setClefText("-", noteClass, clefIndex[0] + 1, column);
-                setClefText("-", noteClass, clefIndex[0] + 3, column);
-                break;
-            case 2:
-                setClefText("-", noteClass, clefIndex[0] + 2, column);
-                break;
-            case 3:
-                setClefText("-", noteClass, clefIndex[0] + 1, column);
-                break;
-            case 20:
-                setClefText("-", noteClass, clefIndex[0] - 2, column);
-                setClefText("-", noteClass, clefIndex[0] - 4, column);
-                break;
-            case 19:
-                setClefText("-", noteClass, clefIndex[0] - 1, column);
-                setClefText("-", noteClass, clefIndex[0] - 3, column);
-                break;
-            case 18:
-                setClefText("-", noteClass, clefIndex[0] - 2, column);
-                break;
-            case 17:
-                setClefText("-", noteClass, clefIndex[0] - 1, column);
-                break;
-
-        }
-
-        let matchType = "";
-        if (clefIndex[1] === -1) {
-            matchType = FLAT_CHAR;
-        }
-        if (clefIndex[1] === 1) {
-            matchType = SHARP_CHAR;
-        }
-        if (clefIndex[1] === 0) {
-            matchType = NAT_CHAR;
-        }
-        console.log("clefRowIndex:" + clefIndex + " class:" + " noteClass: " + noteClass);
-        let noteSymbol = noteDurationToSymbol(durationTicks, midiData.header.ppq);
-        setClefText(matchType + noteSymbol, noteClass, clefIndex[0], column);
+    let noteClass = "note-on-line";
+    if (clefIndex % 2 === 0) {
+        noteClass = "note-on-space";
     }
+
+    console.log("clefRowIndex:" + clefIndex + " class:" + " noteClass: " + noteClass);
+    let noteSymbol = noteDurationToSymbol(durationTicks, midiData.header.ppq);
+
+    setClefText( noteSymbol, noteClass, clefIndex, column);
 }
 
 function getClefCell(clefRowIndex, column) {
@@ -277,48 +192,37 @@ function start() {
     currentNoteIndex = 0;
     mistakesText.value = INITIAL_MISTAKES;
     scoreText.value = 0;
-    hintCheckbox.readOnly = true;
-    renderCurrentNote();
+    renderBeat();
 }
 
-/**
- *
- * @param midiNote
- * @returns adjusted midi note to clef octave so midinote is within the clef coverage
- */
-function adjustMidiToClef(midiNote) {
-    let adjustedNote = midiNote;
-    while (adjustedNote < resultingClef[0]) {
-        adjustedNote = adjustedNote + NUM_NOTES;
-    }
-
-    while (adjustedNote > resultingClef[resultingClef.length - 1]) {
-        adjustedNote = adjustedNote - NUM_NOTES;
-    }
-    console.log("adjustMidiToClef:" + midiNote + " adjusted:" + adjustedNote);
-    return adjustedNote;
-}
-
-function renderCurrentNote() {
+function renderBeat() {
     for (let i = 0; i < clefTable.getElementsByTagName("tr").length; i++) {
         for (let j = 1; j < CLEF_COLUMNS; j++) {
             resetClefCell(i, j);
         }
     }
 
-    currentNote = adjustMidiToClef(midiData.tracks[trackSelect.value].notes[currentNoteIndex].midi);
-    for (let i = 1; i < clefTable.getElementsByTagName("tr").length ; i++) {
-        console.log("renderCurrentNote:" + currentNote);
-        let noteAux = adjustMidiToClef(midiData.tracks[trackSelect.value].notes[currentNoteIndex + i -1].midi);
-        let clefIndex = midiToClefIndex(noteAux);
-        setClefCell(clefIndex,  i, midiData.tracks[trackSelect.value].notes[currentNoteIndex + i -1].durationTicks);
-    }
+    let ppq=midiData.header.ppq/2;
+    for (let i = 0; i < 16 ; i++) {
+        let matchTick =  i * ppq;
+        for (let j = 0; j < midiData.tracks[drumTrack].notes.length; j++) {
+            if (midiData.tracks[drumTrack].notes[j].ticks === matchTick) {
+                let clefIndex = midiToClefIndex(midiData.tracks[drumTrack].notes[j].midi);
 
 
-    if (playCheckbox.checked) {
-        setTimeout(() => {
-            playMidiNote(currentNote, KEYBOARD_GAIN);
-        }, 500);
+                let noteClass = "note-on-line";
+                if (clefIndex % 2 === 0) {
+                    noteClass = "note-on-space";
+                }
+
+                console.log("clefRowIndex:" + clefIndex + " class:" + " noteClass: " + noteClass);
+                let noteSymbol = noteDurationToSymbol(midiData.tracks[drumTrack].notes[j].durationTicks, midiData.header.ppq);
+                if (midiData.tracks[drumTrack].notes[j].midi == 42) {
+                    noteSymbol = "&#119107;"
+                }
+                setClefText( noteSymbol, noteClass, clefIndex, i);
+            }
+        }
     }
 }
 
@@ -416,8 +320,6 @@ function midiNoteDown(event) {
         if (currentNoteIndex >= midiData.tracks[trackSelect.value].notes.length) {
             currentNoteIndex = 0;
         }
-
-        renderCurrentNote();
     } else {
         document.dispatchEvent(new CustomEvent(USER_FAILED_EVENT, {
             detail: {

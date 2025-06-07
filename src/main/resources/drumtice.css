@@ -1,8 +1,10 @@
-table {
+#clefTable {
     border-collapse: collapse;
     position: relative;
     font-size: 24px;
 }
+
+
 
 #padTable {
     border-collapse: separate; /* Para que border-spacing funcione */
@@ -15,7 +17,7 @@ body {
 
 #clefTable td {
     width: 25px;
-    height: 5px;
+    height: 14px;
     position: relative;
 }
 
