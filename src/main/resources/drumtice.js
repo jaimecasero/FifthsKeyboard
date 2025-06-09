@@ -15,12 +15,10 @@ const THIRTY_SECOND_CHAR = "&#119138;";
 
 const INITIAL_MISTAKES = 0;
 
-const DRUM_MIDI_CODE = [0,49,42,51,50,47,40,0,45,0,36,0,44,0,0]; //[accent,Cymbal,hh,ride,ht,mt,s,lt,k,ph]
+const DRUM_MIDI_CODE = [49,42,51,50,47,40,0,45,0,36,0,44,0,0]; //[accent,Cymbal,hh,ride,ht,mt,s,lt,k,ph]
 
 
 const CLEF_COLUMNS = 16;
-
-BEAT_ARRAY = ["pop_rock"];
 
 var currentNote = "";//midi code for current note
 var currentNoteIndex = -1; //index to NOTE_CODE arrray
@@ -39,6 +37,7 @@ var beatSelect;
 
 
 
+
 (function (window, document, undefined) {
     window.onload = init;
 
@@ -47,6 +46,7 @@ var beatSelect;
         // #document has its nodes
         console.log("init");
         initMidi();
+        //initOscillators();
         //cache DOM elements for better performance
         clefTable = document.getElementById('clefTable');
         inputSelect = document.getElementById('inputSelect');
@@ -77,10 +77,6 @@ var beatSelect;
     }
 })(window, document, undefined);
 
-function playMidiNoteAction(event) {
-    //play user note to throw feedback, that should hurt your ear
-    playMidiNote(event.detail.midiNote + CLEF_OCTAVE_ARRAY[clefSelect.value] * NUM_NOTES, event.detail.pressure);
-}
 
 function vibrateAction() {
     if ("vibrate" in navigator) {
@@ -118,14 +114,14 @@ function noteDurationToSymbol(duration, ppq) {
     if (beats < 0.25) {
         return THIRTY_SECOND_CHAR;
     }
-    console.log("noteDurationToSymbol:" + duration + " ppq:" + ppq + " symbol:" + symbol);
+    //console.log("noteDurationToSymbol:" + duration + " ppq:" + ppq + " symbol:" + symbol);
 
     return symbol;
 }
 
 
 async function loadSong() {
-    const response = await fetch("midi/" + BEAT_ARRAY[beatSelect.value] + ".mid");
+    const response = await fetch("midi/" + beatSelect.value + ".mid");
     const arrayBuffer = await response.arrayBuffer();
     midiData = new Midi(arrayBuffer);
     console.log(midiData);
@@ -133,7 +129,7 @@ async function loadSong() {
         //only add tracks with notes
         if (midiData.tracks[i].instrument.percussion) {
             drumTrack = i;
-            console.log("drumTrack:" + drumTrack);
+            console.log("identified drumTrack:" + drumTrack);
             break;
         }
     }
@@ -151,24 +147,11 @@ function resetClefCell(clefIndex, column) {
 }
 
 function midiToClefIndex(midiNote) {
-    console.log("midiToClefIndex:" + midiNote);
     return DRUM_MIDI_CODE.indexOf(midiNote)
 }
 
-function setClefCell(clefIndex, column, durationTicks) {
-    let noteClass = "note-on-line";
-    if (clefIndex % 2 === 0) {
-        noteClass = "note-on-space";
-    }
-
-    console.log("clefRowIndex:" + clefIndex + " class:" + " noteClass: " + noteClass);
-    let noteSymbol = noteDurationToSymbol(durationTicks, midiData.header.ppq);
-
-    setClefText( noteSymbol, noteClass, clefIndex, column);
-}
-
 function getClefCell(clefRowIndex, column) {
-    let clefRow = clefTable.getElementsByTagName("tr");
+    let clefRow = clefTable.getElementsByTagName("tbody")[0].getElementsByTagName("tr");
     let cell = undefined;
     if (clefRow.length > 0 && clefRow.length > clefRowIndex) {
         clefRow = clefRow[clefRowIndex];
@@ -181,7 +164,6 @@ function getClefCell(clefRowIndex, column) {
 }
 
 function setClefText(text, textClass, clefIndex, column) {
-    console.log("setClefText:" + text + " " + textClass + " " + clefIndex + " " + column);
     let clefCell = getClefCell(clefIndex, column);
     if (clefCell !== undefined) {
         clefCell.innerHTML = "<span class='" + textClass + "'>" + text + "</span>";
@@ -194,6 +176,55 @@ function start() {
     scoreText.value = 0;
     renderBeat();
 }
+
+function changeBpm() {
+    sound_delay = (60000 / bpmSelect.value) / 4;
+    console.log("delay" + sound_delay);
+}
+
+
+let scheduleAheadTime = 0.1; // seconds
+let lookahead = 25; // ms
+let nextNoteTime;
+var sound_delay = 80;
+
+function startPlayback() {
+    nextNoteTime = audioCtx.currentTime;
+    audioCtx.resume().then(() => {
+        loadSounds().then(() => {
+            currentTime = 0;
+            nextNoteTime = audioCtx.currentTime;
+            scheduler();
+        });
+    });
+}
+
+function scheduler() {
+    while (nextNoteTime < audioCtx.currentTime + scheduleAheadTime) {
+        scheduleNote(currentTime, nextNoteTime);
+        nextNote();
+    }
+    timerID = setTimeout(scheduler, lookahead);
+}
+
+function scheduleNote(index, when) {
+    for (let i = 0; i < MAX_NOTE; i++) {
+        if (currentBeat[i][index]) {
+            const source = audioCtx.createBufferSource();
+            source.buffer = audioBuffers[i];
+            source.connect(pannerNodes[i]);
+            source.start(when);
+        }
+    }
+}
+
+function nextNote() {
+    nextNoteTime += sound_delay / 1000;
+    currentTime++;
+    if (currentTime >= MAX_BEATS) currentTime = 0;
+}
+
+
 
 function renderBeat() {
     for (let i = 0; i < clefTable.getElementsByTagName("tr").length; i++) {
@@ -208,126 +239,81 @@ function renderBeat() {
         for (let j = 0; j < midiData.tracks[drumTrack].notes.length; j++) {
             if (midiData.tracks[drumTrack].notes[j].ticks === matchTick) {
                 let clefIndex = midiToClefIndex(midiData.tracks[drumTrack].notes[j].midi);
+                if (clefIndex > -1) {
 
+                    let noteClass = "note-on-line";
+                    if (clefIndex % 2 === 0) {
+                        noteClass = "note-on-space";
+                    }
 
-                let noteClass = "note-on-line";
-                if (clefIndex % 2 === 0) {
-                    noteClass = "note-on-space";
+                    console.log("clefRowIndex:" + clefIndex + " class:" + " noteClass: " + noteClass);
+                    let noteSymbol = noteDurationToSymbol(midiData.tracks[drumTrack].notes[j].durationTicks, midiData.header.ppq);
+                    if (midiData.tracks[drumTrack].notes[j].midi == 42) {
+                        noteSymbol = "&#119107;"
+                    }
+                    setClefText(noteSymbol, noteClass, clefIndex, i);
                 }
-
-                console.log("clefRowIndex:" + clefIndex + " class:" + " noteClass: " + noteClass);
-                let noteSymbol = noteDurationToSymbol(midiData.tracks[drumTrack].notes[j].durationTicks, midiData.header.ppq);
-                if (midiData.tracks[drumTrack].notes[j].midi == 42) {
-                    noteSymbol = "&#119107;"
-                }
-                setClefText( noteSymbol, noteClass, clefIndex, i);
             }
         }
     }
 }
 
 ///////////////INPUT HANDLING/////////////////////////////////////////
-var shiftPressed = false;
-var altPressed = false;
-var pressedKeys = [];
 
 function keyDownHandler(event) {
-    console.log("keyDownHandler:" + event.keyCode);
     let keyPressed = String.fromCharCode(event.keyCode);
-    if (pressedKeys.indexOf(keyPressed) !== -1) {
-        return;
-    } else {
-        pressedKeys.push(keyPressed);
+    let midiNote = 0;
+    switch (keyPressed) {
+        case 'Y':case "E":
+            midiNote = 49
+            break;
+        case 'U': case "R":
+            midiNote = 50
+            break;
+        case 'I': case "T":
+            midiNote = 51
+            break;
+        case 'H': case "D":
+            midiNote = 46
+            break;
+        case 'J':
+            case "F":
+            midiNote = 40
+            break;
+        case 'K': case "G":
+            midiNote = 47
+            break;
+        case 'N': case "C":
+            midiNote = 42
+            break;
+        case 'M': case "V":
+            midiNote = 35
+            break;
+        case '<': case "B":
+            midiNote = 41
+            break;
     }
-    if (event.keyCode === 16) {
-        shiftPressed = true;
-    }
-    if (event.keyCode === 18) {
-        altPressed = true;
-    }
-
-
-    let noteIndex = NOTE_LABEL.findIndex((element) => element === keyPressed);
-    if (noteIndex > -1 && !event.repeat) {
-        if (shiftPressed && !altPressed) {
-            //sharp the note by adding semitone
-            noteIndex = noteIndex + 1;
-        } else if (shiftPressed && altPressed) {
-            //flat the note by substracting semitone
-            noteIndex = noteIndex - 1;
-        }
-
-        console.log("keyDownHandler:" + keyPressed + " index:" + noteIndex);
-        keyNoteDown(event, noteIndex);
-    }
-}
-
-function keyUpHandler(event) {
-    let keyPressed = String.fromCharCode(event.keyCode);
-    const index = pressedKeys.indexOf(keyPressed);
-    if (index !== -1) {
-        pressedKeys.splice(index, 1)
-    }
-    if (event.keyCode === 16) {
-        shiftPressed = false;
-    }
-    if (event.keyCode === 18) {
-        shiftPressed = false;
-    }
-
-    let noteIndex = NOTE_LABEL.findIndex((element) => element === keyPressed);
-    if (noteIndex > -1) {
-        if (shiftPressed && !altPressed) {
-            //sharp the note by adding semitone
-            noteIndex = noteIndex + 1;
-        } else if (shiftPressed && altPressed) {
-            //flat the note by substracting semitone
-            noteIndex = noteIndex - 1;
-        }
-        keyNoteUp(event, noteIndex);
-    }
-
-}
-
-function keyNoteDown(event, keyIndex) {
-    document.dispatchEvent(new CustomEvent(USER_NOTE_ON_HIT_EVENT, {
-        detail: {
-            midiNote: NOTE_MIDI_CODE[keyIndex],
-            pressure: event.pressure,
-        }
-    }));
-}
-
-function midiNoteDown(event) {
-    let midiNote = event.detail.midiNote;
-    const pressure = ((event.pressure == null) ? KEYBOARD_GAIN : event.pressure);
-    console.log(midiNote);
-    let matched = false;
-    if (isSameNote(currentNote, midiNote)) {
-        matched = true;
-        if (!playCheckbox.checked) {
-            //dont play note on ear training mode
-            playMidiNote(currentNote, pressure);
-        }
-        let hintRatio = hintCheckbox.checked ? 1 : 3;
-        scoreText.value = parseInt(scoreText.value) + hintRatio;
-        setTimeout(function () {
-            changeTextColor(scoreText, "black")
-        }, 500);
-        changeTextColor(scoreText, "green");
-
-        currentNoteIndex = currentNoteIndex + 1;
-        if (currentNoteIndex >= midiData.tracks[trackSelect.value].notes.length) {
-            currentNoteIndex = 0;
-        }
-    } else {
-        document.dispatchEvent(new CustomEvent(USER_FAILED_EVENT, {
+    if (midiNote > 0) {
+        document.dispatchEvent(new CustomEvent(USER_NOTE_ON_HIT_EVENT, {
             detail: {
                 midiNote: midiNote,
-                pressure: pressure,
+                pressure: event.pressure,
             }
         }));
     }
+
+}
+
+function keyUpHandler(event) {
+
+
+}
+function midiNoteDown(event) {
+    let midiNote = event.detail.midiNote;
+    const pressure = ((event.pressure == null) ? KEYBOARD_GAIN : event.pressure);
+    let matched = false;
+    event.pressure = pressure;
+    playMidiNote(event,midiNote);
     return matched;
 }
 
@@ -346,8 +332,7 @@ function isSameNote(midiNote1, midiNote2) {
 
 
 
-function playMidiNote(event, adjustedMidiNote) {
-    console.log("playMidiNote:" + adjustedMidiNote + " force:" + event.pressure);
+function playMidiNote(event,adjustedMidiNote, force) {
 
     playExtMidiNote(adjustedMidiNote, event.pressure);
 }
@@ -446,12 +431,10 @@ function changeMidiOutput() {
 }
 
 function playExtMidiNote(midiNote, force) {
-    console.log("turn on:" + midiNote);
     midiOut.send([NOTE_ON | midiChannel, midiNote, midiVelocity * force]);
 }
 
 function playExtMidiNoteOff(midiNote) {
-    console.log("turn off:" + midiNote);
     midiOut.send([NOTE_OFF | midiChannel, midiNote, midiVelocity]);
 }
 

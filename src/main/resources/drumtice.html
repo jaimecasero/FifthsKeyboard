@@ -17,7 +17,10 @@
 
 
 <table id="clefTable">
+    <thead>
         <tr class="outside-space-clef-row"></tr>
+    </thead>
+    <tbody>
         <tr class="outside-line-clef-row"></tr>
         <tr class="outside-space-clef-row"></tr>
         <tr class="line-clef-row"></tr>
@@ -31,7 +34,11 @@
         <tr class="line-clef-row"></tr>
         <tr class="outside-space-clef-row"></tr>
         <tr class="outside-space-clef-row"></tr>
+    </tbody>
+        <tr class="outside-space-clef-row"></tr>
+    <tfoot>
 
+    </tfoot>
 </table>
 
 <table id="padTable">
@@ -55,8 +62,9 @@
 </table>
 
 <BR><BR><BR><BR>
-<select id="beatSelect"  onchange="changeBeat();">
-    <option value="0" selected="selected">Pop Rock</option>
+<select id="beatSelect"  onchange="loadSong();">
+    <option value="pop_rock" selected="selected">Pop Rock</option>
+
 </select>
 
 <select id="bpmSelect" title="Select music speed" onchange="changeBpm()">
