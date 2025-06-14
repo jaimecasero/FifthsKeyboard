@@ -42,6 +42,7 @@ var bpmSelect;
 var detectedText;
 var beatSelect;
 var playButton;
+let footRow;
 
 
 
@@ -64,6 +65,8 @@ var playButton;
         bpmSelect = document.getElementById('bpmSelect');
         detectedText = document.getElementById('detectedText');
         playButton = document.getElementById('playButton');
+        let tFoot = clefTable.getElementsByTagName("tfoot")[0];
+        footRow = tFoot.getElementsByTagName("tr")[0];
 
         //register key handlers
         document.addEventListener("keydown", keyDownHandler, false);
@@ -199,7 +202,7 @@ function changeBpm() {
 let scheduleAheadTime = 0.1; // seconds
 let lookahead = 25; // ms
 let nextNoteTime;
-let sound_delay = 80;
+let sound_delay = 138;
 let currentTime = 0;
 
 function startPlayback() {
@@ -232,8 +235,6 @@ function scheduler() {
 }
 
 function scheduleNote(index, when) {
-
-
     const source = audioCtx.createBufferSource();
     if (index === 0) {
         source.buffer = audioBuffers[0];
@@ -275,16 +276,14 @@ function playPause() {
 }
 
 async function renderNextColumn(currentTime) {
-    let tHead = clefTable.getElementsByTagName("tfoot")[0];
-    let row = tHead.getElementsByTagName("tr")[0];
-    let tempoTableCurrent = currentTime + 1;
-    let td = row.getElementsByTagName("td")[tempoTableCurrent];
+
+    let td = footRow.getElementsByTagName("td")[currentTime];
     td.style.background = "#D6EEEE";
     let prevTd;
-    if (tempoTableCurrent === 0) {
-        prevTd = row.getElementsByTagName("td")[CLEF_COLUMNS - 1];
+    if (currentTime === 0) {
+        prevTd = footRow.getElementsByTagName("td")[CLEF_COLUMNS - 1];
     } else {
-        prevTd = row.getElementsByTagName("td")[currentTime];
+        prevTd = footRow.getElementsByTagName("td")[currentTime - 1];
     }
     prevTd.style.background = "white";
 }
