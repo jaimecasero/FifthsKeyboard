@@ -1,6 +1,9 @@
 ////////////////////////MODEL //////////////////////////////////////
 const KEYBOARD_GAIN = 0.657;//the gain applied when note is pressed
 
+////////////////////////MODEL //////////////////////////////////////
+const soundFiles = [
+    "./audio/metro-1.wav", "./audio/metro-n.wav",];
 
 const USER_NOTE_ON_HIT_EVENT = "user_note_on_hit";
 const USER_FAILED_EVENT = "user_failed";
@@ -25,7 +28,10 @@ var currentNote = "";//midi code for current note
 var currentNoteIndex = -1; //index to NOTE_CODE arrray
 var drumTrack=0; //track in midi with channel 10
 var midiData;//contains midi object after parsing midi file
+let audioBuffers = [];
 
+let timerID; // global or scoped outside functions
+let isPlaying = false;
 
 ////////DOM CACHING//////////////////
 var clefTable;
@@ -35,6 +41,7 @@ var mistakesText;
 var bpmSelect;
 var detectedText;
 var beatSelect;
+var playButton;
 
 
 
@@ -56,6 +63,7 @@ var beatSelect;
         beatSelect = document.getElementById('beatSelect');
         bpmSelect = document.getElementById('bpmSelect');
         detectedText = document.getElementById('detectedText');
+        playButton = document.getElementById('playButton');
 
         //register key handlers
         document.addEventListener("keydown", keyDownHandler, false);
@@ -191,7 +199,8 @@ function changeBpm() {
 let scheduleAheadTime = 0.1; // seconds
 let lookahead = 25; // ms
 let nextNoteTime;
-var sound_delay = 80;
+let sound_delay = 80;
+let currentTime = 0;
 
 function startPlayback() {
     nextNoteTime = audioCtx.currentTime;
@@ -204,6 +213,16 @@ function startPlayback() {
     });
 }
 
+async function loadSounds() {
+    for (let i = 0; i < soundFiles.length; i++) {
+        const response = await fetch(soundFiles[i]);
+        const arrayBuffer = await response.arrayBuffer();
+        const buffer = await audioCtx.decodeAudioData(arrayBuffer);
+        audioBuffers[i] = buffer;
+    }
+    console.log("sounds loaded");
+}
+
 function scheduler() {
     while (nextNoteTime < audioCtx.currentTime + scheduleAheadTime) {
         scheduleNote(currentTime, nextNoteTime);
@@ -213,20 +232,67 @@ function scheduler() {
 }
 
 function scheduleNote(index, when) {
-    for (let i = 0; i < MAX_NOTE; i++) {
-        if (currentBeat[i][index]) {
-            const source = audioCtx.createBufferSource();
-            source.buffer = audioBuffers[i];
-            source.connect(pannerNodes[i]);
+
+
+    const source = audioCtx.createBufferSource();
+    if (index === 0) {
+        source.buffer = audioBuffers[0];
+        source.connect(audioCtx.destination);
+        source.start(when);
+    } else {
+        if (index % 4 === 0)
+        {
+            source.buffer = audioBuffers[0];
+            source.connect(audioCtx.destination);
             source.start(when);
         }
     }
+
+
+
+    // Delay UI update slightly to match audio
+    setTimeout(() => renderNextColumn(index), (when - audioCtx.currentTime) * 1000);
+
+}
+
+function stop() {
+    if (timerID) {
+        clearTimeout(timerID);
+        timerID = null;
+    }
+}
+
+function playPause() {
+
+    if (isPlaying) {
+        stop();
+        playButton.value = "Play";
+    } else {
+        startPlayback();
+        playButton.value = "Pause";
+    }
+    isPlaying = !isPlaying;
+}
+
+async function renderNextColumn(currentTime) {
+    let tHead = clefTable.getElementsByTagName("tfoot")[0];
+    let row = tHead.getElementsByTagName("tr")[0];
+    let tempoTableCurrent = currentTime + 1;
+    let td = row.getElementsByTagName("td")[tempoTableCurrent];
+    td.style.background = "#D6EEEE";
+    let prevTd;
+    if (tempoTableCurrent === 0) {
+        prevTd = row.getElementsByTagName("td")[CLEF_COLUMNS - 1];
+    } else {
+        prevTd = row.getElementsByTagName("td")[currentTime];
+    }
+    prevTd.style.background = "white";
 }
 
 function nextNote() {
     nextNoteTime += sound_delay / 1000;
     currentTime++;
-    if (currentTime >= MAX_BEATS) currentTime = 0;
+    if (currentTime >= CLEF_COLUMNS) currentTime = 0;
 }
 
 
