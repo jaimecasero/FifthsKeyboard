@@ -15,7 +15,8 @@ const THIRTY_SECOND_CHAR = "&#119138;";
 
 const INITIAL_MISTAKES = 0;
 
-const DRUM_MIDI_CODE = [49,42,51,50,47,40,0,45,0,36,0,44,0,0]; //[accent,Cymbal,hh,ride,ht,mt,s,lt,k,ph]
+//https://musescore.org/sites/musescore.org/files/General%20MIDI%20Standard%20Percussion%20Set%20Key%20Map.pdf
+const DRUM_MIDI_CODE = [[49],[42, 46],[51],[50],[47],[37,38,40],[],[45],[],[35,36],[],[44],[],[]]; //[accent,Cymbal,hh,ride,ht,mt,s,lt,k,ph]
 
 
 const CLEF_COLUMNS = 16;
@@ -147,7 +148,11 @@ function resetClefCell(clefIndex, column) {
 }
 
 function midiToClefIndex(midiNote) {
-    return DRUM_MIDI_CODE.indexOf(midiNote)
+    for (let i = 0; i < DRUM_MIDI_CODE.length; i++) {
+        if (DRUM_MIDI_CODE[i].indexOf(midiNote) > -1) {
+            return i;
+        }
+    }
 }
 
 function getClefCell(clefRowIndex, column) {
