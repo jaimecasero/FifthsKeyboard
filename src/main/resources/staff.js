@@ -365,12 +365,19 @@ function renderCurrentNote() {
         }
     }
 
+    let currentTick = -1;
     currentNote = adjustMidiToClef(midiData.tracks[trackSelect.value].notes[currentNoteIndex].midi);
+    currentTick = midiData.tracks[trackSelect.value].notes[currentNoteIndex].ticks;
+    let j=0;
     for (let i = 1; i < clefTable.getElementsByTagName("tr").length ; i++) {
-        console.log("renderCurrentNote:" + currentNote);
-        let noteAux = adjustMidiToClef(midiData.tracks[trackSelect.value].notes[currentNoteIndex + i -1].midi);
-        let clefIndex = midiToClefIndex(noteAux);
-        setClefCell(clefIndex,  i, midiData.tracks[trackSelect.value].notes[currentNoteIndex + i -1].durationTicks);
+        while (midiData.tracks[trackSelect.value].notes[currentNoteIndex + j ].ticks === currentTick) {
+            console.log("renderCurrentNote:" + currentNote);
+            let noteAux = adjustMidiToClef(midiData.tracks[trackSelect.value].notes[currentNoteIndex + j].midi);
+            let clefIndex = midiToClefIndex(noteAux);
+            setClefCell(clefIndex, i, midiData.tracks[trackSelect.value].notes[currentNoteIndex + j].durationTicks);
+            j = j +1;
+        }
+        currentTick = midiData.tracks[trackSelect.value].notes[currentNoteIndex + j].ticks;
     }
 
 
