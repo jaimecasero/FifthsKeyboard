@@ -378,12 +378,49 @@ function keyUpHandler(event) {
 
 
 }
+
+function evaluateUserInput(midiNote, hitTime) {
+    const ppq = midiData.header.ppq;
+    const track = midiData.tracks[drumTrack];
+    const margin = 0.1; // seconds tolerance
+    let matched = false; // Track if a note was matched in the current evaluation
+    console.log("length:" + track.notes.length);
+    for (let i=0 ; 0 < track.notes.length; i++) {
+        let expectedTime = track.notes[i].ticks / ppq;
+        console.log("hitTime:" + hitTime +
+            " expectedTime:" + expectedTime +
+            " margin:" + margin +
+            " note.midi:" + track.notes[i].midi +
+            " midiNote:" + midiNote);
+        if (!matched && Math.abs(hitTime - expectedTime) < margin) {
+            if (track.notes[i].midi === midiNote) {
+                console.log("note matched");
+                changeTextColor(scoreText, "green");
+                setTimeout(function () {
+                    changeTextColor(scoreText, "black")
+                }, 500);
+                matched = true; // mark as matched
+                scoreText.value = parseInt(scoreText.value) + 1;
+                return true;
+            }
+        }
+    }
+    console.log("note missed or out of sequence");
+    detectedText.value = "key missed or out of sequence";
+    document.dispatchEvent(new CustomEvent(USER_FAILED_EVENT));
+    return false;
+}
+
+
 function midiNoteDown(event) {
     let midiNote = event.detail.midiNote;
     const pressure = ((event.pressure == null) ? KEYBOARD_GAIN : event.pressure);
     let matched = false;
     event.pressure = pressure;
-    playMidiNote(event,midiNote);
+    const hitTime = event.detail.time;
+
+    evaluateUserInput(midiNote, hitTime);
+   // playMidiNote(event,midiNote);
     return matched;
 }
 
@@ -422,8 +459,8 @@ function initOscillators() {
 
     MIDI.loadPlugin({
             soundfontUrl: "./soundfont/",
-            instrument: "acoustic_grand_piano",
-        onprogress: (state, progress) => console.log(state, progress),
+            instrument: "synth_drum",
+        //onprogress: (state, progress) => console.log(state, progress),
         onsuccess: () => {
             console.log("MIDI.js loaded");
             //MIDI.programChange(9, 118);
@@ -445,12 +482,13 @@ function forceToMidiVelocity(force) {
     const clampedForce = Math.min(Math.max(force, 0), 1);
     // Scale the clamped force to the MIDI velocity range (0-127)
     const midiVelocity = Math.round(clampedForce * 127);
+    console.log(force + ":" + midiVelocity)
     return midiVelocity;
 }
 
 function playOscillatorNote(adjustedMidiNote, force) {
+    console.log("playOscillatorNote:" + adjustedMidiNote + ":" + force)
     MIDI.noteOn(0, adjustedMidiNote, forceToMidiVelocity(force), 0);
-    MIDI.noteOff(0, adjustedMidiNote, 0.5);
 }
 
 function playOscillatorNoteOff(adjustedMidiNote) {
