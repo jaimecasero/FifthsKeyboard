@@ -19,6 +19,8 @@ body {
     width: 25px;
     height: 14px;
     position: relative;
+    border-right: 2px dotted #E8E8E8;
+    text-align: left;
 }
 
 
