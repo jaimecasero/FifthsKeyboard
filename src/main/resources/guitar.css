@@ -1,76 +1,63 @@
-table {
-    border-collapse: collapse;
-    position: relative;
-    font-size: 24px;
+#fretTable {
 }
 body {
     touch-action: manipulation;
 }
-td {
-    width: 25px;
-    height: 20px;
-    position: relative;
+td, th {
+    border: 1px solid black; /* Define color y grosor de los bordes */
+    padding: 8px; /* Espaciado interno */
+    text-align: center; /* Alineación del texto */
 }
 
-.line-clef-row {
-    border-top: 2px solid black; /* Creates the staff lines */
-}
-
-.note-on-line {
-    position: absolute;
-    left: 20%;
-    top: 0; /* Align with the top border */
-    transform: translate(-50%, -50%);
-}
-
-.note-on-line-striked {
-    position: absolute;
-    left: 20%;
-    top: 0; /* Align with the top border */
-    transform: translate(-50%, -50%);
-    text-decoration: line-through;
-}
-
-.note-on-space {
-    position: absolute;
-    left: 20%;
-    top: 0; /* Align with the top border */
-    transform: translate(-50%, -50%);
-}
-
-
-.natural-key {
-    background: white; /* Ensures readability */
-    width: 25px;
-    height: 100px;
-    position: absolute;
-    left: 50%;
-    top: 30; /* Align with the top border */
-    transform: translate(-50%, -50%);
-}
-
-.artificial-key {
-    background: black; /* Ensures readability */
-    width: 25px;
-    height: 60px;
-    position: absolute;
-    left: 50%;
-    top: 0; /* Align with the top border */
-    transform: translate(-50%, -50%);
-}
 
 .gameConsoleText {
     border-color: black;
     width:45px;
 }
 
+.OnChord0Class {
+    background-color: orange;
+}
+.OnChord1Class {
+    background-color: orange;
+}
+.OnChord2Class {
+    background-color: orange;
+}
+.OnChord3Class {
+    background-color: orange;
+}
+
+.OnKey0Class {
+    background-color: red;
+}
+.OnKey1Class {
+    background-color: aquamarine;
+}
+.OnKey2Class {
+    background-color: aquamarine;
+}
+.OnKey3Class {
+    background-color: aquamarine;
+}
+.OnKey4Class {
+    background-color: aquamarine;
+}
+.OnKey5Class {
+    background-color: aquamarine;
+}
+.OnKey6Class {
+    background-color: aquamarine;
+}
+
+.OnKey-1Class {
+    background-color: white;
+}
+
 #songSelect, #trackSelect, #clefSelect, #signatureSelect, #inputSelect {
     width: 150px;
 }
 
-#scoreText, #mistakesText, #detectedText {
-    width: 30px;
-}
 
 
 
