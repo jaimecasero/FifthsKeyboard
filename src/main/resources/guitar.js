@@ -58,6 +58,7 @@ var chordSelect;
         chordSelect = document.getElementById('chordSelect');
         initFretBoard();
         loadKey();
+        loadChord();
     }
 })(window, document, undefined);
 
@@ -65,7 +66,7 @@ var chordSelect;
 function calculateFretNoteIndex(stringIndex, fretIndex) {
     let openNote = STRING_TUNING[stringIndex];
     let openNoteOffset = NOTE_LABEL.indexOf(openNote);
-    let noteIndex = (fretIndex + openNoteOffset + 1) % NOTE_LABEL.length;
+    let noteIndex = (fretIndex + openNoteOffset ) % NOTE_LABEL.length;
     return noteIndex;
 }
 
@@ -74,13 +75,19 @@ function calculateFretNote(stringIndex, fretIndex) {
     return NOTE_LABEL[noteIndex];
 }
 
+const FRET_MARKERS= [3,5,7,9,12];
+
 function initFretBoard() {
-    for (let i = 0; i < fretTable.getElementsByTagName("tr").length; i++) {
+    let tBodyRows = fretTable.getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+    for (let i = 0; i < tBodyRows.length; i++) {
         for (let j = 0; j < STRING_TUNING.length; j++) {
             let fretButton = document.createElement("input");
             fretButton.type = "button";
             fretButton.value = calculateFretNote(j, i);
-            fretTable.getElementsByTagName("tr")[i].getElementsByTagName("td")[j].appendChild(fretButton);
+            tBodyRows[i].getElementsByTagName("td")[j].appendChild(fretButton);
+        }
+        if (FRET_MARKERS.indexOf(i) !== -1) {
+            tBodyRows[i].getElementsByTagName("td")[6].innerHTML = "<span class='marker'>" + i + "</span>";
         }
     }
 }
@@ -272,20 +279,22 @@ function playMidiNoteOff(adjustedMidiNote) {
 
 function loadKey() {
     calculateKey();
-    for (let i = 0; i < fretTable.getElementsByTagName("tr").length; i++) {
+    let tBodyRows = fretTable.getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+    for (let i = 0; i < tBodyRows.length; i++) {
         for (let j = 0; j < STRING_TUNING.length; j++) {
             let tdClass = "OnKey" +isFretOnKey(j, i) + "Class";
-            fretTable.getElementsByTagName("tr")[i].getElementsByTagName("td")[j].className = tdClass;
+            tBodyRows[i].getElementsByTagName("td")[j].className = tdClass;
         }
     }
 }
 
 function loadChord(event) {
     calculateChord();
-    for (let i = 0; i < fretTable.getElementsByTagName("tr").length; i++) {
+    let tBodyRows = fretTable.getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+    for (let i = 0; i < tBodyRows.length; i++) {
         for (let j = 0; j < STRING_TUNING.length; j++) {
             let tdClass = "OnChord" +isFretOnChord(j, i) + "Class";
-            fretTable.getElementsByTagName("tr")[i].getElementsByTagName("td")[j].getElementsByTagName("input")[0].className = tdClass;
+            tBodyRows[i].getElementsByTagName("td")[j].getElementsByTagName("input")[0].className = tdClass;
         }
     }
 }
