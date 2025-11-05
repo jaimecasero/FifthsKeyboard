@@ -1,4 +1,5 @@
 #fretTable {
+    border-collapse: collapse;
 }
 body {
     touch-action: manipulation;
@@ -6,7 +7,8 @@ body {
 td, th {
     border: 1px solid black; /* Define color y grosor de los bordes */
     padding: 8px; /* Espaciado interno */
-    text-align: center; /* Alineación del texto */
+
+
 }
 
 
@@ -30,8 +32,19 @@ td, th {
 .OnChord3Class {
     color: #00FF60;
 }
+.OnChord4Class {
+    color: #00FF60;
+}
+.OnChord5Class {
+    color: #00FF60;
+}
+.OnChord6Class {
+    color: #00FF60;
+}
+
 
 .OnKey0Class span{
+
     font-weight: bold;
     font-style: italic;
     font-size: 1.7em;

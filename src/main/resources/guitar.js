@@ -7,9 +7,7 @@ const FLAT_CHAR = "&flat;";
 const SHARP_CHAR = "&sharp;";
 const NAT_CHAR = "&natur;";
 const NOTE_CHAR = "&sung;";
-const STRING_TUNING= ['E','A', 'D', 'G', 'B', 'E']
-
-
+const STRING_TUNING = ['E', 'A', 'D', 'G', 'B', 'E']
 
 
 const IONIAN_INTERVAL = [0, 2, 4, 5, 7, 9, 11];
@@ -26,11 +24,16 @@ const MAJOR_FORMULA = [0, 4, 7, 0];
 const MINOR_FORMULA = [0, 3, 7, 0];
 const SUS2_FORMULA = [0, 2, 7, 0];
 const SUS4_FORMULA = [0, 5, 7, 0];
-const CHORD_MOD_ARR = [MAJOR_FORMULA, MINOR_FORMULA, SUS2_FORMULA, SUS4_FORMULA];
-
-
-
-
+const DIM_FORMULA = [0, 3, 6, 0];
+const SIXTH_FORMULA = [0, 4, 7, 9];
+const MINOR_SIXTH_FORMULA = [0, 4, 7, 8];
+const MAJOR7_FORMULA = [0, 4, 7, 11];
+const SEVENTH_FORMULA = [0, 4, 7, 10];
+const MINOR7_FORMULA = [0, 3, 7, 10];
+const NINTH_FORMULA = [0, 4, 7, 10, 14];
+const ELEVENTH_FORMULA = [0, 4, 7, 10, 14, 19];
+const THIRTEENTH_FORMULA = [0, 4, 7, 10, 14, 19, 21];
+const CHORD_MOD_ARR = [MAJOR_FORMULA, MINOR_FORMULA, SUS2_FORMULA, SUS4_FORMULA, DIM_FORMULA, SIXTH_FORMULA, MINOR_SIXTH_FORMULA, MAJOR7_FORMULA, SEVENTH_FORMULA, MINOR7_FORMULA, NINTH_FORMULA, ELEVENTH_FORMULA, THIRTEENTH_FORMULA];
 
 
 ////////DOM CACHING//////////////////
@@ -39,7 +42,6 @@ var keySelect;
 var modeSelect;
 var rootChordSelect;
 var chordSelect;
-
 
 
 (function (window, document, undefined) {
@@ -66,7 +68,7 @@ var chordSelect;
 function calculateFretNoteIndex(stringIndex, fretIndex) {
     let openNote = STRING_TUNING[stringIndex];
     let openNoteOffset = NOTE_LABEL.indexOf(openNote);
-    let noteIndex = (fretIndex + openNoteOffset ) % NOTE_LABEL.length;
+    let noteIndex = (fretIndex + openNoteOffset) % NOTE_LABEL.length;
     return noteIndex;
 }
 
@@ -75,7 +77,7 @@ function calculateFretNote(stringIndex, fretIndex) {
     return NOTE_LABEL[noteIndex];
 }
 
-const FRET_MARKERS= [3,5,7,9,12];
+const FRET_MARKERS = [3, 5, 7, 9, 12];
 
 function initFretBoard() {
     let tBodyRows = fretTable.getElementsByTagName("tbody")[0].getElementsByTagName("tr");
@@ -95,13 +97,13 @@ function initFretBoard() {
     }
 }
 
-let CALCULATED_KEY= [];
-let CALCULATED_CHORD= [];
+let CALCULATED_KEY = [];
+let CALCULATED_CHORD = [];
 
 function calculateKey() {
     CALCULATED_KEY = [];
     let keyNoteOffset = parseInt(keySelect.value, 10);
-    for (let i = 0 ; i < KEY_MODE_INTERVAL[modeSelect.value].length; i++) {
+    for (let i = 0; i < KEY_MODE_INTERVAL[modeSelect.value].length; i++) {
         let keyDegreeIndex = (keyNoteOffset + KEY_MODE_INTERVAL[modeSelect.value][i]) % NOTE_LABEL.length;
         CALCULATED_KEY.push(keyDegreeIndex);
     }
@@ -112,7 +114,7 @@ function calculateChord() {
     CALCULATED_CHORD = [];
     let keyNoteOffset = parseInt(rootChordSelect.value, 10);
     console.log("root chord:" + rootChordSelect.value);
-    for (let i = 0 ; i < CHORD_MOD_ARR[chordSelect.value].length; i++) {
+    for (let i = 0; i < CHORD_MOD_ARR[chordSelect.value].length; i++) {
         let noteIndex = (keyNoteOffset + CHORD_MOD_ARR[chordSelect.value][i]) % NOTE_LABEL.length;
         console.log("noteIndex:" + noteIndex);
         CALCULATED_CHORD.push(noteIndex);
@@ -123,14 +125,13 @@ function calculateChord() {
 
 function isFretOnKey(stringIndex, fretIndex) {
     let fretNoteIndex = calculateFretNoteIndex(stringIndex, fretIndex);
-    return CALCULATED_KEY.indexOf(fretNoteIndex) ;
+    return CALCULATED_KEY.indexOf(fretNoteIndex);
 }
 
 function isFretOnChord(stringIndex, fretIndex) {
     let fretNoteIndex = calculateFretNoteIndex(stringIndex, fretIndex);
-    return CALCULATED_CHORD.indexOf(fretNoteIndex) ;
+    return CALCULATED_CHORD.indexOf(fretNoteIndex);
 }
-
 
 
 function playMidiNoteAction(event) {
@@ -147,7 +148,6 @@ function midiToNote(midiNote) {
     }
     return "";
 }
-
 
 
 ///////////////INPUT HANDLING/////////////////////////////////////////
@@ -285,7 +285,7 @@ function loadKey() {
     let tBodyRows = fretTable.getElementsByTagName("tbody")[0].getElementsByTagName("tr");
     for (let i = 0; i < tBodyRows.length; i++) {
         for (let j = 0; j < STRING_TUNING.length; j++) {
-            let tdClass = "OnKey" +isFretOnKey(j, i) + "Class";
+            let tdClass = "OnKey" + isFretOnKey(j, i) + "Class";
             tBodyRows[i].getElementsByTagName("td")[j].className = tdClass;
         }
     }
@@ -296,7 +296,7 @@ function loadChord(event) {
     let tBodyRows = fretTable.getElementsByTagName("tbody")[0].getElementsByTagName("tr");
     for (let i = 0; i < tBodyRows.length; i++) {
         for (let j = 0; j < STRING_TUNING.length; j++) {
-            let tdClass = "OnChord" +isFretOnChord(j, i) + "Class";
+            let tdClass = "OnChord" + isFretOnChord(j, i) + "Class";
             tBodyRows[i].getElementsByTagName("td")[j].getElementsByTagName("span")[0].className = tdClass;
         }
     }
@@ -347,7 +347,6 @@ function playOscillatorNoteOff(adjustedMidiNote) {
 }
 
 //////////////////////  micro INPUT //////////////////////
-
 
 
 //////////////////////  midi INPUT //////////////////////
