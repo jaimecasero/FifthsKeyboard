@@ -82,9 +82,12 @@ function initFretBoard() {
     for (let i = 0; i < tBodyRows.length; i++) {
         for (let j = 0; j < STRING_TUNING.length; j++) {
             let fretButton = document.createElement("input");
-            fretButton.type = "button";
-            fretButton.value = calculateFretNote(j, i);
-            tBodyRows[i].getElementsByTagName("td")[j].appendChild(fretButton);
+            fretButton.type = "radio";
+            fretButton.name = "stringRadio" + j;
+            fretButton.value = i + "-" + j;
+            tBodyRows[i].getElementsByTagName("td")[j].innerHTML = "<span>" + calculateFretNote(j, i) + "</span>";
+            //tBodyRows[i].getElementsByTagName("td")[j].appendChild(fretButton);
+
         }
         if (FRET_MARKERS.indexOf(i) !== -1) {
             tBodyRows[i].getElementsByTagName("td")[6].innerHTML = "<span class='marker'>" + i + "</span>";
@@ -294,7 +297,7 @@ function loadChord(event) {
     for (let i = 0; i < tBodyRows.length; i++) {
         for (let j = 0; j < STRING_TUNING.length; j++) {
             let tdClass = "OnChord" +isFretOnChord(j, i) + "Class";
-            tBodyRows[i].getElementsByTagName("td")[j].getElementsByTagName("input")[0].className = tdClass;
+            tBodyRows[i].getElementsByTagName("td")[j].getElementsByTagName("span")[0].className = tdClass;
         }
     }
 }

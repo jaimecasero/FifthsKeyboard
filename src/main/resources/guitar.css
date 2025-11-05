@@ -10,11 +10,6 @@ td, th {
 }
 
 
-.gameConsoleText {
-    border-color: black;
-    width:45px;
-}
-
 #fretTable tr:first-child td{
     border-bottom: 4px solid black;
 }
@@ -23,56 +18,57 @@ td, th {
 }
 
 .OnChord0Class {
-    background-color: red;
+
+    color: red;
 }
 .OnChord1Class {
-    background-color: green;
+    color: green;
 }
 .OnChord2Class {
-    background-color: blue;
+    color: blue;
 }
 .OnChord3Class {
-    background-color: #00FF60;
+    color: #00FF60;
 }
 
-.OnKey0Class input{
+.OnKey0Class span{
     font-weight: bold;
     font-style: italic;
     font-size: 1.7em;
 }
-.OnKey1Class input{
+.OnKey1Class span{
     font-weight: bold;
     font-style: italic;
     font-size: 1.6em;
 
 }
-.OnKey2Class input{
+.OnKey2Class span{
     font-weight: bold;
     font-style: italic;
     font-size: 1.5em;
 }
-.OnKey3Class input {
+.OnKey3Class span {
     font-weight: bold;
     font-style: italic;
     font-size: 1.4em;
 }
-.OnKey4Class input{
+.OnKey4Class span{
     font-weight: bold;
     font-style: italic;
     font-size: 1.3em;
 }
-.OnKey5Class input{
+.OnKey5Class span{
     font-weight: bold;
     font-size: 1.2em;
     font-style: italic;
 }
-.OnKey6Class input{
+.OnKey6Class span{
     font-weight: bold;
     font-size: 1.1em;
     font-style: italic;
 }
 
-.OnKey-1Class input{
+.OnKey-1Class span{
     font-weight: normal;
     font-size: 0.5em;
 }
