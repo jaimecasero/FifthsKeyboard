@@ -1,0 +1,91 @@
+<html lang="eng">
+<head>
+    <title>Staff Reader</title>
+
+    <!-- midi.js package -->
+    <script src="https://cdn.jsdelivr.net/npm/midi.js"></script>
+    <script
+            type="text/javascript"
+            src="https://unpkg.com/@tonejs/midi"
+    ></script>
+    <script src="https://unpkg.com/meyda/dist/web/meyda.min.js"></script>
+    <script src="guitar.js"></script>
+    <link rel="stylesheet" href="guitar.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+
+<table id="fretTable">
+    <tbody>
+        <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    </tbody>
+</table>
+
+<BR><BR>
+
+<BR><BR><BR><BR>
+<select id="keySelect" class="gameConsoleText" onchange="changeSong();">
+    <option value="0" selected="selected">C</option>
+    <option value="1">Db</option>
+    <option value="2">D</option>
+    <option value="3">Eb</option>
+    <option value="4">E</option>
+    <option value="5">F</option>
+    <option value="6">Gb</option>
+    <option value="7">G</option>
+    <option value="8">Ab</option>
+    <option value="9">A</option>
+    <option value="10">Bb</option>
+    <option value="11">B</option>
+</select>
+
+<select id="modeSelect" class="gameConsoleText" onchange="changeClef();">
+    <option value="0" selected>Ionian</option>
+    <option value="1">Dorian</option>
+    <option value="2">Phygrian</option>
+    <option value="3">Lydian</option>
+    <option value="4">Myxolydian</option>
+    <option value="5">Aeolian</option>
+    <option value="6">Locrian</option>
+</select>
+<BR>
+
+<select id="rootChordSelect" class="gameConsoleText" onchange="changeChord();">
+</select>
+
+<select id="chordSelect" class="gameConsoleText" onchange="changeChord();">
+    <option value="0" selected>Major</option>
+    <option value="1">Minor</option>
+    <option value="2">Sus2</option>
+    <option value="3">Sus4</option>
+    <option value="4">Aug</option>
+    <option value="5">6</option>
+    <option value="6">7</option>
+    <option value="7">Maj7</option>
+    <option value="8">7</option>
+    <option value="9">b9</option>
+    <option value="10">9</option>
+    <option value="11">add9</option>
+</select>
+<BR>
+
+
+
+
+
+<BR><BR><BR><BR>
+<a href="https://paypal.me/jaimecasero?country.x=ES&locale.x=es_ES">Donate</a>
+</body>
+</html>
