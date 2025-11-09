@@ -20,70 +20,127 @@ td, th {
 }
 
 .OnChord0Class {
-
-    color: red;
-}
-.OnChord1Class {
-    color: green;
-}
-.OnChord2Class {
-    color: blue;
-}
-.OnChord3Class {
-    color: #00FF60;
-}
-.OnChord4Class {
-    color: #00FF60;
-}
-.OnChord5Class {
-    color: #00FF60;
-}
-.OnChord6Class {
-    color: #00FF60;
-}
-
-
-.OnKey0Class span{
-
-    font-weight: bold;
     font-style: italic;
     font-size: 1.7em;
-}
-.OnKey1Class span{
-    font-weight: bold;
-    font-style: italic;
-    font-size: 1.6em;
+
 
 }
-.OnKey2Class span{
-    font-weight: bold;
+.OnChord1Class {
+    font-style: italic;
+    font-size: 1.6em;
+}
+.OnChord2Class {
     font-style: italic;
     font-size: 1.5em;
 }
-.OnKey3Class span {
-    font-weight: bold;
+.OnChord3Class {
     font-style: italic;
     font-size: 1.4em;
+
 }
-.OnKey4Class span{
-    font-weight: bold;
+.OnChord4Class {
     font-style: italic;
     font-size: 1.3em;
 }
-.OnKey5Class span{
-    font-weight: bold;
-    font-size: 1.2em;
+.OnChord5Class {
     font-style: italic;
+    font-size: 1.2em;
+}
+.OnChord6Class {
+    font-style: italic;
+    font-size: 1.1em;
+}
+
+.VisBNaturalClass, .VisENaturalClass, .VisANaturalClass, .VisGNaturalClass, .VisCNaturalClass, .VisDNaturalClass, .VisFNaturalClass {
+    background-color: aquamarine;
+}
+/*.VisENaturalClass */
+.VisBbArtificialClass, .VisEbArtificialClass, .VisAbArtificialClass, .VisDbArtificialClass, .VisGbArtificialClass    {
+    background-color: grey;
+}
+.VisCFifthsClass {
+    background-color: #FF3333;
+}
+.VisDbFifthsClass {
+    background-color: #33FF8D;
+}
+.VisDFifthsClass {
+    background-color: #FF8A33;
+}
+.VisEbFifthsClass {
+    background-color: #3358FF;
+}
+.VisEFifthsClass {
+    background-color: #FFFC33;
+}
+.VisFFifthsClass {
+    background-color: #FF33C1;
+}
+.VisGbFifthsClass {
+    background-color: #33FF33;
+}
+.VisGFifthsClass {
+    background-color: #FF6133;
+}
+.VisAbFifthsClass {
+    background-color: #33FCFF;
+}
+.VisAFifthsClass {
+    background-color: #FFB233;
+}
+.VisBbFifthsClass {
+    background-color: #A833FF;
+}
+.VisBFifthsClass {
+    background-color: #93FF33;
+}
+
+
+
+/*const NOTE_COLOR = [, , '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'];*/
+
+.OnKey0Class span{
+    font-weight: bolder;
+
+    /*font-size: 1.7em;*/
+
+}
+
+.OnKey1Class span{
+    font-weight: bolder;
+
+    /*font-size: 1.6em;*/
+
+}
+.OnKey2Class span{
+    font-weight: bolder;
+
+    /*font-size: 1.5em;*/
+}
+.OnKey3Class span {
+    font-weight: bolder;
+
+    /*font-size: 1.4em;*/
+}
+.OnKey4Class span{
+    font-weight: bolder;
+
+    /*font-size: 1.3em;*/
+}
+.OnKey5Class span{
+    font-weight: bolder;
+    /*font-size: 1.2em;*/
+
 }
 .OnKey6Class span{
-    font-weight: bold;
-    font-size: 1.1em;
-    font-style: italic;
+    font-weight: bolder;
+    /*font-size: 1.1em;*/
+
 }
 
 .OnKey-1Class span{
-    font-weight: normal;
-    font-size: 0.5em;
+    font-weight: lighter;
+    /*font-size: 0.5em;*/
 }
 
 #songSelect, #trackSelect, #clefSelect, #signatureSelect, #inputSelect {
