@@ -20,35 +20,38 @@ td, th {
 }
 
 .OnChord0Class {
-    font-style: italic;
     font-size: 1.7em;
-
+    text-decoration: underline;
+    text-decoration-color: green;
 
 }
 .OnChord1Class {
-    font-style: italic;
     font-size: 1.6em;
+    text-decoration: underline;
+    text-decoration-color: blue;
 }
 .OnChord2Class {
-    font-style: italic;
     font-size: 1.5em;
+    text-decoration: underline;
+    text-decoration-color: red;
 }
 .OnChord3Class {
-    font-style: italic;
     font-size: 1.4em;
+    text-decoration: underline;
+    text-decoration-color: orange;
 
 }
 .OnChord4Class {
-    font-style: italic;
     font-size: 1.3em;
+    text-decoration: underline;
 }
 .OnChord5Class {
-    font-style: italic;
     font-size: 1.2em;
+    text-decoration: underline;
 }
 .OnChord6Class {
-    font-style: italic;
     font-size: 1.1em;
+    text-decoration: underline;
 }
 
 .VisBNaturalClass, .VisENaturalClass, .VisANaturalClass, .VisGNaturalClass, .VisCNaturalClass, .VisDNaturalClass, .VisFNaturalClass {

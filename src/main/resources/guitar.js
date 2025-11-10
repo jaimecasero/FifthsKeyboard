@@ -42,7 +42,8 @@ var keySelect;
 var modeSelect;
 var rootChordSelect;
 var chordSelect;
-var visualizationSelect
+var visualizationSelect;
+var fretCanvas;
 
 
 (function (window, document, undefined) {
@@ -59,11 +60,13 @@ var visualizationSelect
         rootChordSelect = document.getElementById('rootChordSelect');
         chordSelect = document.getElementById('chordSelect');
         visualizationSelect = document.getElementById('visualizationSelect');
+        fretCanvas = document.getElementById('fretCanvas');
 
         initFretBoard();
         loadKey();
         loadChord();
         loadVisualization();
+        renderFretboard();
     }
 })(window, document, undefined);
 
@@ -80,7 +83,82 @@ function calculateFretNote(stringIndex, fretIndex) {
     return NOTE_LABEL[noteIndex];
 }
 
-const FRET_MARKERS = [3, 5, 7, 9, 10,12];
+const FRET_MARKERS = [3, 5, 7, 9,12];
+const FRET_WIDTH_RATIO= 1.5;
+var STRING_SEPARATION;
+var STRING_SEPARATION_HALF;
+const STRING_OFFSET = [10,5,0,0,-5,-10];
+var FRET_SEPARATION;
+function renderFretboard() {
+    const ctx = fretCanvas.getContext("2d");
+    STRING_SEPARATION = fretCanvas.width / STRING_TUNING.length;
+    FRET_SEPARATION = fretCanvas.height / NOTE_LABEL.length;
+    STRING_SEPARATION_HALF = STRING_SEPARATION/2;
+
+    //draw strings
+    for (let i=0; i < STRING_TUNING.length ; i++) {
+        ctx.beginPath();
+        ctx.moveTo(STRING_SEPARATION * i + STRING_OFFSET[i] + STRING_SEPARATION_HALF, 0);
+        ctx.lineTo(STRING_SEPARATION * i + STRING_SEPARATION_HALF, fretCanvas.height);
+        ctx.stroke();
+    }
+
+    //draw frets & markers
+    for (let i=0; i < NOTE_LABEL.length ; i++){
+        if (i === 0 ) {
+            ctx.lineWidth = 10;
+        }
+        ctx.beginPath();
+        const FRET_OFFSET=i * FRET_WIDTH_RATIO;
+        const FRET_Y = FRET_SEPARATION * i - FRET_OFFSET;
+        ctx.moveTo(STRING_SEPARATION_HALF, FRET_Y );
+        ctx.lineTo(fretCanvas.width - STRING_SEPARATION + STRING_SEPARATION_HALF, FRET_Y);
+        ctx.stroke();
+        ctx.lineWidth = 1;
+        if (FRET_MARKERS.indexOf(i) > -1) {
+            ctx.beginPath();
+            ctx.fillStyle = "black";
+            ctx.arc(STRING_SEPARATION * 3 , FRET_Y - FRET_SEPARATION/2, 5, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        for (let j=0; j < STRING_TUNING.length ; j++) {
+            drawNoteIndex(i+1, j, FRET_Y);
+        }
+    }
+
+}
+
+function drawNoteIndex(fret, string, FRET_Y) {
+
+    const ctx = fretCanvas.getContext("2d");
+    const NOTE_CENTER_X=STRING_SEPARATION * string + STRING_OFFSET[string] + STRING_SEPARATION_HALF;
+    const FRET_OFFSET=fret * FRET_WIDTH_RATIO;
+    const NOTE_CENTER_Y=FRET_SEPARATION * fret - FRET_OFFSET - 20;
+
+    ctx.beginPath();
+    ctx.fillStyle = "black";
+    ctx.arc(NOTE_CENTER_X, NOTE_CENTER_Y, 20, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.fillStyle = "white";
+    ctx.arc(NOTE_CENTER_X, NOTE_CENTER_Y, 17, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.stroke();
+
+
+
+
+    ctx.fillStyle = 'black';
+    ctx.font = "15px Arial";
+    //make coordinate correction so text is centered in the circle
+    ctx.fillText(calculateFretNote(string, fret), NOTE_CENTER_X - 5, NOTE_CENTER_Y + 5);
+
+
+}
 
 function initFretBoard() {
     let tBodyRows = fretTable.getElementsByTagName("tbody")[0].getElementsByTagName("tr");
