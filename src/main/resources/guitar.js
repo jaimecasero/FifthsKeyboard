@@ -104,7 +104,7 @@ function renderFretboard() {
     }
 
     //draw frets & markers
-    for (let i=0; i < NOTE_LABEL.length ; i++){
+    for (let i=0; i <= NOTE_LABEL.length ; i++){
         if (i === 0 ) {
             ctx.lineWidth = 10;
         }
@@ -116,36 +116,49 @@ function renderFretboard() {
         ctx.stroke();
         ctx.lineWidth = 1;
         if (FRET_MARKERS.indexOf(i) > -1) {
-            ctx.beginPath();
-            ctx.fillStyle = "black";
-            ctx.arc(STRING_SEPARATION * 3 , FRET_Y - FRET_SEPARATION/2, 5, 0, 2 * Math.PI);
-            ctx.fill();
-            ctx.stroke();
+            if (i % 2 === 0) {
+                ctx.beginPath();
+                ctx.fillStyle = "black";
+                ctx.arc(STRING_SEPARATION , FRET_Y - FRET_SEPARATION / 2, 5, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.fillStyle = "black";
+                ctx.arc(STRING_SEPARATION * 5, FRET_Y - FRET_SEPARATION / 2, 5, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.stroke();
+            } else {
+                ctx.beginPath();
+                ctx.fillStyle = "black";
+                ctx.arc(STRING_SEPARATION * 3, FRET_Y - FRET_SEPARATION / 2, 5, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.stroke();
+            }
         }
 
         for (let j=0; j < STRING_TUNING.length ; j++) {
-            drawNoteIndex(i+1, j, FRET_Y);
+            drawNoteIndex(i+1, j);
         }
     }
 
 }
 
-function drawNoteIndex(fret, string, FRET_Y) {
+function drawNoteIndex(fret, string) {
 
     const ctx = fretCanvas.getContext("2d");
-    const NOTE_CENTER_X=STRING_SEPARATION * string + STRING_OFFSET[string] + STRING_SEPARATION_HALF;
+    const NOTE_CENTER_X=STRING_SEPARATION * string + STRING_OFFSET[string] * (1 - fret / 12)  + STRING_SEPARATION_HALF;
     const FRET_OFFSET=fret * FRET_WIDTH_RATIO;
     const NOTE_CENTER_Y=FRET_SEPARATION * fret - FRET_OFFSET - 20;
 
     ctx.beginPath();
     ctx.fillStyle = "black";
-    ctx.arc(NOTE_CENTER_X, NOTE_CENTER_Y, 20, 0, 2 * Math.PI);
+    ctx.arc(NOTE_CENTER_X, NOTE_CENTER_Y, 18, 0, 2 * Math.PI);
     ctx.fill();
     ctx.stroke();
 
     ctx.beginPath();
     ctx.fillStyle = "white";
-    ctx.arc(NOTE_CENTER_X, NOTE_CENTER_Y, 17, 0, 2 * Math.PI);
+    ctx.arc(NOTE_CENTER_X, NOTE_CENTER_Y, 15, 0, 2 * Math.PI);
     ctx.fill();
     ctx.stroke();
 
@@ -153,7 +166,7 @@ function drawNoteIndex(fret, string, FRET_Y) {
 
 
     ctx.fillStyle = 'black';
-    ctx.font = "15px Arial";
+    ctx.font = "14px Arial";
     //make coordinate correction so text is centered in the circle
     ctx.fillText(calculateFretNote(string, fret), NOTE_CENTER_X - 5, NOTE_CENTER_Y + 5);
 
