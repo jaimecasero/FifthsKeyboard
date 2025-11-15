@@ -178,7 +178,8 @@ function renderFretboard() {
 const IN_KEY_RADIUS=18;
 
 function drawNoteIndex(fret, string) {
-
+    let chordIndex = isFretOnChord(string,fret);
+    let keyIndex = isFretOnKey(string,fret);
     const ctx = fretCanvas.getContext("2d");
     const NOTE_CENTER_X=STRING_SEPARATION * string + STRING_OFFSET[string] * (1 - fret / 12)  + STRING_SEPARATION_HALF;
     const FRET_OFFSET=fret * FRET_WIDTH_RATIO;
@@ -187,7 +188,7 @@ function drawNoteIndex(fret, string) {
     let radius = IN_KEY_RADIUS - 3 ;
     ctx.beginPath();
     ctx.fillStyle = "white";
-    let keyIndex = isFretOnKey(string,fret);
+
     if (keyIndex > - 1) {
         ctx.fillStyle = "black";
         radius = IN_KEY_RADIUS;
@@ -198,6 +199,9 @@ function drawNoteIndex(fret, string) {
 
     ctx.beginPath();
     ctx.fillStyle = "white";
+    if (chordIndex > - 1) {
+        ctx.fillStyle = CHORD_COLOR[chordIndex];
+    }
     ctx.arc(NOTE_CENTER_X, NOTE_CENTER_Y, radius - 2, 0, 2 * Math.PI);
     ctx.fill();
     ctx.stroke();
@@ -206,9 +210,8 @@ function drawNoteIndex(fret, string) {
 
 
     ctx.fillStyle = 'black';
-    let chordIndex = isFretOnChord(string,fret);
     if (chordIndex > - 1) {
-        ctx.fillStyle = CHORD_COLOR[chordIndex];
+        ctx.fillStyle = "white";
     }
 
     ctx.font = "10px Arial";
