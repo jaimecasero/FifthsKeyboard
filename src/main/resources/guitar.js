@@ -7,7 +7,7 @@ const NUM_NOTES = 12;
 const NOTE_LABEL = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
 
 const STRING_TUNING = ['E', 'A', 'D', 'G', 'B', 'E'];
-const CHORD_COLOR=["red", "orange", "yellow", "green", "blue", "purple"];
+const CHORD_COLOR=["red", "green", "blue", "orange", "pink", "purple"];
 
 
 const IONIAN_INTERVAL = [0, 2, 4, 5, 7, 9, 11];
@@ -121,6 +121,8 @@ function renderFretboard() {
     calculateKey();
     calculateChord();
     const ctx = fretCanvas.getContext("2d");
+// Clear the entire canvas
+    ctx.clearRect(0, 0, fretCanvas.width, fretCanvas.height);
     STRING_SEPARATION = fretCanvas.width / STRING_TUNING.length;
     FRET_SEPARATION = fretCanvas.height / NOTE_LABEL.length;
     STRING_SEPARATION_HALF = STRING_SEPARATION/2;
@@ -173,6 +175,8 @@ function renderFretboard() {
 
 }
 
+const IN_KEY_RADIUS=18;
+
 function drawNoteIndex(fret, string) {
 
     const ctx = fretCanvas.getContext("2d");
@@ -180,19 +184,21 @@ function drawNoteIndex(fret, string) {
     const FRET_OFFSET=fret * FRET_WIDTH_RATIO;
     const NOTE_CENTER_Y=FRET_SEPARATION * fret - FRET_OFFSET - 20;
 
+    let radius = IN_KEY_RADIUS - 3 ;
     ctx.beginPath();
-    ctx.fillStyle = "black";
+    ctx.fillStyle = "white";
     let keyIndex = isFretOnKey(string,fret);
     if (keyIndex > - 1) {
-        ctx.fillStyle = "red";
+        ctx.fillStyle = "black";
+        radius = IN_KEY_RADIUS;
     }
-    ctx.arc(NOTE_CENTER_X, NOTE_CENTER_Y, 18, 0, 2 * Math.PI);
+    ctx.arc(NOTE_CENTER_X, NOTE_CENTER_Y, radius, 0, 2 * Math.PI);
     ctx.fill();
     ctx.stroke();
 
     ctx.beginPath();
     ctx.fillStyle = "white";
-    ctx.arc(NOTE_CENTER_X, NOTE_CENTER_Y, 15, 0, 2 * Math.PI);
+    ctx.arc(NOTE_CENTER_X, NOTE_CENTER_Y, radius - 2, 0, 2 * Math.PI);
     ctx.fill();
     ctx.stroke();
 
@@ -205,9 +211,14 @@ function drawNoteIndex(fret, string) {
         ctx.fillStyle = CHORD_COLOR[chordIndex];
     }
 
-    ctx.font = "14px Arial";
+    ctx.font = "10px Arial";
+    let note = calculateFretNote(string, fret);
+    if (keyIndex > - 1) {
+        note = note + (keyIndex + 1);
+        ctx.font = "14px Arial";
+    }
     //make coordinate correction so text is centered in the circle
-    ctx.fillText(calculateFretNote(string, fret), NOTE_CENTER_X - 5, NOTE_CENTER_Y + 5);
+    ctx.fillText(note, NOTE_CENTER_X - 10, NOTE_CENTER_Y + 5);
 
 
 }
@@ -222,68 +233,3 @@ function drawNoteIndex(fret, string) {
 //////////////////////////// CONFIGURATION ////////////////////////////
 
 
-
-function loadVisualization() {
-    let tBodyRows = fretTable.getElementsByTagName("tbody")[0].getElementsByTagName("tr");
-    for (let i = 0; i < tBodyRows.length; i++) {
-        for (let j = 0; j < STRING_TUNING.length; j++) {
-            for (let z = 0; z  < tBodyRows[i].getElementsByTagName("td")[j].classList.length; z++) {
-                if (tBodyRows[i].getElementsByTagName("td")[j].classList[z].startsWith("Vis")) {
-                    tBodyRows[i].getElementsByTagName("td")[j].classList.remove(tBodyRows[i].getElementsByTagName("td")[j].classList[z]);
-                }
-            }
-            let tdClass = "";
-            let note = calculateFretNote(j, i);
-            switch (visualizationSelect.value) {
-                case "Chord":
-                    break;
-                case "Natural":
-                    if (!note.endsWith("b")) {
-                        tdClass = "Vis" + note + visualizationSelect.value + "Class";
-                    }
-                    break;
-                case "Artificial":
-                    if (note.endsWith("b")) {
-                        tdClass = "Vis" + note + visualizationSelect.value + "Class";
-                    }
-                    break;
-                case "Fifths":
-                    tdClass = "Vis" + note + visualizationSelect.value + "Class";
-
-                    break;
-            }
-
-            //tBodyRows[i].getElementsByTagName("td")[j].classList.remove();
-            if (tdClass.length > 0) {
-                tBodyRows[i].getElementsByTagName("td")[j].classList.add(tdClass);
-            }
-        }
-    }
-}
-
-function loadKey() {
-    calculateKey();
-    let tBodyRows = fretTable.getElementsByTagName("tbody")[0].getElementsByTagName("tr");
-    for (let i = 0; i < tBodyRows.length; i++) {
-        for (let j = 0; j < STRING_TUNING.length; j++) {
-            let tdClass = "OnKey" + isFretOnKey(j, i) + "Class";
-            for (let z = 0; z  < tBodyRows[i].getElementsByTagName("td")[j].classList.length; z++) {
-                if (tBodyRows[i].getElementsByTagName("td")[j].classList[z].startsWith("OnKey")) {
-                    tBodyRows[i].getElementsByTagName("td")[j].classList.remove(tBodyRows[i].getElementsByTagName("td")[j].classList[z]);
-                }
-            }
-            tBodyRows[i].getElementsByTagName("td")[j].classList.add(tdClass);
-        }
-    }
-}
-
-function loadChord(event) {
-    calculateChord();
-    let tBodyRows = fretTable.getElementsByTagName("tbody")[0].getElementsByTagName("tr");
-    for (let i = 0; i < tBodyRows.length; i++) {
-        for (let j = 0; j < STRING_TUNING.length; j++) {
-            let tdClass = "OnChord" + isFretOnChord(j, i) + "Class";
-            tBodyRows[i].getElementsByTagName("td")[j].getElementsByTagName("span")[0].className = tdClass;
-        }
-    }
-}
