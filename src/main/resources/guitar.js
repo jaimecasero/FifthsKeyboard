@@ -1,13 +1,13 @@
 ////////////////////////MODEL //////////////////////////////////////
-const NUM_NOTES = 12;
-const NOTE_LABEL = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
-const NOTE_MIDI_CODE = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
-const KEYBOARD_GAIN = 0.657;//the gain applied when note is pressed
 const FLAT_CHAR = "&flat;";
 const SHARP_CHAR = "&sharp;";
 const NAT_CHAR = "&natur;";
 const NOTE_CHAR = "&sung;";
-const STRING_TUNING = ['E', 'A', 'D', 'G', 'B', 'E']
+const NUM_NOTES = 12;
+const NOTE_LABEL = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
+
+const STRING_TUNING = ['E', 'A', 'D', 'G', 'B', 'E'];
+const CHORD_COLOR=["red", "orange", "yellow", "green", "blue", "purple"];
 
 
 const IONIAN_INTERVAL = [0, 2, 4, 5, 7, 9, 11];
@@ -35,9 +35,11 @@ const ELEVENTH_FORMULA = [0, 4, 7, 10, 14, 19];
 const THIRTEENTH_FORMULA = [0, 4, 7, 10, 14, 19, 21];
 const CHORD_MOD_ARR = [MAJOR_FORMULA, MINOR_FORMULA, SUS2_FORMULA, SUS4_FORMULA, DIM_FORMULA, SIXTH_FORMULA, MINOR_SIXTH_FORMULA, MAJOR7_FORMULA, SEVENTH_FORMULA, MINOR7_FORMULA, NINTH_FORMULA, ELEVENTH_FORMULA, THIRTEENTH_FORMULA];
 
+///// Data Model /////
+let CALCULATED_KEY = [];
+let CALCULATED_CHORD = [];
 
 ////////DOM CACHING//////////////////
-var fretTable;
 var keySelect;
 var modeSelect;
 var rootChordSelect;
@@ -54,7 +56,6 @@ var fretCanvas;
         // #document has its nodes
         console.log("init");
         //cache DOM elements for better performance
-        fretTable = document.getElementById('fretTable');
         keySelect = document.getElementById('keySelect');
         modeSelect = document.getElementById('modeSelect');
         rootChordSelect = document.getElementById('rootChordSelect');
@@ -62,25 +63,52 @@ var fretCanvas;
         visualizationSelect = document.getElementById('visualizationSelect');
         fretCanvas = document.getElementById('fretCanvas');
 
-        initFretBoard();
-        loadKey();
-        loadChord();
-        loadVisualization();
         renderFretboard();
     }
 })(window, document, undefined);
 
 
+
+function calculateKey() {
+    CALCULATED_KEY = [];
+    let keyNoteOffset = parseInt(keySelect.value, 10);
+    for (let i = 0; i < KEY_MODE_INTERVAL[modeSelect.value].length; i++) {
+        let keyDegreeIndex = (keyNoteOffset + KEY_MODE_INTERVAL[modeSelect.value][i]) % NOTE_LABEL.length;
+        CALCULATED_KEY.push(keyDegreeIndex);
+    }
+    console.log("calculated key:" + CALCULATED_KEY);
+}
+
+function calculateChord() {
+    CALCULATED_CHORD = [];
+    let keyNoteOffset = parseInt(rootChordSelect.value, 10);
+    console.log("root chord:" + rootChordSelect.value);
+    for (let i = 0; i < CHORD_MOD_ARR[chordSelect.value].length; i++) {
+        let noteIndex = (keyNoteOffset + CHORD_MOD_ARR[chordSelect.value][i]) % NOTE_LABEL.length;
+        console.log("noteIndex:" + noteIndex);
+        CALCULATED_CHORD.push(noteIndex);
+    }
+    console.log("calculated chord:" + CALCULATED_CHORD);
+}
+
 function calculateFretNoteIndex(stringIndex, fretIndex) {
     let openNote = STRING_TUNING[stringIndex];
     let openNoteOffset = NOTE_LABEL.indexOf(openNote);
-    let noteIndex = (fretIndex + openNoteOffset) % NOTE_LABEL.length;
-    return noteIndex;
+    return (fretIndex + openNoteOffset) % NOTE_LABEL.length;
 }
 
 function calculateFretNote(stringIndex, fretIndex) {
     let noteIndex = calculateFretNoteIndex(stringIndex, fretIndex);
     return NOTE_LABEL[noteIndex];
+}
+function isFretOnKey(stringIndex, fretIndex) {
+    let fretNoteIndex = calculateFretNoteIndex(stringIndex, fretIndex);
+    return CALCULATED_KEY.indexOf(fretNoteIndex);
+}
+
+function isFretOnChord(stringIndex, fretIndex) {
+    let fretNoteIndex = calculateFretNoteIndex(stringIndex, fretIndex);
+    return CALCULATED_CHORD.indexOf(fretNoteIndex);
 }
 
 const FRET_MARKERS = [3, 5, 7, 9,12];
@@ -90,6 +118,8 @@ var STRING_SEPARATION_HALF;
 const STRING_OFFSET = [10,5,0,0,-5,-10];
 var FRET_SEPARATION;
 function renderFretboard() {
+    calculateKey();
+    calculateChord();
     const ctx = fretCanvas.getContext("2d");
     STRING_SEPARATION = fretCanvas.width / STRING_TUNING.length;
     FRET_SEPARATION = fretCanvas.height / NOTE_LABEL.length;
@@ -152,6 +182,10 @@ function drawNoteIndex(fret, string) {
 
     ctx.beginPath();
     ctx.fillStyle = "black";
+    let keyIndex = isFretOnKey(string,fret);
+    if (keyIndex > - 1) {
+        ctx.fillStyle = "red";
+    }
     ctx.arc(NOTE_CENTER_X, NOTE_CENTER_Y, 18, 0, 2 * Math.PI);
     ctx.fill();
     ctx.stroke();
@@ -166,6 +200,11 @@ function drawNoteIndex(fret, string) {
 
 
     ctx.fillStyle = 'black';
+    let chordIndex = isFretOnChord(string,fret);
+    if (chordIndex > - 1) {
+        ctx.fillStyle = CHORD_COLOR[chordIndex];
+    }
+
     ctx.font = "14px Arial";
     //make coordinate correction so text is centered in the circle
     ctx.fillText(calculateFretNote(string, fret), NOTE_CENTER_X - 5, NOTE_CENTER_Y + 5);
@@ -173,59 +212,11 @@ function drawNoteIndex(fret, string) {
 
 }
 
-function initFretBoard() {
-    let tBodyRows = fretTable.getElementsByTagName("tbody")[0].getElementsByTagName("tr");
-    for (let i = 0; i < tBodyRows.length; i++) {
-        for (let j = 0; j < STRING_TUNING.length; j++) {
-            let fretButton = document.createElement("input");
-            fretButton.type = "radio";
-            fretButton.name = "stringRadio" + j;
-            fretButton.value = i + "-" + j;
-            tBodyRows[i].getElementsByTagName("td")[j].innerHTML = "<span>" + calculateFretNote(j, i) + "</span>";
-            //tBodyRows[i].getElementsByTagName("td")[j].appendChild(fretButton);
-
-        }
-        if (FRET_MARKERS.indexOf(i) !== -1) {
-            tBodyRows[i].getElementsByTagName("td")[6].innerHTML = "<span class='marker'>" + i + "</span>";
-        }
-    }
-}
-
-let CALCULATED_KEY = [];
-let CALCULATED_CHORD = [];
-
-function calculateKey() {
-    CALCULATED_KEY = [];
-    let keyNoteOffset = parseInt(keySelect.value, 10);
-    for (let i = 0; i < KEY_MODE_INTERVAL[modeSelect.value].length; i++) {
-        let keyDegreeIndex = (keyNoteOffset + KEY_MODE_INTERVAL[modeSelect.value][i]) % NOTE_LABEL.length;
-        CALCULATED_KEY.push(keyDegreeIndex);
-    }
-    console.log("calculated key:" + CALCULATED_KEY);
-}
-
-function calculateChord() {
-    CALCULATED_CHORD = [];
-    let keyNoteOffset = parseInt(rootChordSelect.value, 10);
-    console.log("root chord:" + rootChordSelect.value);
-    for (let i = 0; i < CHORD_MOD_ARR[chordSelect.value].length; i++) {
-        let noteIndex = (keyNoteOffset + CHORD_MOD_ARR[chordSelect.value][i]) % NOTE_LABEL.length;
-        console.log("noteIndex:" + noteIndex);
-        CALCULATED_CHORD.push(noteIndex);
-    }
-    console.log("calculated chord:" + CALCULATED_CHORD);
-}
 
 
-function isFretOnKey(stringIndex, fretIndex) {
-    let fretNoteIndex = calculateFretNoteIndex(stringIndex, fretIndex);
-    return CALCULATED_KEY.indexOf(fretNoteIndex);
-}
 
-function isFretOnChord(stringIndex, fretIndex) {
-    let fretNoteIndex = calculateFretNoteIndex(stringIndex, fretIndex);
-    return CALCULATED_CHORD.indexOf(fretNoteIndex);
-}
+
+
 
 
 //////////////////////////// CONFIGURATION ////////////////////////////
