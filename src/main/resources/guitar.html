@@ -18,14 +18,14 @@
 <canvas id="fretCanvas" width="300" height="700"></canvas>
 
 <BR>
-<select id="visualizationSelect" onchange="loadVisualization();">
+<select id="visualizationSelect" onchange="renderFretboard();">
     <option value="Chord" selected="selected">Chord</option>
     <option value="Fifths">Fifths Color</option>
     <option value="Natural">Natural</option>
     <option value="Artificial">Artificial</option>
 </select>
-
-<select id="keySelect" onchange="loadKey();">
+<BR>
+<select id="keySelect" onchange="renderFretboard();">
     <option value="0" selected="selected">C</option>
     <option value="1">Db</option>
     <option value="2">D</option>
@@ -40,7 +40,7 @@
     <option value="11">B</option>
 </select>
 
-<select id="modeSelect"  onchange="loadKey();">
+<select id="modeSelect"  onchange="renderFretboard();">
     <option value="0" selected>Ionian</option>
     <option value="1">Dorian</option>
     <option value="2">Phygrian</option>
@@ -51,7 +51,7 @@
 </select>
 <BR>
 
-<select id="rootChordSelect" onchange="loadChord();">
+<select id="rootChordSelect" onchange="renderFretboard();">
     <option value="0" selected="selected">C</option>
     <option value="1">Db</option>
     <option value="2">D</option>
@@ -66,7 +66,7 @@
     <option value="11">B</option>
 </select>
 
-<select id="chordSelect" onchange="loadChord();">
+<select id="chordSelect" onchange="renderFretboard();">
     <option value="0" selected>Major</option>
     <option value="1">Minor</option>
     <option value="2">Sus2</option>
