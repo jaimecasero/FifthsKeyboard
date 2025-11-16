@@ -7,7 +7,9 @@ const NUM_NOTES = 12;
 const NOTE_LABEL = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
 const NOTE_FIFTHS_COLOR = ['#FF3333', '#33FF8D', '#FF8A33', '#3358FF', '#FFFC33', '#FF33C1', '#33FF33', '#FF6133', '#33FCFF', '#FFB233', '#A833FF', '#93FF33'];
 
-const STRING_TUNING = ['E', 'A', 'D', 'G', 'B', 'E'];
+const STD_TUNING = ['E', 'A', 'D', 'G', 'B', 'E'];
+const FOURTHS_TUNING = ['E', 'A', 'D', 'G', 'C', 'F'];
+
 const CHORD_COLOR=["red", "green", "blue", "orange", "pink", "purple"];
 const IN_KEY_RADIUS=18;
 
@@ -57,6 +59,7 @@ var visualizationSelect;
 var fretCanvas;
 var calculatedKeyInput;
 var calculatedChordInput;
+var tuningSelect;
 
 
 (function (window, document, undefined) {
@@ -75,6 +78,7 @@ var calculatedChordInput;
         fretCanvas = document.getElementById('fretCanvas');
         calculatedKeyInput = document.getElementById('calculatedKeyInput');
         calculatedChordInput = document.getElementById('calculatedChordInput');
+        tuningSelect = document.getElementById('tuningSelect');
 
         renderFretboard();
     }
@@ -105,7 +109,10 @@ function calculateChord() {
 }
 
 function calculateFretNoteIndex(stringIndex, fretIndex) {
-    let openNote = STRING_TUNING[stringIndex];
+    let openNote = STD_TUNING[stringIndex];
+    if (tuningSelect.value === "Fourths") {
+        openNote = FOURTHS_TUNING[stringIndex];
+    }
     let openNoteOffset = NOTE_LABEL.indexOf(openNote);
     return (fretIndex + openNoteOffset) % NOTE_LABEL.length;
 }
@@ -131,12 +138,12 @@ function renderFretboard() {
     const ctx = fretCanvas.getContext("2d");
 // Clear the entire canvas
     ctx.clearRect(0, 0, fretCanvas.width, fretCanvas.height);
-    STRING_SEPARATION = fretCanvas.width / STRING_TUNING.length;
+    STRING_SEPARATION = fretCanvas.width / STD_TUNING.length;
     FRET_SEPARATION = fretCanvas.height / NOTE_LABEL.length;
     STRING_SEPARATION_HALF = STRING_SEPARATION/2;
 
     //draw strings
-    for (let i=0; i < STRING_TUNING.length ; i++) {
+    for (let i=0; i < STD_TUNING.length ; i++) {
         ctx.beginPath();
         ctx.moveTo(STRING_SEPARATION * i + STRING_OFFSET[i] + STRING_SEPARATION_HALF, 0);
         ctx.lineTo(STRING_SEPARATION * i + STRING_SEPARATION_HALF, fretCanvas.height);
@@ -176,7 +183,7 @@ function renderFretboard() {
             }
         }
 
-        for (let j=0; j < STRING_TUNING.length ; j++) {
+        for (let j=0; j < STD_TUNING.length ; j++) {
             drawNoteIndex(i+1, j);
         }
     }
@@ -238,7 +245,7 @@ function drawNoteIndex(fret, string) {
     ctx.font = "10px Arial";
     if (keyIndex > - 1) {
         note = note + (keyIndex + 1);
-        ctx.font = "14px Arial";
+        ctx.font = "bold 14px Arial";
     }
     //make coordinate correction so text is centered in the circle
     ctx.fillText(note, NOTE_CENTER_X - 10, NOTE_CENTER_Y + 5);
