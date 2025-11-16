@@ -55,6 +55,8 @@ var rootChordSelect;
 var chordSelect;
 var visualizationSelect;
 var fretCanvas;
+var calculatedKeyInput;
+var calculatedChordInput;
 
 
 (function (window, document, undefined) {
@@ -71,6 +73,8 @@ var fretCanvas;
         chordSelect = document.getElementById('chordSelect');
         visualizationSelect = document.getElementById('visualizationSelect');
         fretCanvas = document.getElementById('fretCanvas');
+        calculatedKeyInput = document.getElementById('calculatedKeyInput');
+        calculatedChordInput = document.getElementById('calculatedChordInput');
 
         renderFretboard();
     }
@@ -85,7 +89,7 @@ function calculateKey() {
         let keyDegreeIndex = (keyNoteOffset + KEY_MODE_INTERVAL[modeSelect.value][i]) % NOTE_LABEL.length;
         CALCULATED_KEY.push(keyDegreeIndex);
     }
-    console.log("calculated key:" + CALCULATED_KEY);
+    calculatedKeyInput.value = CALCULATED_KEY.map(index => NOTE_LABEL[index]).join(",");
 }
 
 function calculateChord() {
@@ -97,7 +101,7 @@ function calculateChord() {
         console.log("noteIndex:" + noteIndex);
         CALCULATED_CHORD.push(noteIndex);
     }
-    console.log("calculated chord:" + CALCULATED_CHORD);
+    calculatedChordInput.value = CALCULATED_CHORD.map(index => NOTE_LABEL[index]).join(",");
 }
 
 function calculateFretNoteIndex(stringIndex, fretIndex) {
