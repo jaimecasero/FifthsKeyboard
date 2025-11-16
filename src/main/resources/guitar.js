@@ -157,7 +157,6 @@ function renderFretboard() {
 // Clear the entire canvas
     ctx.clearRect(0, 0, fretCanvas.width, fretCanvas.height);
     STRING_SEPARATION = fretCanvas.width / STD_TUNING.length;
-    FRET_SEPARATION = fretCanvas.height / NOTE_LABEL.length;
     STRING_SEPARATION_HALF = STRING_SEPARATION/2;
 
     //draw strings
@@ -167,7 +166,7 @@ function renderFretboard() {
         ctx.lineTo(STRING_SEPARATION * i + STRING_SEPARATION_HALF, fretCanvas.height);
         ctx.stroke();
     }
-    let wholeFret = fretCanvas.height * 2;
+
     //draw frets & markers
     for (let i=0; i <= FRET_NUM ; i++){
 
@@ -176,8 +175,9 @@ function renderFretboard() {
             ctx.lineWidth = 5;
         }
         ctx.beginPath();
-        const FRET_OFFSET=i * FRET_WIDTH_RATIO;
         const FRET_Y = calculateFretHeight(i);
+        const FRET_OFFSET=FRET_Y - calculateFretHeight(i -1);
+        FRET_SEPARATION = FRET_OFFSET;
         console.log("fret:" + FRET_Y);
         ctx.moveTo(STRING_SEPARATION_HALF, FRET_Y );
         ctx.lineTo(fretCanvas.width - STRING_SEPARATION + STRING_SEPARATION_HALF, FRET_Y);
@@ -186,7 +186,7 @@ function renderFretboard() {
 
         //draw fret markers if appropriate
         if (FRET_MARKERS.indexOf(i - 1 ) > -1) {
-            let markerHeight = FRET_Y - ( FRET_Y - calculateFretHeight(i -1) ) / 2;
+            let markerHeight = FRET_Y - ( FRET_OFFSET ) / 2;
             if ((i - 1)  % 2 === 0) {
                 ctx.beginPath();
                 ctx.fillStyle = "black";
@@ -224,8 +224,9 @@ function drawNoteIndex(fret, string) {
     let modeIndex = parseInt(modeSelect.value, 10);
     const ctx = fretCanvas.getContext("2d");
     const NOTE_CENTER_X=STRING_SEPARATION * string + STRING_OFFSET[string] * (1 - fret / 12)  + STRING_SEPARATION_HALF;
-    const FRET_OFFSET= (calculateFretHeight(fret) - calculateFretHeight(fret - 1)) / 3;
-    const NOTE_CENTER_Y=calculateFretHeight(fret) - FRET_OFFSET;
+    let currentFretHeight = calculateFretHeight(fret);
+    const FRET_OFFSET= FRET_SEPARATION / 2;
+    const NOTE_CENTER_Y= currentFretHeight - FRET_OFFSET;
     let radius = IN_KEY_RADIUS - 3 ;
 
     //stack/rectangle lines
@@ -320,7 +321,7 @@ function drawNoteIndex(fret, string) {
 
         }
         //make coordinate correction so text is centered in the circle
-        ctx.fillText(note, NOTE_CENTER_X - 10, NOTE_CENTER_Y + 5);
+        ctx.fillText(note, NOTE_CENTER_X - 7, NOTE_CENTER_Y + 5);
     }
 
 }
