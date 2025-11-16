@@ -9,6 +9,16 @@ const NOTE_FIFTHS_COLOR = ['#FF3333', '#33FF8D', '#FF8A33', '#3358FF', '#FFFC33'
 
 const STD_TUNING = ['E', 'A', 'D', 'G', 'B', 'E'];
 const FOURTHS_TUNING = ['E', 'A', 'D', 'G', 'C', 'F'];
+const DROPD_TUNING = ['D', 'A', 'D', 'G', 'C', 'F'];
+const DAD_TUNING = ['D', 'A', 'D', 'G', 'A', 'D'];
+const OPEND_TUNING = ['D', 'A', 'D', 'Gb', 'A', 'D'];
+const OPENE_TUNING = ['E', 'B', 'E', 'Ab', 'B', 'E'];
+const OPENG_TUNING = ['D', 'G', 'D', 'G', 'B', 'D'];
+const OPENA_TUNING = ['E', 'A', 'E', 'A', 'Db', 'E'];
+const OPENC6_TUNING = ['C', 'A', 'C', 'G', 'C', 'E'];
+const OPENC_TUNING = ['C', 'G', 'C', 'G', 'C', 'E'];
+
+const TUNING_ARRAY= [STD_TUNING,FOURTHS_TUNING, DROPD_TUNING, DAD_TUNING, OPEND_TUNING, OPENE_TUNING, OPENG_TUNING, OPENA_TUNING, OPENC6_TUNING, OPENC_TUNING];
 
 const CHORD_COLOR=["red", "green", "blue", "orange", "pink", "purple"];
 const IN_KEY_RADIUS=18;
@@ -108,11 +118,13 @@ function calculateChord() {
     calculatedChordInput.value = CALCULATED_CHORD.map(index => NOTE_LABEL[index]).join(",");
 }
 
+function retrieveTuning() {
+    return TUNING_ARRAY[parseInt(tuningSelect.value, 10)];
+}
+
 function calculateFretNoteIndex(stringIndex, fretIndex) {
-    let openNote = STD_TUNING[stringIndex];
-    if (tuningSelect.value === "Fourths") {
-        openNote = FOURTHS_TUNING[stringIndex];
-    }
+    let openNote = retrieveTuning()[stringIndex];
+
     let openNoteOffset = NOTE_LABEL.indexOf(openNote);
     return (fretIndex + openNoteOffset) % NOTE_LABEL.length;
 }
