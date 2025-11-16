@@ -218,7 +218,8 @@ function drawNoteIndex(fret, string) {
 
 
     if (visualizationSelect.value === "Stack") {
-        if ( modeIndex<3 && (noteDegree === 0 || noteDegree === 1)) {
+        if ( (modeIndex<3 && (noteDegree === 0 || noteDegree === 1)) ||
+            (modeIndex>2 && ( noteDegree === 2 || noteDegree === 3))) {
             //if root note draw bottom/top stack
             ctx.beginPath();
             ctx.strokeStyle = "blue";
@@ -227,8 +228,9 @@ function drawNoteIndex(fret, string) {
             ctx.lineTo(NOTE_CENTER_X, NOTE_CENTER_Y + FRET_SEPARATION * 2 - FRET_OFFSET);
             ctx.stroke()
         }
-        if (modeIndex<3 && (noteDegree === 5 || noteDegree === 2)) {
-            //bottom rectagle
+        if ((modeIndex<3 && (noteDegree === 5 || noteDegree === 2)) ||
+            (modeIndex>2 && (noteDegree === 0 || noteDegree === 4))) {
+            //top/bottom rectagle
             ctx.beginPath();
             ctx.strokeStyle = "red";
             ctx.lineWidth = 6;
@@ -237,7 +239,8 @@ function drawNoteIndex(fret, string) {
             ctx.stroke()
         }
 
-        if (modeIndex<3 && (noteDegree ===1 || noteDegree === 4 || noteDegree === 2 || noteDegree === 5 )) {
+        if ( (modeIndex<3 && (noteDegree ===1 || noteDegree === 4 || noteDegree === 2 || noteDegree === 5 )) ||
+            ( modeIndex>2 && (noteDegree === 6 || noteDegree === 3 || noteDegree === 0 || noteDegree === 4 ))) {
             //stack line
             ctx.beginPath();
             ctx.strokeStyle = "blue";
