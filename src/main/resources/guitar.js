@@ -21,7 +21,8 @@ const OPENC_TUNING = ['C', 'G', 'C', 'G', 'C', 'E'];
 const TUNING_ARRAY= [STD_TUNING,FOURTHS_TUNING, DROPD_TUNING, DAD_TUNING, OPEND_TUNING, OPENE_TUNING, OPENG_TUNING, OPENA_TUNING, OPENC6_TUNING, OPENC_TUNING];
 
 const CHORD_COLOR=["red", "green", "blue", "orange", "pink", "purple", "brown", "brown", "black", "white"];
-const IN_KEY_RADIUS=18;
+const IN_KEY_RADIUS=16;
+const IN_KEY_STYLE="bold 12px Arial";
 
 const FRET_MARKERS = [3, 5, 7, 9,12];
 const FRET_WIDTH_RATIO= 1.5;
@@ -165,7 +166,7 @@ function renderFretboard() {
     for (let i=0; i <= NOTE_LABEL.length ; i++){
 
         if (i === 1 ) {
-            //draw nut line
+            //draw nut line thicker
             ctx.lineWidth = 5;
         }
         ctx.beginPath();
@@ -175,6 +176,8 @@ function renderFretboard() {
         ctx.lineTo(fretCanvas.width - STRING_SEPARATION + STRING_SEPARATION_HALF, FRET_Y);
         ctx.stroke();
         ctx.lineWidth = 1;
+
+        //draw fret markers if appropriate
         if (FRET_MARKERS.indexOf(i) > -1) {
             if (i % 2 === 0) {
                 ctx.beginPath();
@@ -305,7 +308,7 @@ function drawNoteIndex(fret, string) {
         ctx.font = "10px Arial";
         if (keyIndex > -1) {
             note = note + (keyIndex + 1);
-            ctx.font = "bold 14px Arial";
+            ctx.font = IN_KEY_STYLE;
 
         }
         //make coordinate correction so text is centered in the circle
