@@ -164,6 +164,7 @@ function renderFretboard() {
 
     //draw frets & markers
     for (let i=0; i <= NOTE_LABEL.length ; i++){
+
         if (i === 1 ) {
             //draw nut line
             ctx.lineWidth = 5;
@@ -203,13 +204,6 @@ function renderFretboard() {
 
 }
 
-function drawStackRectandle(string, fret) {
-    let noteIndex = calculateFretNoteIndex(string, fret);
-
-    const ctx = fretCanvas.getContext("2d");
-
-}
-
 
 function drawNoteIndex(fret, string) {
     let noteIndex = calculateFretNoteIndex(string, fret);
@@ -224,13 +218,13 @@ function drawNoteIndex(fret, string) {
 
 
     if (visualizationSelect.value === "Stack") {
-        if ( noteDegree === 0) {
+        if ( noteDegree === 0 || noteDegree === 1) {
             //if root note draw bottom/top stack
             ctx.beginPath();
             ctx.strokeStyle = "blue";
             ctx.lineWidth = 6;
             ctx.moveTo(NOTE_CENTER_X, NOTE_CENTER_Y);
-            ctx.lineTo(NOTE_CENTER_X, NOTE_CENTER_Y + FRET_SEPARATION * 4 - FRET_OFFSET);
+            ctx.lineTo(NOTE_CENTER_X, NOTE_CENTER_Y + FRET_SEPARATION * 2 - FRET_OFFSET);
             ctx.stroke()
         }
         if (noteDegree === 5 || noteDegree === 2) {
