@@ -3,6 +3,7 @@ const FLAT_CHAR = "&flat;";
 const SHARP_CHAR = "&sharp;";
 const NAT_CHAR = "&natur;";
 const NOTE_CHAR = "&sung;";
+const FRET_NUM = 13;
 const NUM_NOTES = 12;
 const NOTE_LABEL = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
 const NOTE_FIFTHS_COLOR = ['#FF3333', '#33FF8D', '#FF8A33', '#3358FF', '#FFFC33', '#FF33C1', '#33FF33', '#FF6133', '#33FCFF', '#FFB233', '#A833FF', '#93FF33'];
@@ -21,8 +22,8 @@ const OPENC_TUNING = ['C', 'G', 'C', 'G', 'C', 'E'];
 const TUNING_ARRAY= [STD_TUNING,FOURTHS_TUNING, DROPD_TUNING, DAD_TUNING, OPEND_TUNING, OPENE_TUNING, OPENG_TUNING, OPENA_TUNING, OPENC6_TUNING, OPENC_TUNING];
 
 const CHORD_COLOR=["red", "green", "blue", "orange", "pink", "purple", "brown", "brown", "black", "white"];
-const IN_KEY_RADIUS=16;
-const IN_KEY_STYLE="bold 12px Arial";
+const IN_KEY_RADIUS=14;
+const IN_KEY_STYLE="bold 10px Arial";
 
 const FRET_MARKERS = [3, 5, 7, 9,12];
 const FRET_WIDTH_RATIO= 1.5;
@@ -143,6 +144,11 @@ function isFretOnChord(stringIndex, fretIndex) {
     return CALCULATED_CHORD.indexOf(fretNoteIndex);
 }
 
+function calculateFretHeight(fretIndex) {
+    let wholeFret = (fretCanvas.height * 2) - 150;
+    return wholeFret - (wholeFret / (2 ** (fretIndex /12)));
+}
+
 
 function renderFretboard() {
     calculateKey();
@@ -161,9 +167,9 @@ function renderFretboard() {
         ctx.lineTo(STRING_SEPARATION * i + STRING_SEPARATION_HALF, fretCanvas.height);
         ctx.stroke();
     }
-
+    let wholeFret = fretCanvas.height * 2;
     //draw frets & markers
-    for (let i=0; i <= NOTE_LABEL.length ; i++){
+    for (let i=0; i <= FRET_NUM ; i++){
 
         if (i === 1 ) {
             //draw nut line thicker
@@ -171,29 +177,31 @@ function renderFretboard() {
         }
         ctx.beginPath();
         const FRET_OFFSET=i * FRET_WIDTH_RATIO;
-        const FRET_Y = FRET_SEPARATION * i - FRET_OFFSET;
+        const FRET_Y = calculateFretHeight(i);
+        console.log("fret:" + FRET_Y);
         ctx.moveTo(STRING_SEPARATION_HALF, FRET_Y );
         ctx.lineTo(fretCanvas.width - STRING_SEPARATION + STRING_SEPARATION_HALF, FRET_Y);
         ctx.stroke();
         ctx.lineWidth = 1;
 
         //draw fret markers if appropriate
-        if (FRET_MARKERS.indexOf(i) > -1) {
-            if (i % 2 === 0) {
+        if (FRET_MARKERS.indexOf(i - 1 ) > -1) {
+            let markerHeight = FRET_Y - ( FRET_Y - calculateFretHeight(i -1) ) / 2;
+            if ((i - 1)  % 2 === 0) {
                 ctx.beginPath();
                 ctx.fillStyle = "black";
-                ctx.arc(STRING_SEPARATION , FRET_Y - FRET_SEPARATION / 2, 5, 0, 2 * Math.PI);
+                ctx.arc(STRING_SEPARATION , markerHeight, 5, 0, 2 * Math.PI);
                 ctx.fill();
                 ctx.stroke();
                 ctx.beginPath();
                 ctx.fillStyle = "black";
-                ctx.arc(STRING_SEPARATION * 5, FRET_Y - FRET_SEPARATION / 2, 5, 0, 2 * Math.PI);
+                ctx.arc(STRING_SEPARATION * 5, markerHeight, 5, 0, 2 * Math.PI);
                 ctx.fill();
                 ctx.stroke();
             } else {
                 ctx.beginPath();
                 ctx.fillStyle = "black";
-                ctx.arc(STRING_SEPARATION * 3, FRET_Y - FRET_SEPARATION / 2, 5, 0, 2 * Math.PI);
+                ctx.arc(STRING_SEPARATION * 3, markerHeight, 5, 0, 2 * Math.PI);
                 ctx.fill();
                 ctx.stroke();
             }
@@ -216,8 +224,8 @@ function drawNoteIndex(fret, string) {
     let modeIndex = parseInt(modeSelect.value, 10);
     const ctx = fretCanvas.getContext("2d");
     const NOTE_CENTER_X=STRING_SEPARATION * string + STRING_OFFSET[string] * (1 - fret / 12)  + STRING_SEPARATION_HALF;
-    const FRET_OFFSET=fret * FRET_WIDTH_RATIO;
-    const NOTE_CENTER_Y=FRET_SEPARATION * fret - FRET_OFFSET - 20;
+    const FRET_OFFSET= (calculateFretHeight(fret) - calculateFretHeight(fret - 1)) / 3;
+    const NOTE_CENTER_Y=calculateFretHeight(fret) - FRET_OFFSET;
     let radius = IN_KEY_RADIUS - 3 ;
 
     //stack/rectangle lines
