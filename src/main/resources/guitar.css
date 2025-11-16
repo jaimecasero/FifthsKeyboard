@@ -19,135 +19,17 @@ td, th {
     border: none;
 }
 
-.OnChord0Class {
-    font-size: 1.7em;
-    text-decoration: underline;
-    text-decoration-color: green;
 
-}
-.OnChord1Class {
-    font-size: 1.6em;
-    text-decoration: underline;
-    text-decoration-color: blue;
-}
-.OnChord2Class {
-    font-size: 1.5em;
-    text-decoration: underline;
-    text-decoration-color: red;
-}
-.OnChord3Class {
-    font-size: 1.4em;
-    text-decoration: underline;
-    text-decoration-color: orange;
-
-}
-.OnChord4Class {
-    font-size: 1.3em;
-    text-decoration: underline;
-}
-.OnChord5Class {
-    font-size: 1.2em;
-    text-decoration: underline;
-}
-.OnChord6Class {
-    font-size: 1.1em;
-    text-decoration: underline;
+#rootChordSelect, #keySelect {
+    width: 30px;
 }
 
-.VisBNaturalClass, .VisENaturalClass, .VisANaturalClass, .VisGNaturalClass, .VisCNaturalClass, .VisDNaturalClass, .VisFNaturalClass {
-    background-color: aquamarine;
-}
-/*.VisENaturalClass */
-.VisBbArtificialClass, .VisEbArtificialClass, .VisAbArtificialClass, .VisDbArtificialClass, .VisGbArtificialClass    {
-    background-color: grey;
-}
-.VisCFifthsClass {
-    background-color: #FF3333;
-}
-.VisDbFifthsClass {
-    background-color: #33FF8D;
-}
-.VisDFifthsClass {
-    background-color: #FF8A33;
-}
-.VisEbFifthsClass {
-    background-color: #3358FF;
-}
-.VisEFifthsClass {
-    background-color: #FFFC33;
-}
-.VisFFifthsClass {
-    background-color: #FF33C1;
-}
-.VisGbFifthsClass {
-    background-color: #33FF33;
-}
-.VisGFifthsClass {
-    background-color: #FF6133;
-}
-.VisAbFifthsClass {
-    background-color: #33FCFF;
-}
-.VisAFifthsClass {
-    background-color: #FFB233;
-}
-.VisBbFifthsClass {
-    background-color: #A833FF;
-}
-.VisBFifthsClass {
-    background-color: #93FF33;
+#visualizationSelect, #modeSelect {
+    width: 60px;
 }
 
-
-
-/*const NOTE_COLOR = [, , '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'];*/
-
-.OnKey0Class span{
-    font-weight: bolder;
-
-    /*font-size: 1.7em;*/
-
-}
-
-.OnKey1Class span{
-    font-weight: bolder;
-
-    /*font-size: 1.6em;*/
-
-}
-.OnKey2Class span{
-    font-weight: bolder;
-
-    /*font-size: 1.5em;*/
-}
-.OnKey3Class span {
-    font-weight: bolder;
-
-    /*font-size: 1.4em;*/
-}
-.OnKey4Class span{
-    font-weight: bolder;
-
-    /*font-size: 1.3em;*/
-}
-.OnKey5Class span{
-    font-weight: bolder;
-    /*font-size: 1.2em;*/
-
-}
-.OnKey6Class span{
-    font-weight: bolder;
-    /*font-size: 1.1em;*/
-
-}
-
-.OnKey-1Class span{
-    font-weight: lighter;
-    /*font-size: 0.5em;*/
-}
-
-#songSelect, #trackSelect, #clefSelect, #signatureSelect, #inputSelect {
-    width: 150px;
+#calculatedChordInput, #calculatedKeyInput {
+    width: 100px;
 }
 
 
