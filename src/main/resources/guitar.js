@@ -20,7 +20,7 @@ const OPENC_TUNING = ['C', 'G', 'C', 'G', 'C', 'E'];
 
 const TUNING_ARRAY= [STD_TUNING,FOURTHS_TUNING, DROPD_TUNING, DAD_TUNING, OPEND_TUNING, OPENE_TUNING, OPENG_TUNING, OPENA_TUNING, OPENC6_TUNING, OPENC_TUNING];
 
-const CHORD_COLOR=["red", "green", "blue", "orange", "pink", "purple"];
+const CHORD_COLOR=["red", "green", "blue", "orange", "pink", "purple", "brown", "brown", "black", "white"];
 const IN_KEY_RADIUS=18;
 
 const FRET_MARKERS = [3, 5, 7, 9,12];
@@ -52,8 +52,8 @@ const MAJOR7_FORMULA = [0, 4, 7, 11];
 const SEVENTH_FORMULA = [0, 4, 7, 10];
 const MINOR7_FORMULA = [0, 3, 7, 10];
 const NINTH_FORMULA = [0, 4, 7, 10, 14];
-const ELEVENTH_FORMULA = [0, 4, 7, 10, 14, 19];
-const THIRTEENTH_FORMULA = [0, 4, 7, 10, 14, 19, 21];
+const ELEVENTH_FORMULA = [0, 4, 7, 10, 14, 17];
+const THIRTEENTH_FORMULA = [0, 4, 7, 10, 14, 17, 21];
 const CHORD_MOD_ARR = [MAJOR_FORMULA, MINOR_FORMULA, SUS2_FORMULA, SUS4_FORMULA, DIM_FORMULA, SIXTH_FORMULA, MINOR_SIXTH_FORMULA, MAJOR7_FORMULA, SEVENTH_FORMULA, MINOR7_FORMULA, NINTH_FORMULA, ELEVENTH_FORMULA, THIRTEENTH_FORMULA];
 
 ///// Data Model /////
