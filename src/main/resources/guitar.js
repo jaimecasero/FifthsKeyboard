@@ -215,8 +215,9 @@ function drawNoteIndex(fret, string) {
     const NOTE_CENTER_X=STRING_SEPARATION * string + STRING_OFFSET[string] * (1 - fret / 12)  + STRING_SEPARATION_HALF;
     const FRET_OFFSET=fret * FRET_WIDTH_RATIO;
     const NOTE_CENTER_Y=FRET_SEPARATION * fret - FRET_OFFSET - 20;
+    let radius = IN_KEY_RADIUS - 3 ;
 
-
+    //stack/rectangle lines
     if (visualizationSelect.value === "Stack") {
         if ( (modeIndex<3 && (noteDegree === 0 || noteDegree === 1)) ||
             (modeIndex>2 && ( noteDegree === 2 || noteDegree === 3))) {
@@ -258,55 +259,58 @@ function drawNoteIndex(fret, string) {
         ctx.lineWidth = 2;
     }
 
-    let radius = IN_KEY_RADIUS - 3 ;
-    ctx.beginPath();
-    ctx.fillStyle = "white";
+
     if (keyIndex > - 1) {
-        radius = IN_KEY_RADIUS;
-    }
-    console.log("vis:" + visualizationSelect.value);
-    switch (visualizationSelect.value) {
-        case "Natural":
-            if (note.endsWith("b")) {
-                ctx.fillStyle = "grey";
-            } else {
-                ctx.fillStyle = "white";
-            }
-            break;
-        case "Fifths":
-            ctx.fillStyle = NOTE_FIFTHS_COLOR[noteIndex];
-            console.log("color:" + ctx.fillStyle);
-            break;
-    }
-    ctx.arc(NOTE_CENTER_X, NOTE_CENTER_Y, radius, 0, 2 * Math.PI);
-    ctx.fill();
-    ctx.stroke();
+        radius = IN_KEY_RADIUS - 3;
 
-    ctx.beginPath();
-    ctx.fillStyle = "white";
-    if (chordIndex > - 1) {
-        ctx.fillStyle = CHORD_COLOR[chordIndex];
-    }
-    ctx.arc(NOTE_CENTER_X, NOTE_CENTER_Y, radius - 3, 0, 2 * Math.PI);
-    ctx.fill();
-    ctx.stroke();
-
-
-
-
-    ctx.fillStyle = 'black';
-    if (chordIndex > - 1) {
+        ctx.beginPath();
         ctx.fillStyle = "white";
-    }
+        if (keyIndex > -1) {
+            radius = IN_KEY_RADIUS;
+        }
+        console.log("vis:" + visualizationSelect.value);
+        switch (visualizationSelect.value) {
+            case "Natural":
+                if (note.endsWith("b")) {
+                    ctx.fillStyle = "grey";
+                } else {
+                    ctx.fillStyle = "white";
+                }
+                break;
+            case "Fifths":
+                ctx.fillStyle = NOTE_FIFTHS_COLOR[noteIndex];
+                console.log("color:" + ctx.fillStyle);
+                break;
+        }
+        ctx.arc(NOTE_CENTER_X, NOTE_CENTER_Y, radius, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.stroke();
 
-    ctx.font = "10px Arial";
-    if (keyIndex > - 1) {
-        note = note + (keyIndex + 1);
-        ctx.font = "bold 14px Arial";
-    }
-    //make coordinate correction so text is centered in the circle
-    ctx.fillText(note, NOTE_CENTER_X - 10, NOTE_CENTER_Y + 5);
+        ctx.beginPath();
+        ctx.fillStyle = "white";
+        if (chordIndex > -1) {
+            ctx.fillStyle = CHORD_COLOR[chordIndex];
+        }
+        ctx.arc(NOTE_CENTER_X, NOTE_CENTER_Y, radius - 3, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.stroke();
 
+
+        // text inside circle
+        ctx.fillStyle = 'black';
+        if (chordIndex > -1) {
+            ctx.fillStyle = "white";
+        }
+
+        ctx.font = "10px Arial";
+        if (keyIndex > -1) {
+            note = note + (keyIndex + 1);
+            ctx.font = "bold 14px Arial";
+
+        }
+        //make coordinate correction so text is centered in the circle
+        ctx.fillText(note, NOTE_CENTER_X - 10, NOTE_CENTER_Y + 5);
+    }
 
 }
 
