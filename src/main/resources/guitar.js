@@ -126,7 +126,7 @@ function calculateFretNoteIndex(stringIndex, fretIndex) {
     let openNote = retrieveTuning()[stringIndex];
 
     let openNoteOffset = NOTE_LABEL.indexOf(openNote);
-    return (fretIndex + openNoteOffset) % NOTE_LABEL.length;
+    return (fretIndex + openNoteOffset - 1) % NOTE_LABEL.length;
 }
 
 function calculateFretNote(stringIndex, fretIndex) {
@@ -164,8 +164,9 @@ function renderFretboard() {
 
     //draw frets & markers
     for (let i=0; i <= NOTE_LABEL.length ; i++){
-        if (i === 0 ) {
-            ctx.lineWidth = 10;
+        if (i === 1 ) {
+            //draw nut line
+            ctx.lineWidth = 5;
         }
         ctx.beginPath();
         const FRET_OFFSET=i * FRET_WIDTH_RATIO;
@@ -202,16 +203,63 @@ function renderFretboard() {
 
 }
 
+function drawStackRectandle(string, fret) {
+    let noteIndex = calculateFretNoteIndex(string, fret);
+
+    const ctx = fretCanvas.getContext("2d");
+
+}
+
 
 function drawNoteIndex(fret, string) {
     let noteIndex = calculateFretNoteIndex(string, fret);
     let note = NOTE_LABEL[noteIndex];
     let chordIndex = isFretOnChord(string,fret);
+    let noteDegree =CALCULATED_KEY.indexOf(noteIndex);
     let keyIndex = isFretOnKey(string,fret);
     const ctx = fretCanvas.getContext("2d");
     const NOTE_CENTER_X=STRING_SEPARATION * string + STRING_OFFSET[string] * (1 - fret / 12)  + STRING_SEPARATION_HALF;
     const FRET_OFFSET=fret * FRET_WIDTH_RATIO;
     const NOTE_CENTER_Y=FRET_SEPARATION * fret - FRET_OFFSET - 20;
+
+
+    if (visualizationSelect.value === "Stack") {
+        if ( noteDegree === 0) {
+            //if root note draw bottom/top stack
+            ctx.beginPath();
+            ctx.strokeStyle = "blue";
+            ctx.lineWidth = 6;
+            ctx.moveTo(NOTE_CENTER_X, NOTE_CENTER_Y);
+            ctx.lineTo(NOTE_CENTER_X, NOTE_CENTER_Y + FRET_SEPARATION * 4 - FRET_OFFSET);
+            ctx.stroke()
+        }
+        if (noteDegree === 5 || noteDegree === 2) {
+            //bottom rectagle
+            ctx.beginPath();
+            ctx.strokeStyle = "red";
+            ctx.lineWidth = 6;
+            ctx.moveTo(NOTE_CENTER_X, NOTE_CENTER_Y);
+            ctx.lineTo(NOTE_CENTER_X, NOTE_CENTER_Y + FRET_SEPARATION * 3 - FRET_OFFSET);
+            ctx.stroke()
+        }
+
+        if (noteDegree ===1 || noteDegree === 4 || noteDegree === 2 || noteDegree === 5 ) {
+            //stack line
+            ctx.beginPath();
+            ctx.strokeStyle = "blue";
+            ctx.lineWidth = 6;
+            ctx.moveTo(NOTE_CENTER_X, NOTE_CENTER_Y);
+            let targetY = NOTE_CENTER_Y;
+            if (tuningSelect.value === "0" && string === 3) {
+                targetY = NOTE_CENTER_Y + FRET_SEPARATION;
+            }
+            ctx.lineTo(NOTE_CENTER_X + STRING_SEPARATION, targetY);
+            ctx.stroke()
+
+        }
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 2;
+    }
 
     let radius = IN_KEY_RADIUS - 3 ;
     ctx.beginPath();
