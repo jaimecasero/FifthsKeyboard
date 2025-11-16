@@ -30,15 +30,14 @@ var STRING_SEPARATION_HALF;
 const STRING_OFFSET = [10,5,0,0,-5,-10];
 var FRET_SEPARATION;
 
-
-const IONIAN_INTERVAL = [0, 2, 4, 5, 7, 9, 11];
-const DORIAN_INTERVAL = [0, 2, 3, 5, 7, 9, 10];
-const PRHYGIAN_INTERVAL = [0, 1, 3, 5, 7, 8, 10];
 const LYDIAN_INTERVAL = [0, 2, 4, 6, 7, 9, 11];
+const IONIAN_INTERVAL = [0, 2, 4, 5, 7, 9, 11];
 const MIXOLYDIAN_INTERVAL = [0, 2, 4, 5, 7, 9, 10];
+const DORIAN_INTERVAL = [0, 2, 3, 5, 7, 9, 10];
 const AEOLIAN_INTERVAL = [0, 2, 3, 5, 7, 8, 10];
+const PRHYGIAN_INTERVAL = [0, 1, 3, 5, 7, 8, 10];
 const LOCRIAN_INTERVAL = [0, 1, 3, 5, 6, 8, 10];
-const KEY_MODE_INTERVAL = [IONIAN_INTERVAL, DORIAN_INTERVAL, PRHYGIAN_INTERVAL, LYDIAN_INTERVAL, MIXOLYDIAN_INTERVAL, AEOLIAN_INTERVAL, LOCRIAN_INTERVAL];
+const KEY_MODE_INTERVAL = [LYDIAN_INTERVAL, IONIAN_INTERVAL, MIXOLYDIAN_INTERVAL, DORIAN_INTERVAL, AEOLIAN_INTERVAL, PRHYGIAN_INTERVAL, LOCRIAN_INTERVAL];
 
 
 const MAJOR_FORMULA = [0, 4, 7, 0];
@@ -211,6 +210,7 @@ function drawNoteIndex(fret, string) {
     let chordIndex = isFretOnChord(string,fret);
     let noteDegree =CALCULATED_KEY.indexOf(noteIndex);
     let keyIndex = isFretOnKey(string,fret);
+    let modeIndex = parseInt(modeSelect.value, 10);
     const ctx = fretCanvas.getContext("2d");
     const NOTE_CENTER_X=STRING_SEPARATION * string + STRING_OFFSET[string] * (1 - fret / 12)  + STRING_SEPARATION_HALF;
     const FRET_OFFSET=fret * FRET_WIDTH_RATIO;
@@ -218,7 +218,7 @@ function drawNoteIndex(fret, string) {
 
 
     if (visualizationSelect.value === "Stack") {
-        if ( noteDegree === 0 || noteDegree === 1) {
+        if ( modeIndex<3 && (noteDegree === 0 || noteDegree === 1)) {
             //if root note draw bottom/top stack
             ctx.beginPath();
             ctx.strokeStyle = "blue";
@@ -227,7 +227,7 @@ function drawNoteIndex(fret, string) {
             ctx.lineTo(NOTE_CENTER_X, NOTE_CENTER_Y + FRET_SEPARATION * 2 - FRET_OFFSET);
             ctx.stroke()
         }
-        if (noteDegree === 5 || noteDegree === 2) {
+        if (modeIndex<3 && (noteDegree === 5 || noteDegree === 2)) {
             //bottom rectagle
             ctx.beginPath();
             ctx.strokeStyle = "red";
@@ -237,7 +237,7 @@ function drawNoteIndex(fret, string) {
             ctx.stroke()
         }
 
-        if (noteDegree ===1 || noteDegree === 4 || noteDegree === 2 || noteDegree === 5 ) {
+        if (modeIndex<3 && (noteDegree ===1 || noteDegree === 4 || noteDegree === 2 || noteDegree === 5 )) {
             //stack line
             ctx.beginPath();
             ctx.strokeStyle = "blue";
