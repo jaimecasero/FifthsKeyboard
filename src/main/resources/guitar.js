@@ -5,9 +5,18 @@ const NAT_CHAR = "&natur;";
 const NOTE_CHAR = "&sung;";
 const NUM_NOTES = 12;
 const NOTE_LABEL = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
+const NOTE_FIFTHS_COLOR = ['#FF3333', '#33FF8D', '#FF8A33', '#3358FF', '#FFFC33', '#FF33C1', '#33FF33', '#FF6133', '#33FCFF', '#FFB233', '#A833FF', '#93FF33'];
 
 const STRING_TUNING = ['E', 'A', 'D', 'G', 'B', 'E'];
 const CHORD_COLOR=["red", "green", "blue", "orange", "pink", "purple"];
+const IN_KEY_RADIUS=18;
+
+const FRET_MARKERS = [3, 5, 7, 9,12];
+const FRET_WIDTH_RATIO= 1.5;
+var STRING_SEPARATION;
+var STRING_SEPARATION_HALF;
+const STRING_OFFSET = [10,5,0,0,-5,-10];
+var FRET_SEPARATION;
 
 
 const IONIAN_INTERVAL = [0, 2, 4, 5, 7, 9, 11];
@@ -111,12 +120,7 @@ function isFretOnChord(stringIndex, fretIndex) {
     return CALCULATED_CHORD.indexOf(fretNoteIndex);
 }
 
-const FRET_MARKERS = [3, 5, 7, 9,12];
-const FRET_WIDTH_RATIO= 1.5;
-var STRING_SEPARATION;
-var STRING_SEPARATION_HALF;
-const STRING_OFFSET = [10,5,0,0,-5,-10];
-var FRET_SEPARATION;
+
 function renderFretboard() {
     calculateKey();
     calculateChord();
@@ -175,9 +179,10 @@ function renderFretboard() {
 
 }
 
-const IN_KEY_RADIUS=18;
 
 function drawNoteIndex(fret, string) {
+    let noteIndex = calculateFretNoteIndex(string, fret);
+    let note = NOTE_LABEL[noteIndex];
     let chordIndex = isFretOnChord(string,fret);
     let keyIndex = isFretOnKey(string,fret);
     const ctx = fretCanvas.getContext("2d");
@@ -188,10 +193,22 @@ function drawNoteIndex(fret, string) {
     let radius = IN_KEY_RADIUS - 3 ;
     ctx.beginPath();
     ctx.fillStyle = "white";
-
     if (keyIndex > - 1) {
-        ctx.fillStyle = "black";
         radius = IN_KEY_RADIUS;
+    }
+    console.log("vis:" + visualizationSelect.value);
+    switch (visualizationSelect.value) {
+        case "Natural":
+            if (note.endsWith("b")) {
+                ctx.fillStyle = "grey";
+            } else {
+                ctx.fillStyle = "white";
+            }
+            break;
+        case "Fifths":
+            ctx.fillStyle = NOTE_FIFTHS_COLOR[noteIndex];
+            console.log("color:" + ctx.fillStyle);
+            break;
     }
     ctx.arc(NOTE_CENTER_X, NOTE_CENTER_Y, radius, 0, 2 * Math.PI);
     ctx.fill();
@@ -202,7 +219,7 @@ function drawNoteIndex(fret, string) {
     if (chordIndex > - 1) {
         ctx.fillStyle = CHORD_COLOR[chordIndex];
     }
-    ctx.arc(NOTE_CENTER_X, NOTE_CENTER_Y, radius - 2, 0, 2 * Math.PI);
+    ctx.arc(NOTE_CENTER_X, NOTE_CENTER_Y, radius - 3, 0, 2 * Math.PI);
     ctx.fill();
     ctx.stroke();
 
@@ -215,7 +232,6 @@ function drawNoteIndex(fret, string) {
     }
 
     ctx.font = "10px Arial";
-    let note = calculateFretNote(string, fret);
     if (keyIndex > - 1) {
         note = note + (keyIndex + 1);
         ctx.font = "14px Arial";
