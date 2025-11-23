@@ -29,8 +29,9 @@ const FRET_MARKERS = [3, 5, 7, 9,12];
 const FRET_WIDTH_RATIO= 1.5;
 var STRING_SEPARATION;
 var STRING_SEPARATION_HALF;
-const STRING_OFFSET = [10,5,0,0,-5,-10];
+const STRING_OFFSET = [10,5,0,0,-6,-11];
 var FRET_SEPARATION;
+var FRET_SEPARATION_ARRAY=[];
 
 const LYDIAN_INTERVAL = [0, 2, 4, 6, 7, 9, 11];
 const IONIAN_INTERVAL = [0, 2, 4, 5, 7, 9, 11];
@@ -91,6 +92,13 @@ var tuningSelect;
         calculatedChordInput = document.getElementById('calculatedChordInput');
         tuningSelect = document.getElementById('tuningSelect');
 
+        for (let i=0; i <= FRET_NUM; i++) {
+            let sep = calculateFretHeight(i);
+            console.log("sep:" + sep);
+            FRET_SEPARATION_ARRAY.push(sep);
+        }
+        STRING_SEPARATION = fretCanvas.width / STD_TUNING.length;
+        STRING_SEPARATION_HALF = STRING_SEPARATION/2;
         renderFretboard();
     }
 })(window, document, undefined);
@@ -145,7 +153,7 @@ function isFretOnChord(stringIndex, fretIndex) {
 }
 
 function calculateFretHeight(fretIndex) {
-    let wholeFret = (fretCanvas.height * 2) - 150;
+    let wholeFret = (fretCanvas.height * 2) - 150; //150 gives some space to reach 12 fret in canvas
     return wholeFret - (wholeFret / (2 ** (fretIndex /12)));
 }
 
@@ -154,10 +162,9 @@ function renderFretboard() {
     calculateKey();
     calculateChord();
     const ctx = fretCanvas.getContext("2d");
-// Clear the entire canvas
+    // Clear the entire canvas
     ctx.clearRect(0, 0, fretCanvas.width, fretCanvas.height);
-    STRING_SEPARATION = fretCanvas.width / STD_TUNING.length;
-    STRING_SEPARATION_HALF = STRING_SEPARATION/2;
+
 
     //draw strings
     for (let i=0; i < STD_TUNING.length ; i++) {
@@ -175,7 +182,7 @@ function renderFretboard() {
             ctx.lineWidth = 5;
         }
         ctx.beginPath();
-        const FRET_Y = calculateFretHeight(i);
+        const FRET_Y = FRET_SEPARATION_ARRAY[i];
         const FRET_OFFSET=FRET_Y - calculateFretHeight(i -1);
         FRET_SEPARATION = FRET_OFFSET;
         console.log("fret:" + FRET_Y);
