@@ -236,6 +236,43 @@ function drawNoteIndex(fret, string) {
     const NOTE_CENTER_Y= currentFretHeight - FRET_OFFSET;
     let radius = IN_KEY_RADIUS - 3 ;
 
+    if (visualizationSelect.value === "Chair") {
+        if ((modeIndex < 3 && (noteDegree === 6)) ||
+            (modeIndex > 2 && (noteDegree === 1))) {
+            //if root note draw chair left
+            ctx.beginPath();
+            ctx.strokeStyle = "blue";
+            ctx.lineWidth = 6;
+            ctx.moveTo(NOTE_CENTER_X, NOTE_CENTER_Y);
+            ctx.lineTo(NOTE_CENTER_X, NOTE_CENTER_Y + FRET_SEPARATION * 4);
+            ctx.stroke();
+        }
+        if ((modeIndex < 3 && (noteDegree === 0)) ||
+            (modeIndex > 2 && (noteDegree === 2))) {
+            //if root note chair bottom
+            ctx.beginPath();
+            ctx.strokeStyle = "blue";
+            ctx.lineWidth = 6;
+            ctx.moveTo(NOTE_CENTER_X, NOTE_CENTER_Y);
+            let targetY = NOTE_CENTER_Y;
+            if (tuningSelect.value === "0" && string === 3) {
+                targetY = NOTE_CENTER_Y + FRET_SEPARATION;
+            }
+            ctx.lineTo(NOTE_CENTER_X + STRING_SEPARATION, targetY);
+            ctx.stroke();
+        }
+        if ((modeIndex < 3 && (noteDegree === 4 || noteDegree === 3)) ||
+            (modeIndex > 2 && (noteDegree === 5 || noteDegree === 6))) {
+            //if forth/fifth degree draw chair right
+            ctx.beginPath();
+            ctx.strokeStyle = "blue";
+            ctx.lineWidth = 6;
+            ctx.moveTo(NOTE_CENTER_X, NOTE_CENTER_Y);
+            ctx.lineTo(NOTE_CENTER_X, NOTE_CENTER_Y + FRET_SEPARATION * 2);
+            ctx.stroke()
+        }
+    }
+
     //stack/rectangle lines
     if (visualizationSelect.value === "Stack") {
         if ( (modeIndex<3 && (noteDegree === 0 || noteDegree === 1)) ||
@@ -245,12 +282,12 @@ function drawNoteIndex(fret, string) {
             ctx.strokeStyle = "blue";
             ctx.lineWidth = 6;
             ctx.moveTo(NOTE_CENTER_X, NOTE_CENTER_Y);
-            ctx.lineTo(NOTE_CENTER_X, NOTE_CENTER_Y + FRET_SEPARATION * 2 - FRET_OFFSET);
+            ctx.lineTo(NOTE_CENTER_X, NOTE_CENTER_Y + FRET_SEPARATION * 2 );
             ctx.stroke()
         }
         if ((modeIndex<3 && (noteDegree === 5 || noteDegree === 2)) ||
             (modeIndex>2 && (noteDegree === 0 || noteDegree === 4))) {
-            //top/bottom rectagle
+            //top/bottom rectangle
             ctx.beginPath();
             ctx.strokeStyle = "red";
             ctx.lineWidth = 6;
@@ -277,6 +314,8 @@ function drawNoteIndex(fret, string) {
         ctx.strokeStyle = "black";
         ctx.lineWidth = 2;
     }
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = 2;
 
 
     if (keyIndex > - 1) {
