@@ -6,6 +6,8 @@ const NOTE_CHAR = "&sung;";
 const FRET_NUM = 13;
 const NUM_NOTES = 12;
 const NOTE_LABEL = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
+const NOTE_MIDI_CODE = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
+const STRING_OCTAVE = [2,3,3,3,4,4];
 const NOTE_FIFTHS_COLOR = ['#FF3333', '#33FF8D', '#FF8A33', '#3358FF', '#FFFC33', '#FF33C1', '#33FF33', '#FF6133', '#33FCFF', '#FFB233', '#A833FF', '#93FF33'];
 
 const STD_TUNING = ['E', 'A', 'D', 'G', 'B', 'E'];
@@ -138,8 +140,21 @@ var tuningSelect;
 
 
 function canvasDownXY(x, y, force) {
-    console.log("down:" + x + "," + y);
-    playOscillatorNote(69, force);
+
+    let stringIndex= Math.floor(x / STRING_SEPARATION);
+    let fretIndex = 0;
+    for (let i = 0; i < FRET_SEPARATION_ARRAY.length; i++) {
+        if (y < FRET_SEPARATION_ARRAY[i]) {
+            fretIndex = i;
+            break;
+        }
+    }
+    console.log("down:" + x + "," + y + ",fret:" + fretIndex + ",string:" + stringIndex);
+    let noteIndex = calculateFretNoteIndex(stringIndex, fretIndex);
+    console.log("noteIndex:" + noteIndex);
+    let resultingMidi = NOTE_MIDI_CODE[noteIndex] + (12 * STRING_OCTAVE[stringIndex]);
+    console.log("midi:" + resultingMidi);
+    playOscillatorNote(resultingMidi, force);
 }
 
 
