@@ -81,6 +81,7 @@ var tuningSelect;
         // the code to be called when the dom has loaded
         // #document has its nodes
         console.log("init");
+        initOscillators();
         //cache DOM elements for better performance
         keySelect = document.getElementById('keySelect');
         modeSelect = document.getElementById('modeSelect');
@@ -100,11 +101,56 @@ var tuningSelect;
         STRING_SEPARATION = fretCanvas.width / STD_TUNING.length;
         STRING_SEPARATION_HALF = STRING_SEPARATION/2;
         renderFretboard();
+
+        //register multitouch listener
+        fretCanvas.addEventListener('touchstart', function (event) {
+            event.preventDefault();
+            //resume audiocontext on canvas touch
+
+            for (let i = 0; i < event.changedTouches.length; i++) {
+                const touch = event.changedTouches[i];
+                const rect = fretCanvas.getBoundingClientRect();
+                //transpose touch coordinates to canvas
+                const x = touch.clientX - rect.left;
+                const y = touch.clientY - rect.top;
+                console.log("touchstart.x", x, ",y:" + y + ",force:" + touch.force);
+                let force = 1.0;
+                if (touch.force > 0) {
+                    force = touch.force;
+                }
+                canvasDownXY(x, y, force);
+            }
+        }, false);
+        fretCanvas.addEventListener('touchend', function (event) {
+            event.preventDefault();
+            for (let i = 0; i < event.changedTouches.length; i++) {
+                const touch = event.changedTouches[i];
+                const rect = fretCanvas.getBoundingClientRect();
+                //transpose touch coordinates to canvas
+                const x = touch.clientX - rect.left;
+                const y = touch.clientY - rect.top;
+                console.log("touchend.x", x, ",y:" + y);
+                canvasUpXY(x, y);
+            }
+        }, false);
     }
 })(window, document, undefined);
 
 
+function canvasDownXY(x, y, force) {
+    console.log("down:" + x + "," + y);
+    playOscillatorNote(69, force);
+}
 
+
+
+function canvasUpXY(x, y) {
+    console.log("up:" + x + "," + y);
+
+}
+
+
+///////////////////////// music utils /////////////////////////
 function calculateKey() {
     CALCULATED_KEY = [];
     let keyNoteOffset = parseInt(keySelect.value, 10);
@@ -157,6 +203,7 @@ function calculateFretHeight(fretIndex) {
     return wholeFret - (wholeFret / (2 ** (fretIndex /12)));
 }
 
+////////////////////////////// rendering //////////////////////////
 
 function renderFretboard() {
     calculateKey();
@@ -214,6 +261,7 @@ function renderFretboard() {
             }
         }
 
+        //draw the notes on top of frets//strings
         for (let j=0; j < STD_TUNING.length ; j++) {
             drawNoteIndex(i+1, j);
         }
@@ -358,7 +406,7 @@ function drawNoteIndex(fret, string) {
         if (chordIndex > -1) {
             ctx.fillStyle = CHORD_COLOR[chordIndex];
         }
-        ctx.arc(NOTE_CENTER_X, NOTE_CENTER_Y, radius - 3, 0, 2 * Math.PI);
+        ctx.arc(NOTE_CENTER_X, NOTE_CENTER_Y, radius - 4, 0, 2 * Math.PI);
         ctx.fill();
         ctx.stroke();
 
@@ -376,7 +424,7 @@ function drawNoteIndex(fret, string) {
 
         }
         //make coordinate correction so text is centered in the circle
-        ctx.fillText(note, NOTE_CENTER_X - 7, NOTE_CENTER_Y + 5);
+        ctx.fillText(note, NOTE_CENTER_X - 8, NOTE_CENTER_Y + 4);
     }
 
 }
@@ -388,6 +436,46 @@ function drawNoteIndex(fret, string) {
 
 
 
-//////////////////////////// CONFIGURATION ////////////////////////////
+////////////////////// built-in midi OUTPUT //////////////////////
 
+// create web audio api context
+const audioCtx = new (window.AudioContext || window.webkitAudioContext);
+
+
+function initOscillators() {
+
+    MIDI.loadPlugin({
+        soundfontUrl: "./soundfont/",
+        instrument: "acoustic_grand_piano",
+        onprogress: (state, progress) => console.log(state, progress),
+        onsuccess: () => {
+            console.log("MIDI.js loaded");
+        },
+        onerror: (e) => {
+            window.alert("browser not supported. Use Chrome:" + e.message);
+        }
+    });
+
+}
+
+/**
+ * Convert mouse event force (0-1) to MIDI velocity (0-127).
+ * @param {number} force - The force value from a mouse event (0 to 1).
+ * @returns {number} - The corresponding MIDI velocity (0 to 127).
+ */
+function forceToMidiVelocity(force) {
+    // Clamp the force value to the range 0-1
+    const clampedForce = Math.min(Math.max(force, 0), 1);
+    // Scale the clamped force to the MIDI velocity range (0-127)
+    const midiVelocity = Math.round(clampedForce * 127);
+    return midiVelocity;
+}
+
+function playOscillatorNote(adjustedMidiNote, force) {
+    MIDI.noteOn(0, adjustedMidiNote, forceToMidiVelocity(force), 0);
+}
+
+function playOscillatorNoteOff(adjustedMidiNote) {
+    MIDI.noteOff(0, adjustedMidiNote, 0);
+}
 
