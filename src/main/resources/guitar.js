@@ -243,8 +243,13 @@ function drawNoteIndex(fret, string) {
             ctx.beginPath();
             ctx.strokeStyle = "blue";
             ctx.lineWidth = 6;
+            let targetY = NOTE_CENTER_Y + FRET_SEPARATION * 4;
+            if (modeIndex===2 || modeIndex === 5) {
+                //mixolydian/phrigian adds one fret
+                targetY = targetY + FRET_SEPARATION;
+            }
             ctx.moveTo(NOTE_CENTER_X, NOTE_CENTER_Y);
-            ctx.lineTo(NOTE_CENTER_X, NOTE_CENTER_Y + FRET_SEPARATION * 4);
+            ctx.lineTo(NOTE_CENTER_X, targetY);
             ctx.stroke();
         }
         if ((modeIndex < 3 && (noteDegree === 0)) ||
@@ -257,6 +262,10 @@ function drawNoteIndex(fret, string) {
             let targetY = NOTE_CENTER_Y;
             if (tuningSelect.value === "0" && string === 3) {
                 targetY = NOTE_CENTER_Y + FRET_SEPARATION;
+            }
+            if (modeIndex===0 || modeIndex === 3) {
+                //lydian/dorian adds one fret
+                targetY = targetY + FRET_SEPARATION;
             }
             ctx.lineTo(NOTE_CENTER_X + STRING_SEPARATION, targetY);
             ctx.stroke();
@@ -318,7 +327,7 @@ function drawNoteIndex(fret, string) {
     ctx.lineWidth = 2;
 
 
-    if (keyIndex > - 1) {
+    if (keyIndex > - 1 || chordIndex > -1) {
         radius = IN_KEY_RADIUS - 3;
 
         ctx.beginPath();
