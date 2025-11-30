@@ -149,10 +149,15 @@ function canvasDownXY(x, y, force) {
             break;
         }
     }
-    console.log("down:" + x + "," + y + ",fret:" + fretIndex + ",string:" + stringIndex);
+    let openStringIndex = 12 - calculateFretNoteIndex(stringIndex, 0);
     let noteIndex = calculateFretNoteIndex(stringIndex, fretIndex);
+    let noteOctave = 0;
+    if (fretIndex >= openStringIndex) {
+        noteOctave = noteOctave + 12;
+    }
     console.log("noteIndex:" + noteIndex);
-    let resultingMidi = NOTE_MIDI_CODE[noteIndex] + (12 * STRING_OCTAVE[stringIndex]);
+
+    let resultingMidi = NOTE_MIDI_CODE[noteIndex] + (12 * STRING_OCTAVE[stringIndex]) + noteOctave;
     console.log("midi:" + resultingMidi);
     playOscillatorNote(resultingMidi, force);
 }
@@ -460,14 +465,15 @@ const audioCtx = new (window.AudioContext || window.webkitAudioContext);
 function initOscillators() {
 
     MIDI.loadPlugin({
-        soundfontUrl: "./soundfont/",
-        instrument: "acoustic_grand_piano",
+        soundfontUrl: "https://gleitz.github.io/midi-js-soundfonts/FatBoy/",
+        instruments: "acoustic_guitar_nylon",
         onprogress: (state, progress) => console.log(state, progress),
         onsuccess: () => {
             console.log("MIDI.js loaded");
+            MIDI.programChange(0, 24);
         },
         onerror: (e) => {
-            window.alert("browser not supported. Use Chrome:" + e.message);
+            window.alert("Failed to load midi:" + e.message);
         }
     });
 

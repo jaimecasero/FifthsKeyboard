@@ -146,9 +146,15 @@ function canvasDownXY(x, y, force) {
             break;
         }
     }
+    let openStringIndex = 12 - calculateFretNoteIndex(stringIndex, 0);
     let noteIndex = calculateFretNoteIndex(stringIndex, fretIndex);
+    let noteOctave = 0;
+    if (fretIndex >= openStringIndex) {
+        noteOctave = noteOctave + 12;
+    }
     console.log("noteIndex:" + noteIndex);
-    let resultingMidi = NOTE_MIDI_CODE[noteIndex] + (12 * STRING_OCTAVE[stringIndex]);
+
+    let resultingMidi = NOTE_MIDI_CODE[noteIndex] + (12 * STRING_OCTAVE[stringIndex]) + noteOctave;
     console.log("midi:" + resultingMidi);
     playOscillatorNote(resultingMidi, force);
 }
