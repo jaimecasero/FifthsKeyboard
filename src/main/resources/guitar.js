@@ -97,7 +97,6 @@ var tuningSelect;
 
         for (let i=0; i <= FRET_NUM; i++) {
             let sep = calculateFretHeight(i);
-            console.log("sep:" + sep);
             FRET_SEPARATION_ARRAY.push(sep);
         }
         STRING_SEPARATION = fretCanvas.width / STD_TUNING.length;
@@ -115,7 +114,6 @@ var tuningSelect;
                 //transpose touch coordinates to canvas
                 const x = touch.clientX - rect.left;
                 const y = touch.clientY - rect.top;
-                console.log("touchstart.x", x, ",y:" + y + ",force:" + touch.force);
                 let force = 1.0;
                 if (touch.force > 0) {
                     force = touch.force;
@@ -131,7 +129,6 @@ var tuningSelect;
                 //transpose touch coordinates to canvas
                 const x = touch.clientX - rect.left;
                 const y = touch.clientY - rect.top;
-                console.log("touchend.x", x, ",y:" + y);
                 canvasUpXY(x, y);
             }
         }, false);
@@ -149,7 +146,6 @@ function canvasDownXY(x, y, force) {
             break;
         }
     }
-    console.log("down:" + x + "," + y + ",fret:" + fretIndex + ",string:" + stringIndex);
     let noteIndex = calculateFretNoteIndex(stringIndex, fretIndex);
     console.log("noteIndex:" + noteIndex);
     let resultingMidi = NOTE_MIDI_CODE[noteIndex] + (12 * STRING_OCTAVE[stringIndex]);
@@ -179,10 +175,8 @@ function calculateKey() {
 function calculateChord() {
     CALCULATED_CHORD = [];
     let keyNoteOffset = parseInt(rootChordSelect.value, 10);
-    console.log("root chord:" + rootChordSelect.value);
     for (let i = 0; i < CHORD_MOD_ARR[chordSelect.value].length; i++) {
         let noteIndex = (keyNoteOffset + CHORD_MOD_ARR[chordSelect.value][i]) % NOTE_LABEL.length;
-        console.log("noteIndex:" + noteIndex);
         CALCULATED_CHORD.push(noteIndex);
     }
     calculatedChordInput.value = CALCULATED_CHORD.map(index => NOTE_LABEL[index]).join(",");
@@ -247,7 +241,6 @@ function renderFretboard() {
         const FRET_Y = FRET_SEPARATION_ARRAY[i];
         const FRET_OFFSET=FRET_Y - calculateFretHeight(i -1);
         FRET_SEPARATION = FRET_OFFSET;
-        console.log("fret:" + FRET_Y);
         ctx.moveTo(STRING_SEPARATION_HALF, FRET_Y );
         ctx.lineTo(fretCanvas.width - STRING_SEPARATION + STRING_SEPARATION_HALF, FRET_Y);
         ctx.stroke();
@@ -398,7 +391,6 @@ function drawNoteIndex(fret, string) {
         if (keyIndex > -1) {
             radius = IN_KEY_RADIUS;
         }
-        console.log("vis:" + visualizationSelect.value);
         switch (visualizationSelect.value) {
             case "Natural":
                 if (note.endsWith("b")) {
@@ -409,7 +401,6 @@ function drawNoteIndex(fret, string) {
                 break;
             case "Fifths":
                 ctx.fillStyle = NOTE_FIFTHS_COLOR[noteIndex];
-                console.log("color:" + ctx.fillStyle);
                 break;
         }
         ctx.arc(NOTE_CENTER_X, NOTE_CENTER_Y, radius, 0, 2 * Math.PI);
@@ -460,14 +451,15 @@ const audioCtx = new (window.AudioContext || window.webkitAudioContext);
 function initOscillators() {
 
     MIDI.loadPlugin({
-        soundfontUrl: "./soundfont/",
-        instrument: "acoustic_grand_piano",
+        soundfontUrl: "https://gleitz.github.io/midi-js-soundfonts/FatBoy/",
+        instruments: "acoustic_guitar_nylon",
         onprogress: (state, progress) => console.log(state, progress),
         onsuccess: () => {
             console.log("MIDI.js loaded");
+            MIDI.programChange(0, 24);
         },
         onerror: (e) => {
-            window.alert("browser not supported. Use Chrome:" + e.message);
+            window.alert("Failed to load midi:" + e.message);
         }
     });
 
@@ -487,7 +479,10 @@ function forceToMidiVelocity(force) {
 }
 
 function playOscillatorNote(adjustedMidiNote, force) {
-    MIDI.noteOn(0, adjustedMidiNote, forceToMidiVelocity(force), 0);
+    let velocity = forceToMidiVelocity(force);
+    console.log("play:" + adjustedMidiNote + "," + velocity);
+    MIDI.noteOn(0, adjustedMidiNote, velocity,0);
+    //MIDI.noteOff(0, adjustedMidiNote,  0.75);
 }
 
 function playOscillatorNoteOff(adjustedMidiNote) {
