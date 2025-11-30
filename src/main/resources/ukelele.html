@@ -1,0 +1,110 @@
+<html lang="eng">
+<head>
+    <title>Ukelele Explorer</title>
+
+    <!-- midi.js package -->
+    <script src="https://cdn.jsdelivr.net/npm/midi.js"></script>
+    <script
+            type="text/javascript"
+            src="https://unpkg.com/@tonejs/midi"
+    ></script>
+    <script src="https://unpkg.com/meyda/dist/web/meyda.min.js"></script>
+    <script src="ukelele.js"></script>
+    <link rel="stylesheet" href="ukelele.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<canvas id="fretCanvas" width="300" height="550"></canvas>
+
+<BR>
+<label for="visualizationSelect">Visualization:</label>
+<select id="visualizationSelect" onchange="renderFretboard();">
+    <option value="Natural">Natural/Artificial</option>
+    <option value="Fifths">Fifths Color</option>
+    <option value="Stack">Stack/Rectangle</option>
+    <option value="Chair">Chair</option>
+
+</select>
+<label for="tuningSelect">Tuning:</label>
+<select id="tuningSelect" onchange="renderFretboard();">
+    <option value="0">Standard</option>
+    <option value="1">Fourths</option>
+    <option value="2">DropD</option>
+    <option value="3">DAD</option>
+    <option value="4">OpenD</option>
+    <option value="5">OpenE</option>
+    <option value="6">OpenA</option>
+    <option value="7">OpenC6</option>
+    <option value="8">OpenC</option>
+</select>
+<BR>
+<label for="keySelect">Key:</label>
+<select id="keySelect" onchange="renderFretboard();">
+    <option value="0" selected="selected">C</option>
+    <option value="1">Db</option>
+    <option value="2">D</option>
+    <option value="3">Eb</option>
+    <option value="4">E</option>
+    <option value="5">F</option>
+    <option value="6">Gb</option>
+    <option value="7">G</option>
+    <option value="8">Ab</option>
+    <option value="9">A</option>
+    <option value="10">Bb</option>
+    <option value="11">B</option>
+</select>
+
+<select id="modeSelect"  onchange="renderFretboard();">
+    <option value="0">Lydian</option>
+    <option value="1" selected>Ionian</option>
+    <option value="2">Myxolydian</option>
+    <option value="3">Dorian</option>
+    <option value="4">Aeolian</option>
+    <option value="5">Phygrian</option>
+    <option value="6">Locrian</option>
+</select>
+<input id="calculatedKeyInput" readonly/>
+<BR>
+<label for="rootChordSelect">Chord:</label>
+<select id="rootChordSelect" onchange="renderFretboard();">
+    <option value="0" selected="selected">C</option>
+    <option value="1">Db</option>
+    <option value="2">D</option>
+    <option value="3">Eb</option>
+    <option value="4">E</option>
+    <option value="5">F</option>
+    <option value="6">Gb</option>
+    <option value="7">G</option>
+    <option value="8">Ab</option>
+    <option value="9">A</option>
+    <option value="10">Bb</option>
+    <option value="11">B</option>
+</select>
+
+<select id="chordSelect" onchange="renderFretboard();">
+    <option value="0" selected>Major</option>
+    <option value="1">Minor</option>
+    <option value="2">Sus2</option>
+    <option value="3">Sus4</option>
+    <option value="4">Diminished</option>
+    <option value="5">6</option>
+    <option value="6">min6</option>
+    <option value="7">maj7</option>
+    <option value="8">7</option>
+    <option value="9">min7</option>
+    <option value="10">9</option>
+    <option value="11">11</option>
+    <option value="12">13</option>
+</select>
+<input id="calculatedChordInput" readonly/>
+<BR>
+
+
+
+
+
+<BR><BR><BR><BR>
+<a href="https://paypal.me/jaimecasero?country.x=ES&locale.x=es_ES">Donate</a>
+</body>
+</html>
