@@ -184,13 +184,18 @@ function calculateKey() {
 }
 
 function calculateChord() {
-    CALCULATED_CHORD = [];
-    let keyNoteOffset = parseInt(rootChordSelect.value, 10);
-    for (let i = 0; i < CHORD_MOD_ARR[chordSelect.value].length; i++) {
-        let noteIndex = (keyNoteOffset + CHORD_MOD_ARR[chordSelect.value][i]) % NOTE_LABEL.length;
-        CALCULATED_CHORD.push(noteIndex);
-    }
+    let rootNote = parseInt(rootChordSelect.value, 10);
+    CALCULATED_CHORD = calculateChordByIndex(rootNote, chordSelect.value);
     calculatedChordInput.value = CALCULATED_CHORD.map(index => NOTE_LABEL[index]).join(",");
+}
+function calculateChordByIndex(rootNote, chordType) {
+    let calculatedChordArray = [];
+    for (let i = 0; i < CHORD_MOD_ARR[chordType].length; i++) {
+        let noteIndex = (rootNote + CHORD_MOD_ARR[chordType][i]) % NOTE_LABEL.length;
+        calculatedChordArray.push(noteIndex);
+    }
+    return calculatedChordArray;
+
 }
 
 function retrieveTuning() {
@@ -228,6 +233,20 @@ function calculateFretHeight(fretIndex) {
 function renderFretboard() {
     calculateKey();
     calculateChord();
+
+    for (let i=0; i < CHORD_MOD_ARR.length ; i++) {
+        const resultingChord = calculateChordByIndex(parseInt(rootChordSelect.value, 10), i);
+        let chordInkey = true;
+        for (let j=0; j < resultingChord.length ; j++) {
+            chordInkey = chordInkey && CALCULATED_KEY.indexOf(resultingChord[j]) > -1;
+        }
+        if (chordInkey) {
+            chordSelect.options[i].style.backgroundColor = "lightgreen";
+        } else {
+            chordSelect.options[i].style.backgroundColor = "red";
+        }
+    }
+
     const ctx = fretCanvas.getContext("2d");
     // Clear the entire canvas
     ctx.clearRect(0, 0, fretCanvas.width, fretCanvas.height);
