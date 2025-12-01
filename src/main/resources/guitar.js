@@ -234,6 +234,15 @@ function renderFretboard() {
     calculateKey();
     calculateChord();
 
+    //dont allow to choose root notes out of key
+    for (let i=0; i < NOTE_LABEL.length ; i++) {
+        if (CALCULATED_KEY.indexOf(i) > -1) {
+            rootChordSelect.options[i].disabled = false;
+        } else {
+            rootChordSelect.options[i].disabled = true;
+        }
+    }
+    //dont allow to choose non diatonic chords
     for (let i=0; i < CHORD_MOD_ARR.length ; i++) {
         const resultingChord = calculateChordByIndex(parseInt(rootChordSelect.value, 10), i);
         let chordInkey = true;
