@@ -185,8 +185,11 @@ function calculateKey() {
 
 function calculateChord() {
     let rootNote = parseInt(rootChordSelect.value, 10);
-    CALCULATED_CHORD = calculateChordByIndex(rootNote, chordSelect.value);
-    calculatedChordInput.value = CALCULATED_CHORD.map(index => NOTE_LABEL[index]).join(",");
+    console.log("rootNote:" + rootNote);
+    if (rootNote > -1) {
+        CALCULATED_CHORD = calculateChordByIndex(rootNote, chordSelect.value);
+        calculatedChordInput.value = CALCULATED_CHORD.map(index => NOTE_LABEL[index]).join(",");
+    }
 }
 function calculateChordByIndex(rootNote, chordType) {
     let calculatedChordArray = [];
