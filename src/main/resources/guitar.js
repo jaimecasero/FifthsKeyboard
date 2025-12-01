@@ -42,7 +42,11 @@ const DORIAN_INTERVAL = [0, 2, 3, 5, 7, 9, 10];
 const AEOLIAN_INTERVAL = [0, 2, 3, 5, 7, 8, 10];
 const PRHYGIAN_INTERVAL = [0, 1, 3, 5, 7, 8, 10];
 const LOCRIAN_INTERVAL = [0, 1, 3, 5, 6, 8, 10];
-const KEY_MODE_INTERVAL = [LYDIAN_INTERVAL, IONIAN_INTERVAL, MIXOLYDIAN_INTERVAL, DORIAN_INTERVAL, AEOLIAN_INTERVAL, PRHYGIAN_INTERVAL, LOCRIAN_INTERVAL];
+const ACOUSTIC_INTERVAL = [0, 2, 4, 6, 7, 9, 10];
+const HARMONIC_MINOR_INTERVAL = [0, 2, 3, 5, 7, 8, 11];
+const MELODIC_MINOR_INTERVAL = [0, 2, 3, 5, 7, 9, 11];
+const PHRYGIAN_DOM_INTERVAL = [0, 1, 4, 5, 7, 8, 10];
+const KEY_MODE_INTERVAL = [LYDIAN_INTERVAL, IONIAN_INTERVAL, MIXOLYDIAN_INTERVAL, DORIAN_INTERVAL, AEOLIAN_INTERVAL, PRHYGIAN_INTERVAL, LOCRIAN_INTERVAL, ACOUSTIC_INTERVAL, HARMONIC_MINOR_INTERVAL, MELODIC_MINOR_INTERVAL, PHRYGIAN_DOM_INTERVAL];
 
 
 const MAJOR_FORMULA = [0, 4, 7, 0];
@@ -488,6 +492,13 @@ function playOscillatorNote(adjustedMidiNote, force) {
     let velocity = forceToMidiVelocity(force);
     console.log("play:" + adjustedMidiNote + "," + velocity);
     MIDI.noteOn(0, adjustedMidiNote, velocity,0);
+    const pitchBendValue = 5; // Valor neutro (sin bend)
+    const msb = Math.floor(pitchBendValue / 128); // Byte más significativo
+    const lsb = pitchBendValue % 128; // Byte menos significativo
+
+    // Enviar el mensaje midi para pitch bend
+    //MIDI.pitchBend(0, msb, lsb);
+
     //MIDI.noteOff(0, adjustedMidiNote,  0.75);
 }
 

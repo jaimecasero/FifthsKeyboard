@@ -20,16 +20,16 @@ td, th {
 }
 
 
-#rootChordSelect, #keySelect {
+#rootChordSelect, #keySelect,#chordSelect {
     width: 30px;
 }
 
 #visualizationSelect, #modeSelect {
-    width: 60px;
+    width: 40px;
 }
 
 #calculatedChordInput, #calculatedKeyInput {
-    width: 130px;
+    width: 120px;
 }
 
 
