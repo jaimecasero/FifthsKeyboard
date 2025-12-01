@@ -241,9 +241,9 @@ function renderFretboard() {
             chordInkey = chordInkey && CALCULATED_KEY.indexOf(resultingChord[j]) > -1;
         }
         if (chordInkey) {
-            chordSelect.options[i].style.backgroundColor = "lightgreen";
+            chordSelect.options[i].disabled = false;
         } else {
-            chordSelect.options[i].style.backgroundColor = "red";
+            chordSelect.options[i].disabled = true;
         }
     }
 
