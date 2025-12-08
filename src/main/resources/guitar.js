@@ -147,24 +147,43 @@ var tuningSelect;
     }
 })(window, document, undefined);
 
+function canvasDown(e) {
+    //resume audiocontext on canvas mousedown
+    audioCtx.resume();
+    canvasDownXY(e.offsetX, e.offsetY, 1.0);
+}
 
 function canvasDownXY(x, y, force) {
 
-    let stringIndex= Math.floor(x / STRING_SEPARATION);
-    let fretIndex = 0;
+    let stringIndex = Math.floor(x / STRING_SEPARATION);
+    let fretIndex = -1;
     for (let i = 0; i < FRET_SEPARATION_ARRAY.length; i++) {
         if (y < FRET_SEPARATION_ARRAY[i]) {
             fretIndex = i;
             break;
         }
     }
-    let openStringIndex = 12 - calculateFretNoteIndex(stringIndex, 0);
+    if (fretIndex === -1) {
+        fretIndex = 14;
+    }
+    console.log("string:" + stringIndex + "fret:" + fretIndex);
+    let openStringIndex = calculateFretNoteIndex(stringIndex, 0);
+    let openStringCDelta = 12 - calculateFretNoteIndex(stringIndex, 0);
+    console.log("openStringCDelta:" + openStringCDelta);
+    console.log("openStringIndex:" + openStringIndex);
     let noteIndex = calculateFretNoteIndex(stringIndex, fretIndex);
-    let noteOctave = 0;
-    if (fretIndex >= openStringIndex) {
+    let noteOctave = 12;
+
+
+    if (fretIndex >= openStringCDelta) {
+        let numOctaves = 1;
+        console.log("numOctaves:" + numOctaves);
+        noteOctave = noteOctave + (12 * numOctaves);
+    }
+    if (fretIndex - NUM_NOTES >= openStringCDelta) {
         noteOctave = noteOctave + 12;
     }
-    console.log("noteIndex:" + noteIndex);
+    console.log("noteOctave:" + noteOctave);
 
     let resultingMidi = NOTE_MIDI_CODE[noteIndex] + (12 * STRING_OCTAVE[stringIndex]) + noteOctave;
     console.log("midi:" + resultingMidi);
