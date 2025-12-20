@@ -82,8 +82,8 @@ body {
 }
 
 .padButtonClass {
-    width: 110px;
-    height: 110px;
+    width: 80px;
+    height: 80px;
 }
 
 #scoreText, #mistakesText, #detectedText {
