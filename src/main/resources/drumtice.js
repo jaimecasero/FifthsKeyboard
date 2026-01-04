@@ -54,7 +54,7 @@ let footRow;
         // the code to be called when the dom has loaded
         // #document has its nodes
         console.log("init");
-        initMidi();
+        initOscillators();
         //initOscillators();
         //cache DOM elements for better performance
         clefTable = document.getElementById('clefTable');
@@ -440,8 +440,9 @@ function isSameNote(midiNote1, midiNote2) {
 
 
 function playMidiNote(event,adjustedMidiNote, force) {
-
-    playExtMidiNote(adjustedMidiNote, event.pressure);
+    audioCtx.resume();
+    //playExtMidiNote(adjustedMidiNote, event.pressure);
+    playOscillatorNote(adjustedMidiNote, event.pressure);
 }
 
 function playMidiNoteOff(adjustedMidiNote) {
@@ -458,12 +459,12 @@ const audioCtx = new (window.AudioContext || window.webkitAudioContext);
 function initOscillators() {
 
     MIDI.loadPlugin({
-            soundfontUrl: "./soundfont/",
-            instrument: "synth_drum",
-        //onprogress: (state, progress) => console.log(state, progress),
+        soundfontUrl: "./soundfont/",
+        instrument: "drum",
+        onprogress: (state, progress) => console.log(state, progress),
         onsuccess: () => {
             console.log("MIDI.js loaded");
-            //MIDI.programChange(9, 118);
+            //MIDI.programChange(0, 24);
         },
         onerror: (e) => {
             window.alert("browser not supported. Use Chrome:" + e.message);
@@ -488,7 +489,7 @@ function forceToMidiVelocity(force) {
 
 function playOscillatorNote(adjustedMidiNote, force) {
     console.log("playOscillatorNote:" + adjustedMidiNote + ":" + force)
-    MIDI.noteOn(0, adjustedMidiNote, forceToMidiVelocity(force), 0);
+    MIDI.noteOn(0, adjustedMidiNote + 50, forceToMidiVelocity(force), 0);
 }
 
 function playOscillatorNoteOff(adjustedMidiNote) {
