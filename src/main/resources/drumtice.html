@@ -73,8 +73,7 @@
 </table>
 
 <BR><BR>
-<td><input type="button" id="playButton" value="Play" onmousedown="playPause()" title="will play current Toque"></td>
-<BR>
+
 
 <select id="beatSelect"  onchange="loadSong();">
     <option value="pop_rock" selected="selected">Pop Rock</option>
@@ -98,42 +97,11 @@
     <option value="midi_selected">midi</option>
 </select>
 <BR>
-
-<select id="outputSelect" onchange="changeOutput(this.value);">
-    <option value="0" selected="selected">midi</option>
-    <option value="1">ext midi</option>
-</select>
-<select id="midiOutputSelect" onchange="changeMidiOutput();">
-</select>
-<select id="midiChannelSelect" onchange="changeMidiChannel(this.value);">
-    <option selected="selected">0</option>
-    <option>1</option>
-    <option>2</option>
-    <option>3</option>
-    <option>4</option>
-    <option>5</option>
-    <option>6</option>
-    <option>7</option>
-    <option>8</option>
-    <option>9</option>
-    <option>10</option>
-    <option>11</option>
-    <option>12</option>
-    <option>13</option>
-    <option>14</option>
-    <option>15</option>
-    <option>16</option>
-</select>
-<BR>
-<label for="scoreText">Score:</label>
-<input type="text" class="gameConsoleText" readonly id="scoreText" value="0">
-<label for="mistakesText">Mistakes:</label>
-<input type="text" class="gameConsoleText" readonly id="mistakesText" value="0">
-<label for="detectedText">Mic Detection:</label>
-<input type="text" class="gameConsoleText" readonly id="detectedText" value="">
+<td><input type="button" id="playButton" value="Play" onmousedown="playPause()" title="will play current Toque"></td>
 
 
-<BR><BR><BR><BR>
+
+<BR><BR><BR><BR><BR><BR><BR><BR>
 <a href="https://paypal.me/jaimecasero?country.x=ES&locale.x=es_ES">Donate</a>
 </body>
 </html>
