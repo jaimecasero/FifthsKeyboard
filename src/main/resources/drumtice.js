@@ -336,7 +336,7 @@ function renderBeat() {
                             noteSymbol = "&#119107;";
                             break;
                         case OPEN_HI_HAT_MIDI:
-                            noteSymbol = "o";
+                            noteSymbol = "&#119109;";
                             break;
                     }
                     setClefText(noteSymbol, noteClass, clefIndex, i);
