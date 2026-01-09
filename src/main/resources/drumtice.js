@@ -16,6 +16,19 @@ const EIGHTH_CHAR = "&#119136;";
 const SIXTEENTH_CHAR = "&#119137;";
 const THIRTY_SECOND_CHAR = "&#119138;";
 
+const ACOUSTIC_BASS_DRUM_MIDI=35;
+const BASS_DRUM_MIDI=36;
+const SIDE_STICK_MIDI=37;
+const ACOUSTIC_SNARE_MIDI=38;
+const HAND_CLAP_MIDI=39;
+const ELECTRIC_SNARE_MIDI=40;
+const LOW_FLOOR_TOM_MIDI=41;
+const CLOSED_HIHAT_MIDI=42;
+const HIGH_FLOOR_TOM_MIDI=43;
+const PEDAL_HIHAT_MIDI=44;
+const LOW_TOM_MIDI=45;
+const OPEN_HI_HAT_MIDI=46;
+
 const INITIAL_MISTAKES = 0;
 
 //https://musescore.org/sites/musescore.org/files/General%20MIDI%20Standard%20Percussion%20Set%20Key%20Map.pdf
@@ -318,8 +331,13 @@ function renderBeat() {
 
                     console.log("clefRowIndex:" + clefIndex + " class:" + " noteClass: " + noteClass);
                     let noteSymbol = noteDurationToSymbol(midiData.tracks[drumTrack].notes[j].durationTicks, midiData.header.ppq);
-                    if (midiData.tracks[drumTrack].notes[j].midi == 42) {
-                        noteSymbol = "&#119107;"
+                    switch (midiData.tracks[drumTrack].notes[j].midi) {
+                        case CLOSED_HIHAT_MIDI:
+                            noteSymbol = "&#119107;";
+                            break;
+                        case OPEN_HI_HAT_MIDI:
+                            noteSymbol = "o";
+                            break;
                     }
                     setClefText(noteSymbol, noteClass, clefIndex, i);
                 }
