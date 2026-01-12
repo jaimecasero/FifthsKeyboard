@@ -28,11 +28,15 @@ const HIGH_FLOOR_TOM_MIDI=43;
 const PEDAL_HIHAT_MIDI=44;
 const LOW_TOM_MIDI=45;
 const OPEN_HI_HAT_MIDI=46;
-
+const HI_MID_TOM=48;
+const CRASH_CYMBAL_1=49;
+const HIGH_TOM=50;
+const RIDE_CYMBAL_1=51;
+const CRASH_CYMBAL_2=57;
 const INITIAL_MISTAKES = 0;
 
 //https://musescore.org/sites/musescore.org/files/General%20MIDI%20Standard%20Percussion%20Set%20Key%20Map.pdf
-const DRUM_MIDI_CODE = [[49],[42, 46],[51],[50],[47],[37,38,40],[],[45],[],[35,36],[],[44],[],[]]; //[accent,Cymbal,hh,ride,ht,mt,s,lt,k,ph]
+const DRUM_MIDI_CODE = [[49],[42, 46],[51],[50],[47,48],[37,38,40],[],[41,45],[],[35,36],[],[44],[],[]]; //[accent,Cymbal,hh,ride,ht,mt,s,lt,k,ph]
 
 
 const CLEF_COLUMNS = 16;
@@ -335,6 +339,9 @@ function renderBeat() {
                         case CLOSED_HIHAT_MIDI:
                             noteSymbol = "&#119107;";
                             break;
+                        case CRASH_CYMBAL_1:
+                            noteSymbol = "&#119109;";
+                            break;
                         case OPEN_HI_HAT_MIDI:
                             noteSymbol = "&#119109;";
                             break;
@@ -352,34 +359,38 @@ function keyDownHandler(event) {
     let keyPressed = String.fromCharCode(event.keyCode);
     let midiNote = 0;
     switch (keyPressed) {
-        case 'Y':case "E":
-            midiNote = 49
+        case '7':
+            midiNote = CRASH_CYMBAL_1;
             break;
-        case 'U': case "R":
-            midiNote = 50
+        case '8':
+            midiNote = HIGH_TOM;
             break;
-        case 'I': case "T":
-            midiNote = 51
+        case '9':
+            midiNote = HI_MID_TOM;
             break;
-        case 'H': case "D":
-            midiNote = 46
+        case '0':
+            midiNote = CRASH_CYMBAL_2;
             break;
-        case 'J':
-            case "F":
-            midiNote = 40
+        case 'U':
+            midiNote = PEDAL_HIHAT_MIDI;
             break;
-        case 'K': case "G":
-            midiNote = 47
+        case 'I':
+            midiNote = OPEN_HI_HAT_MIDI;
             break;
-        case 'N': case "C":
-            midiNote = 42
+        case 'O':
+            midiNote = CLOSED_HIHAT_MIDI;
             break;
-        case 'M': case "V":
-            midiNote = 35
+        case 'P':
+            midiNote = RIDE_CYMBAL_1;
             break;
-        case '<': case "B":
-            midiNote = 41
+        case 'L': case "K": case 'J':
+            midiNote = ACOUSTIC_SNARE_MIDI;
             break;
+
+        case 'M': case ",":
+            midiNote = ACOUSTIC_BASS_DRUM_MIDI;
+            break;
+
     }
     if (midiNote > 0) {
         document.dispatchEvent(new CustomEvent(USER_NOTE_ON_HIT_EVENT, {
@@ -437,8 +448,8 @@ function midiNoteDown(event) {
     event.pressure = pressure;
     const hitTime = event.detail.time;
 
-    evaluateUserInput(midiNote, hitTime);
-   // playMidiNote(event,midiNote);
+    //evaluateUserInput(midiNote, hitTime);
+    playMidiNote(event,midiNote);
     return matched;
 }
 
