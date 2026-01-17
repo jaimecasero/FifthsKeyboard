@@ -470,7 +470,7 @@ function isSameNote(midiNote1, midiNote2) {
 
 function playMidiNote(event,adjustedMidiNote) {
     audioCtx.resume();
-    console.log(event);
+    //console.log(event);
     //playExtMidiNote(adjustedMidiNote, event.pressure);
     let pressure = event.pressure;
     if (pressure === 1) {
@@ -521,7 +521,7 @@ function forceToMidiVelocity(force) {
     const clampedForce = Math.min(Math.max(force, 0), 1);
     // Scale the clamped force to the MIDI velocity range (0-127)
     const midiVelocity = Math.round(clampedForce * 127);
-    console.log(force + ":" + midiVelocity)
+    //console.log(force + ":" + midiVelocity)
     return midiVelocity;
 }
 
