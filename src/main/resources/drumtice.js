@@ -468,10 +468,19 @@ function isSameNote(midiNote1, midiNote2) {
 
 
 
-function playMidiNote(event,adjustedMidiNote, force) {
+function playMidiNote(event,adjustedMidiNote) {
     audioCtx.resume();
+    console.log(event);
     //playExtMidiNote(adjustedMidiNote, event.pressure);
-    playOscillatorNote(adjustedMidiNote, event.pressure);
+    let pressure = event.pressure;
+    if (pressure === 1) {
+        pressure = 0.5;
+    }
+    if (adjustedMidiNote === ACOUSTIC_BASS_DRUM_MIDI) {
+        //make bass louder for mobile speakers
+        pressure = pressure + 0.3;
+    }
+    playOscillatorNote(adjustedMidiNote, pressure);
 }
 
 function playMidiNoteOff(adjustedMidiNote) {
@@ -517,8 +526,8 @@ function forceToMidiVelocity(force) {
 }
 
 function playOscillatorNote(adjustedMidiNote, force) {
-    console.log("playOscillatorNote:" + adjustedMidiNote + ":" + force)
-    MIDI.noteOn(0, adjustedMidiNote + 50, forceToMidiVelocity(force), 0);
+    const velocity = forceToMidiVelocity(force);
+    MIDI.noteOn(0, adjustedMidiNote + 50, velocity, 0);
 }
 
 function playOscillatorNoteOff(adjustedMidiNote) {
