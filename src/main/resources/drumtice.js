@@ -72,6 +72,7 @@ let footRow;
         // #document has its nodes
         console.log("init");
         initOscillators();
+        connectMIDI();
         //initOscillators();
         //cache DOM elements for better performance
         clefTable = document.getElementById('clefTable');
@@ -414,7 +415,7 @@ function evaluateUserInput(midiNote, hitTime) {
     const margin = 0.1; // seconds tolerance
     let matched = false; // Track if a note was matched in the current evaluation
     console.log("length:" + track.notes.length);
-    for (let i=0 ; 0 < track.notes.length; i++) {
+    for (let i=0 ; i < track.notes.length; i++) {
         let expectedTime = track.notes[i].ticks / ppq;
         console.log("hitTime:" + hitTime +
             " expectedTime:" + expectedTime +

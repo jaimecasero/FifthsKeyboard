@@ -75,7 +75,7 @@
 <BR><BR>
 
 
-<select id="beatSelect"  onchange="loadSong();">
+<label for="beatSelect"></label><select id="beatSelect" onchange="loadSong();">
     <option value="pop_rock">Pop Rock</option>
     <option value="in_the_end_verse" selected="selected">ITE verse</option>
     <option value="in_the_end_chorus" >ITE Chorus</option>
@@ -93,13 +93,8 @@
     <option value="200">Prestissimo (200)</option>
 </select>
 
-<select id="inputSelect" class="gameConsoleText" onchange="document.dispatchEvent(new Event(this.value));">
-    <option value="buttons_selected" selected>buttons</option>
-    <option value="keyboard_selected" selected>keyboard</option>
-    <option value="midi_selected">midi</option>
-</select>
 <BR>
-<td><input type="button" id="playButton" value="Play" onmousedown="playPause()" title="will play current Toque"></td>
+<input type="button" id="playButton" value="Play" onmousedown="playPause()" title="will play current Toque">
 
 <BR>
 <label for="scoreText">Score:</label>
