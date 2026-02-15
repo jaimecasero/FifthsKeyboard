@@ -42,6 +42,7 @@
     </tfoot>
 </table>
 
+
 <table id="padTable">
     <tbody>
     <tr>
@@ -82,6 +83,17 @@
     <option value="in_the_end_pre_chorus" >ITE Pre Chorus</option>
 </select>
 
+
+<!-- Add this level selector next to your beatSelect and bpmSelect -->
+
+<select id="levelSelect" title="Select difficulty level" onchange="changeLevel()">
+    <option value="1">Level 1 — Kick &amp; Snare</option>
+    <option value="2">Level 2 — + Hi-Hat</option>
+    <option value="3">Level 3 — + Toms &amp; Open HH</option>
+    <option value="4" selected>Level 4 — Full Pattern</option>
+</select>
+
+
 <select id="bpmSelect" title="Select music speed" onchange="changeBpm()">
     <option value="40">Largo (40)</option>
     <option value="60">Adagio (60)</option>
@@ -95,7 +107,7 @@
 
 <BR>
 <input type="button" id="playButton" value="Play" onmousedown="playPause()" title="will play current Toque">
-
+<input type="button" id="togglePadButton" value="Hide Pads" onclick="togglePads()">
 <BR>
 <label for="scoreText">Score:</label>
 <input type="text" class="gameConsoleText" readonly id="scoreText" value="0">

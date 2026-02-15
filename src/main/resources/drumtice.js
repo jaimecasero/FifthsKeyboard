@@ -46,7 +46,7 @@ var currentNoteIndex = -1; //index to NOTE_CODE arrray
 var drumTrack=0; //track in midi with channel 10
 var midiData;//contains midi object after parsing midi file
 let audioBuffers = [];
-
+var selectedLevel = 4; // default: show all notes
 let timerID; // global or scoped outside functions
 let isPlaying = false;
 
@@ -637,4 +637,21 @@ function handleMIDIMessage(event) {
     if (status === 128 || (status === 144 && velocity === 0)) {
         playMidiNoteOff(currentNote);
     }
+}
+
+function togglePads() {
+    const padTable = document.getElementById('padTable');
+    const toggleBtn = document.getElementById('togglePadButton');
+    if (padTable.style.display === 'none') {
+        padTable.style.display = '';
+        toggleBtn.value = 'Hide Pads';
+    } else {
+        padTable.style.display = 'none';
+        toggleBtn.value = 'Show Pads';
+    }
+}
+
+function changeLevel() {
+    selectedLevel = parseInt(document.getElementById('levelSelect').value);
+    renderBeat();
 }

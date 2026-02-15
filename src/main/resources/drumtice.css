@@ -93,3 +93,7 @@ body {
 
 
 
+.note-new-level {
+    color: #2196F3;           /* blue highlight for "new" notes at this level */
+    text-shadow: 0 0 4px rgba(33, 150, 243, 0.5);
+}
