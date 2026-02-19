@@ -1,4 +1,4 @@
-const CACHE_NAME = 'drumtice-v1.0.0';
+const CACHE_NAME = 'drumtice-v1.0.1';
 const ASSETS_TO_CACHE = [
     './drumtive.html',
     './drumtice.js',

@@ -1,99 +1,365 @@
-#clefTable {
-    border-collapse: collapse;
-    position: relative;
-    font-size: 24px;
+/* ============================================
+   DRUMTICE — Dark Mode Rock Theme
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Russo+One&family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap');
+
+/* ---------- ROOT VARIABLES ---------- */
+:root {
+    --bg-dark: #0d0d0d;
+    --bg-surface: #1a1a1a;
+    --bg-elevated: #242424;
+    --bg-input: #1e1e1e;
+    --border-dark: #333;
+    --border-subtle: #2a2a2a;
+    --text-primary: #e0e0e0;
+    --text-secondary: #888;
+    --text-muted: #555;
+    --accent-red: #cc2020;
+    --accent-red-glow: #ff3030;
+    --accent-red-dim: #8b0000;
+    --accent-gold: #c8a030;
+    --chrome: #888;
+    --chrome-light: #aaa;
+    --staff-line: #555;
+    --staff-dotted: #333;
+    --note-color: #e0e0e0;
+    --success: #22cc44;
+    --error: #ff3333;
+    --pad-bg: #2a1a1a;
+    --pad-active: #cc2020;
+    --pad-border: #442222;
+    --pad-text: #ddd;
+    --select-bg: #1e1e1e;
+    --select-text: #ccc;
+    --select-border: #444;
+    --button-bg: linear-gradient(180deg, #8b0000 0%, #5a0000 100%);
+    --button-hover: linear-gradient(180deg, #aa1010 0%, #6a0000 100%);
+    --button-text: #f0d0d0;
+    --glow-spread: 0 0 12px rgba(204, 32, 32, 0.3);
 }
 
-
-
-#padTable {
-    border-collapse: separate; /* Para que border-spacing funcione */
-    border-spacing: 10px;      /* Espacio entre celdas (ajústalo según necesites) */
+/* ---------- GLOBAL RESET & BODY ---------- */
+* {
+    box-sizing: border-box;
 }
 
 body {
     touch-action: none;
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    font-family: 'Share Tech Mono', 'Courier New', monospace;
+    margin: 0;
+    padding: 16px;
+    min-height: 100vh;
+    background-image:
+        radial-gradient(ellipse at 50% 0%, rgba(204, 32, 32, 0.06) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 100%, rgba(40, 10, 10, 0.3) 0%, transparent 50%);
+}
+
+/* Subtle scanline overlay for gritty feel */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    z-index: 9999;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.03) 2px,
+        rgba(0, 0, 0, 0.03) 4px
+    );
+}
+
+/* ---------- STAFF / CLEF TABLE ---------- */
+#clefTable {
+    border-collapse: collapse;
+    position: relative;
+    font-size: 24px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-dark);
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow:
+        0 0 20px rgba(0, 0, 0, 0.5),
+        inset 0 0 30px rgba(0, 0, 0, 0.3);
+    margin-bottom: 16px;
 }
 
 #clefTable td {
     width: 25px;
     height: 14px;
     position: relative;
-    border-right: 2px dotted #E8E8E8;
+    border-right: 2px dotted var(--staff-dotted);
     text-align: left;
 }
 
-
-
 .line-clef-row {
-    border-top: 2px solid black; /* Creates the staff lines */
+    border-top: 2px solid var(--staff-line);
 }
 
-.note-on-line {
+.outside-line-clef-row {
+    border-top: none;
+}
+
+/* Note styling on staff */
+.note-on-line,
+.note-on-space {
     position: absolute;
     left: 20%;
-    top: 0; /* Align with the top border */
+    top: 0;
     transform: translate(-50%, -50%);
+    color: var(--note-color);
+    filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.15));
 }
 
 .note-on-line-striked {
     position: absolute;
     left: 20%;
-    top: 0; /* Align with the top border */
+    top: 0;
     transform: translate(-50%, -50%);
     text-decoration: line-through;
+    color: var(--text-muted);
 }
 
-.note-on-space {
-    position: absolute;
-    left: 20%;
-    top: 0; /* Align with the top border */
-    transform: translate(-50%, -50%);
+.note-new-level {
+    color: var(--accent-red-glow);
+    text-shadow: 0 0 6px rgba(255, 48, 48, 0.5);
 }
 
-
-.natural-key {
-    background: white; /* Ensures readability */
-    width: 25px;
-    height: 100px;
-    position: absolute;
-    left: 50%;
-    top: 30; /* Align with the top border */
-    transform: translate(-50%, -50%);
+/* Playhead highlight on footer row */
+#clefTable tfoot td {
+    transition: background 0.08s ease;
 }
 
-.artificial-key {
-    background: black; /* Ensures readability */
-    width: 25px;
-    height: 60px;
-    position: absolute;
-    left: 50%;
-    top: 0; /* Align with the top border */
-    transform: translate(-50%, -50%);
-}
-
-.gameConsoleText {
-    border-color: black;
-    width:45px;
-}
-
-#songSelect, #trackSelect, #clefSelect, #signatureSelect, #inputSelect {
-    width: 150px;
+/* ---------- PAD TABLE ---------- */
+#padTable {
+    border-collapse: separate;
+    border-spacing: 8px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-dark);
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    margin-bottom: 16px;
 }
 
 .padButtonClass {
-    width: 70px;
-    height: 70px;
+    width: 74px;
+    height: 74px;
+    background: var(--pad-bg);
+    color: var(--pad-text);
+    border: 2px solid var(--pad-border);
+    border-radius: 8px;
+    font-family: 'Russo One', 'Arial Black', sans-serif;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.1s ease;
+    box-shadow:
+        0 3px 6px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
 }
 
-#scoreText, #mistakesText, #detectedText {
-    width: 30px;
+.padButtonClass:hover {
+    background: #3a1a1a;
+    border-color: var(--accent-red-dim);
+    box-shadow:
+        0 3px 10px rgba(204, 32, 32, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
+.padButtonClass:active {
+    background: var(--accent-red-dim);
+    border-color: var(--accent-red);
+    color: #fff;
+    transform: scale(0.95);
+    box-shadow:
+        0 0 15px rgba(204, 32, 32, 0.4),
+        inset 0 2px 4px rgba(0, 0, 0, 0.5);
+}
 
+/* ---------- SELECTS ---------- */
+select,
+#beatSelect,
+#levelSelect,
+#bpmSelect,
+#songSelect,
+#trackSelect,
+#clefSelect,
+#signatureSelect,
+#inputSelect {
+    background: var(--select-bg);
+    color: var(--select-text);
+    border: 1px solid var(--select-border);
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    cursor: pointer;
+    outline: none;
+    margin: 4px 2px;
+    min-width: 150px;
+    transition: border-color 0.2s ease;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 28px;
+}
 
+select:hover {
+    border-color: var(--accent-red-dim);
+}
 
-.note-new-level {
-    color: #2196F3;           /* blue highlight for "new" notes at this level */
-    text-shadow: 0 0 4px rgba(33, 150, 243, 0.5);
+select:focus {
+    border-color: var(--accent-red);
+    box-shadow: 0 0 8px rgba(204, 32, 32, 0.2);
+}
+
+select option {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+}
+
+/* ---------- BUTTONS ---------- */
+#playButton,
+#togglePadButton {
+    background: var(--button-bg);
+    color: var(--button-text);
+    border: 1px solid var(--accent-red-dim);
+    border-radius: 6px;
+    padding: 10px 24px;
+    font-family: 'Russo One', 'Impact', sans-serif;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    margin: 6px 4px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+}
+
+#playButton:hover,
+#togglePadButton:hover {
+    background: var(--button-hover);
+    box-shadow:
+        0 3px 15px rgba(204, 32, 32, 0.3),
+        0 0 20px rgba(204, 32, 32, 0.1);
+}
+
+#playButton:active,
+#togglePadButton:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.5);
+}
+
+/* ---------- SCORE / GAME CONSOLE ---------- */
+label {
+    color: var(--text-secondary);
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-left: 8px;
+}
+
+.gameConsoleText {
+    background: var(--bg-input);
+    color: var(--accent-gold);
+    border: 1px solid var(--border-dark);
+    border-radius: 3px;
+    width: 50px;
+    padding: 4px 6px;
+    font-family: 'Orbitron', monospace;
+    font-size: 13px;
+    text-align: center;
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+#scoreText {
+    color: var(--success);
+    width: 40px;
+}
+
+#mistakesText {
+    color: var(--error);
+    width: 40px;
+}
+
+#detectedText {
+    color: var(--accent-gold);
+    width: 120px;
+    font-size: 11px;
+}
+
+/* ---------- LINKS ---------- */
+a {
+    color: var(--accent-red);
+    text-decoration: none;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    opacity: 0.6;
+    transition: opacity 0.2s ease, text-shadow 0.2s ease;
+}
+
+a:hover {
+    opacity: 1;
+    text-shadow: 0 0 8px rgba(204, 32, 32, 0.4);
+}
+
+/* ---------- SCROLLBAR (webkit) ---------- */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-red-dim);
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 600px) {
+    body {
+        padding: 8px;
+    }
+
+    .padButtonClass {
+        width: 62px;
+        height: 62px;
+        font-size: 9px;
+    }
+
+    #padTable {
+        border-spacing: 5px;
+        padding: 6px;
+    }
+
+    select {
+        min-width: 120px;
+        font-size: 12px;
+    }
+
+    #playButton,
+    #togglePadButton {
+        padding: 8px 16px;
+        font-size: 13px;
+    }
 }
