@@ -1,0 +1,22 @@
+{
+  "name": "Fretboard Explorer",
+  "short_name": "FretNot",
+  "description": "Learn guitar fretboard from music theory",
+  "start_url": "./guitar.html",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#FF4500",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "img/guitar_192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "img/guitar_512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

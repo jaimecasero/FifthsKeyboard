@@ -1,15 +1,11 @@
-const CACHE_NAME = 'drumtice-v1.0.1';
+const CACHE_NAME = 'fretnot-v1.0.0';
 const ASSETS_TO_CACHE = [
-    './drumtice.html',
-    './drumtice.js',
-    './drumtice.css',
-    './drumtice_manifest.json',
-    './img/drumtice_192.png',
-    './img/drumtice_512.png',
-    './midi/in_the_end_chorus.mid',
-    './midi/in_the_end_pre_chorus.mid',
-    './midi/in_the_end_verse.mid',
-    './midi/pop_rock.mid',
+    './guitar.html',
+    './guitar.js',
+    './guitar.css',
+    './guitar_manifest.json',
+    './img/guitar_192.png',
+    './img/guitar_512.png',
 ];
 
 // Install: cache all assets

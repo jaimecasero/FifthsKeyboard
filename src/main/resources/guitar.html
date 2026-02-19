@@ -1,7 +1,7 @@
 <html lang="eng">
 <head>
     <title>Fretboard Explorer</title>
-
+    <link rel="manifest" href="guitar_manifest.json">
     <!-- midi.js package -->
     <script src="https://cdn.jsdelivr.net/npm/midi.js"></script>
     <script
@@ -12,6 +12,10 @@
     <script src="guitar.js"></script>
     <link rel="stylesheet" href="guitar.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="FretNot">
+    <link rel="apple-touch-icon" href="img/guitar_192.png">
 </head>
 <body>
 
@@ -121,4 +125,13 @@
 <BR><BR><BR><BR>
 <a href="https://paypal.me/jaimecasero?country.x=ES&locale.x=es_ES">Donate</a>
 </body>
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./guitar_sw.js')
+                .then((reg) => console.log('[PWA] Service Worker registered, scope:', reg.scope))
+                .catch((err) => console.log('[PWA] Service Worker registration failed:', err));
+        });
+    }
+</script>
 </html>
