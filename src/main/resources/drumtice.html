@@ -1,7 +1,7 @@
 <html lang="eng">
 <head>
     <title>Drum Practice</title>
-
+    <link rel="manifest" href="drumtice_manifest.json">
     <!-- midi.js package -->
     <script src="https://cdn.jsdelivr.net/npm/midi.js"></script>
     <script
@@ -12,7 +12,10 @@
     <script src="drumtice.js"></script>
     <link rel="stylesheet" href="drumtice.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Drumtice">
+    <link rel="apple-touch-icon" href="img/drumtice_192.png">
 </head>
 <body>
 
@@ -120,4 +123,14 @@
 <BR><BR><BR><BR><BR><BR><BR><BR>
 <a href="https://paypal.me/jaimecasero?country.x=ES&locale.x=es_ES">Donate</a>
 </body>
+
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./drumtice_sw.js')
+                .then((reg) => console.log('[PWA] Service Worker registered, scope:', reg.scope))
+                .catch((err) => console.log('[PWA] Service Worker registration failed:', err));
+        });
+    }
+</script>
 </html>

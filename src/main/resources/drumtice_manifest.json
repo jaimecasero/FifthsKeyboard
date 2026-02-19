@@ -1,0 +1,22 @@
+{
+  "name": "Drumtice",
+  "short_name": "Drumtice",
+  "description": "Learn Drumming and notation",
+  "start_url": "./drumtice.html",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#FF4500",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "img/drumtice_192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "img/drumtice_512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
