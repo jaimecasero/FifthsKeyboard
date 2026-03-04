@@ -103,11 +103,13 @@ br { display: none; }
         inset 0 0 30px rgba(0, 0, 0, 0.25);
     width: 100%;
     table-layout: fixed;
-    flex-shrink: 0; /* staff keeps its natural size */
+    flex-shrink: 0;
+    flex-grow: 1; /* staff grows to use available space */
+    min-height: 0;
 }
 
 #clefTable td {
-    height: clamp(7px, 1.3vh, 15px);
+    height: clamp(10px, 2vh, 20px);
     position: relative;
     border-right: 1px dotted var(--staff-dotted);
     text-align: left;
@@ -123,7 +125,7 @@ br { display: none; }
 }
 
 .outside-space-clef-row td {
-    height: clamp(4px, 0.7vh, 10px);
+    height: clamp(6px, 1.2vh, 14px);
 }
 
 /* Notes */
@@ -164,19 +166,19 @@ br { display: none; }
    ========================================================== */
 #padTable {
     border-collapse: separate;
-    border-spacing: clamp(3px, 0.8vw, 8px);
+    border-spacing: clamp(2px, 0.4vw, 4px);
     background: var(--bg-surface);
     border: 1px solid var(--border-dark);
     border-radius: 8px;
-    padding: clamp(3px, 0.5vw, 8px);
+    padding: clamp(2px, 0.3vw, 4px);
     box-shadow:
         0 4px 16px rgba(0, 0, 0, 0.5),
         inset 0 1px 0 rgba(255, 255, 255, 0.02);
     width: 100%;
     table-layout: fixed;
 
-    /* KEY: pads eat all remaining space */
-    flex: 1 1 auto;
+    /* Pads: natural size (squares), don't grow */
+    flex: 0 1 auto;
     min-height: 0;
 }
 
