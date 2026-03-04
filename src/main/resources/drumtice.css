@@ -1,5 +1,6 @@
 /* ============================================
-   DRUMTICE — Dark Mode Rock Theme
+   DRUMTICE — Dark Rock · Mobile-First · No-Scroll
+   Layout: Staff (top) → Pads (fill) → Controls (bottom thumb zone)
    ============================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Russo+One&family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap');
@@ -7,11 +8,11 @@
 /* ---------- ROOT VARIABLES ---------- */
 :root {
     --bg-dark: #0d0d0d;
-    --bg-surface: #1a1a1a;
-    --bg-elevated: #242424;
-    --bg-input: #1e1e1e;
-    --border-dark: #333;
-    --border-subtle: #2a2a2a;
+    --bg-surface: #161616;
+    --bg-elevated: #222;
+    --bg-input: #1a1a1a;
+    --bg-dock: #111;
+    --border-dark: #2a2a2a;
     --text-primary: #e0e0e0;
     --text-secondary: #888;
     --text-muted: #555;
@@ -19,81 +20,98 @@
     --accent-red-glow: #ff3030;
     --accent-red-dim: #8b0000;
     --accent-gold: #c8a030;
-    --chrome: #888;
-    --chrome-light: #aaa;
-    --staff-line: #555;
-    --staff-dotted: #333;
+    --staff-line: #4a4a4a;
+    --staff-dotted: #2a2a2a;
     --note-color: #e0e0e0;
     --success: #22cc44;
     --error: #ff3333;
-    --pad-bg: #2a1a1a;
-    --pad-active: #cc2020;
-    --pad-border: #442222;
-    --pad-text: #ddd;
-    --select-bg: #1e1e1e;
-    --select-text: #ccc;
-    --select-border: #444;
-    --button-bg: linear-gradient(180deg, #8b0000 0%, #5a0000 100%);
-    --button-hover: linear-gradient(180deg, #aa1010 0%, #6a0000 100%);
-    --button-text: #f0d0d0;
-    --glow-spread: 0 0 12px rgba(204, 32, 32, 0.3);
+    --pad-bg: #1e1010;
+    --pad-border: #3a1818;
+    --pad-text: #ccc;
+    --select-bg: #161616;
+    --select-text: #bbb;
+    --select-border: #3a3a3a;
 }
 
-/* ---------- GLOBAL RESET & BODY ---------- */
-* {
+/* ---------- RESET ---------- */
+*, *::before, *::after {
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* ---------- FULL VIEWPORT, NO SCROLL ---------- */
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    touch-action: none;
 }
 
 body {
-    touch-action: none;
     background: var(--bg-dark);
     color: var(--text-primary);
     font-family: 'Share Tech Mono', 'Courier New', monospace;
-    margin: 0;
-    padding: 16px;
-    min-height: 100vh;
+
+    /* Flex column: staff → pads (grow) → bottom dock */
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    padding: clamp(4px, 1vw, 12px);
+    gap: clamp(3px, 0.6vh, 8px);
+
+    /* Atmospheric background */
     background-image:
-        radial-gradient(ellipse at 50% 0%, rgba(204, 32, 32, 0.06) 0%, transparent 60%),
-        radial-gradient(ellipse at 80% 100%, rgba(40, 10, 10, 0.3) 0%, transparent 50%);
+        radial-gradient(ellipse at 50% 0%, rgba(204, 32, 32, 0.05) 0%, transparent 55%),
+        radial-gradient(ellipse at 20% 100%, rgba(30, 8, 8, 0.4) 0%, transparent 40%),
+        radial-gradient(ellipse at 85% 90%, rgba(30, 8, 8, 0.25) 0%, transparent 35%);
 }
 
-/* Subtle scanline overlay for gritty feel */
+/* Scanline overlay */
 body::before {
     content: '';
     position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
+    inset: 0;
     pointer-events: none;
     z-index: 9999;
     background: repeating-linear-gradient(
         0deg,
         transparent,
-        transparent 2px,
-        rgba(0, 0, 0, 0.03) 2px,
-        rgba(0, 0, 0, 0.03) 4px
+        transparent 3px,
+        rgba(0, 0, 0, 0.025) 3px,
+        rgba(0, 0, 0, 0.025) 6px
     );
 }
 
-/* ---------- STAFF / CLEF TABLE ---------- */
+/* Kill legacy BR spacers */
+br { display: none; }
+
+
+/* ==========================================================
+   STAFF — compact, top of screen, read-only
+   ========================================================== */
 #clefTable {
     border-collapse: collapse;
     position: relative;
-    font-size: 24px;
+    font-size: clamp(14px, 2.5vw, 26px);
     background: var(--bg-surface);
     border: 1px solid var(--border-dark);
-    border-radius: 6px;
+    border-radius: 5px;
     overflow: hidden;
     box-shadow:
-        0 0 20px rgba(0, 0, 0, 0.5),
-        inset 0 0 30px rgba(0, 0, 0, 0.3);
-    margin-bottom: 16px;
+        0 0 16px rgba(0, 0, 0, 0.6),
+        inset 0 0 30px rgba(0, 0, 0, 0.25);
+    width: 100%;
+    table-layout: fixed;
+    flex-shrink: 0; /* staff keeps its natural size */
 }
 
 #clefTable td {
-    width: 25px;
-    height: 14px;
+    height: clamp(7px, 1.3vh, 15px);
     position: relative;
-    border-right: 2px dotted var(--staff-dotted);
+    border-right: 1px dotted var(--staff-dotted);
     text-align: left;
+    padding: 0;
 }
 
 .line-clef-row {
@@ -104,7 +122,11 @@ body::before {
     border-top: none;
 }
 
-/* Note styling on staff */
+.outside-space-clef-row td {
+    height: clamp(4px, 0.7vh, 10px);
+}
+
+/* Notes */
 .note-on-line,
 .note-on-space {
     position: absolute;
@@ -112,7 +134,9 @@ body::before {
     top: 0;
     transform: translate(-50%, -50%);
     color: var(--note-color);
-    filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.15));
+    filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.12));
+    font-size: clamp(12px, 2.2vw, 24px);
+    line-height: 1;
 }
 
 .note-on-line-striked {
@@ -129,100 +153,181 @@ body::before {
     text-shadow: 0 0 6px rgba(255, 48, 48, 0.5);
 }
 
-/* Playhead highlight on footer row */
+/* Playhead row */
 #clefTable tfoot td {
-    transition: background 0.08s ease;
+    transition: background 0.06s ease;
 }
 
-/* ---------- PAD TABLE ---------- */
+
+/* ==========================================================
+   PADS — fill all remaining vertical space
+   ========================================================== */
 #padTable {
     border-collapse: separate;
-    border-spacing: 8px;
+    border-spacing: clamp(3px, 0.8vw, 8px);
     background: var(--bg-surface);
     border: 1px solid var(--border-dark);
-    border-radius: 10px;
-    padding: 10px;
+    border-radius: 8px;
+    padding: clamp(3px, 0.5vw, 8px);
     box-shadow:
-        0 4px 20px rgba(0, 0, 0, 0.5),
-        inset 0 1px 0 rgba(255, 255, 255, 0.03);
-    margin-bottom: 16px;
+        0 4px 16px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.02);
+    width: 100%;
+    table-layout: fixed;
+
+    /* KEY: pads eat all remaining space */
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+#padTable td {
+    padding: 0;
+    text-align: center;
+    vertical-align: middle;
+    height: 25%; /* 4 rows = 25% each */
 }
 
 .padButtonClass {
-    width: 74px;
-    height: 74px;
+    width: 100%;
+    height: 100%;
     background: var(--pad-bg);
     color: var(--pad-text);
     border: 2px solid var(--pad-border);
-    border-radius: 8px;
+    border-radius: clamp(4px, 0.6vw, 8px);
     font-family: 'Russo One', 'Arial Black', sans-serif;
-    font-size: 11px;
+    font-size: clamp(8px, 1.6vw, 12px);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
     cursor: pointer;
-    transition: all 0.1s ease;
+    transition: all 0.08s ease;
     box-shadow:
-        0 3px 6px rgba(0, 0, 0, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        0 2px 6px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
     -webkit-tap-highlight-color: transparent;
     user-select: none;
+    display: block;
 }
 
 .padButtonClass:hover {
-    background: #3a1a1a;
+    background: #2e1212;
     border-color: var(--accent-red-dim);
     box-shadow:
-        0 3px 10px rgba(204, 32, 32, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        0 2px 12px rgba(204, 32, 32, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .padButtonClass:active {
     background: var(--accent-red-dim);
     border-color: var(--accent-red);
     color: #fff;
-    transform: scale(0.95);
+    transform: scale(0.94);
     box-shadow:
-        0 0 15px rgba(204, 32, 32, 0.4),
-        inset 0 2px 4px rgba(0, 0, 0, 0.5);
+        0 0 18px rgba(204, 32, 32, 0.45),
+        inset 0 2px 6px rgba(0, 0, 0, 0.6);
 }
 
-/* ---------- SELECTS ---------- */
-select,
+
+/* ==========================================================
+   BOTTOM DOCK — controls & score in the thumb zone
+   ========================================================== */
+.bottom-dock {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(3px, 0.5vh, 6px);
+    background: var(--bg-dock);
+    border: 1px solid var(--border-dark);
+    border-radius: 8px;
+    padding: clamp(4px, 0.6vh, 8px) clamp(4px, 0.8vw, 10px);
+    box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.4);
+    /* Safe area for phones with gesture bars / notches */
+    padding-bottom: max(clamp(4px, 0.6vh, 8px), env(safe-area-inset-bottom));
+}
+
+/* --- Controls row: play/hide + selects --- */
+.controls-bar {
+    display: flex;
+    align-items: center;
+    gap: clamp(4px, 0.8vw, 10px);
+    flex-wrap: nowrap;
+}
+
+.controls-actions {
+    display: flex;
+    gap: clamp(3px, 0.4vw, 6px);
+    flex-shrink: 0;
+}
+
+.controls-selects {
+    display: flex;
+    gap: clamp(2px, 0.4vw, 5px);
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+.controls-selects::-webkit-scrollbar { display: none; }
+
+/* --- Score row --- */
+.score-bar {
+    display: flex;
+    align-items: center;
+    gap: clamp(6px, 1.5vw, 16px);
+}
+
+.score-item {
+    display: flex;
+    align-items: center;
+    gap: clamp(2px, 0.3vw, 5px);
+}
+
+.donate-link {
+    margin-left: auto;
+}
+
+
+/* ==========================================================
+   SELECTS
+   ========================================================== */
 #beatSelect,
 #levelSelect,
-#bpmSelect,
-#songSelect,
-#trackSelect,
-#clefSelect,
-#signatureSelect,
-#inputSelect {
+#bpmSelect {
     background: var(--select-bg);
     color: var(--select-text);
     border: 1px solid var(--select-border);
     border-radius: 4px;
-    padding: 6px 10px;
+    padding: clamp(4px, 0.5vh, 7px) clamp(5px, 0.8vw, 10px);
     font-family: 'Share Tech Mono', monospace;
-    font-size: 13px;
+    font-size: clamp(10px, 1.3vw, 13px);
     cursor: pointer;
     outline: none;
-    margin: 4px 2px;
-    min-width: 150px;
+    min-width: 0;
+    flex: 1 1 0;
+    max-width: 200px;
     transition: border-color 0.2s ease;
     -webkit-appearance: none;
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%23666'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 10px center;
-    padding-right: 28px;
+    background-position: right 6px center;
+    padding-right: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-select:hover {
+#beatSelect:hover,
+#levelSelect:hover,
+#bpmSelect:hover {
     border-color: var(--accent-red-dim);
 }
 
-select:focus {
+#beatSelect:focus,
+#levelSelect:focus,
+#bpmSelect:focus {
     border-color: var(--accent-red);
-    box-shadow: 0 0 8px rgba(204, 32, 32, 0.2);
+    box-shadow: 0 0 6px rgba(204, 32, 32, 0.2);
 }
 
 select option {
@@ -230,46 +335,52 @@ select option {
     color: var(--text-primary);
 }
 
-/* ---------- BUTTONS ---------- */
+
+/* ==========================================================
+   BUTTONS — Play / Hide Pads
+   ========================================================== */
 #playButton,
 #togglePadButton {
-    background: var(--button-bg);
-    color: var(--button-text);
+    background: linear-gradient(180deg, #8b0000, #500000);
+    color: #ecc;
     border: 1px solid var(--accent-red-dim);
-    border-radius: 6px;
-    padding: 10px 24px;
+    border-radius: 5px;
+    padding: clamp(5px, 0.7vh, 9px) clamp(10px, 2vw, 22px);
     font-family: 'Russo One', 'Impact', sans-serif;
-    font-size: 15px;
+    font-size: clamp(11px, 1.4vw, 15px);
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 1.5px;
     cursor: pointer;
-    transition: all 0.15s ease;
-    margin: 6px 4px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+    transition: all 0.12s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    white-space: nowrap;
 }
 
 #playButton:hover,
 #togglePadButton:hover {
-    background: var(--button-hover);
+    background: linear-gradient(180deg, #aa1010, #600000);
     box-shadow:
-        0 3px 15px rgba(204, 32, 32, 0.3),
-        0 0 20px rgba(204, 32, 32, 0.1);
+        0 2px 14px rgba(204, 32, 32, 0.3),
+        0 0 20px rgba(204, 32, 32, 0.08);
 }
 
 #playButton:active,
 #togglePadButton:active {
     transform: translateY(1px);
-    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
 }
 
-/* ---------- SCORE / GAME CONSOLE ---------- */
+
+/* ==========================================================
+   SCORE DISPLAYS
+   ========================================================== */
 label {
     color: var(--text-secondary);
     font-family: 'Orbitron', monospace;
-    font-size: 11px;
+    font-size: clamp(7px, 1vw, 10px);
     text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-left: 8px;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
 }
 
 .gameConsoleText {
@@ -277,37 +388,38 @@ label {
     color: var(--accent-gold);
     border: 1px solid var(--border-dark);
     border-radius: 3px;
-    width: 50px;
-    padding: 4px 6px;
+    width: clamp(30px, 5vw, 50px);
+    padding: clamp(2px, 0.3vh, 4px) 3px;
     font-family: 'Orbitron', monospace;
-    font-size: 13px;
+    font-size: clamp(9px, 1.1vw, 12px);
     text-align: center;
-    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4);
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5);
 }
 
 #scoreText {
     color: var(--success);
-    width: 40px;
 }
 
 #mistakesText {
     color: var(--error);
-    width: 40px;
 }
 
 #detectedText {
     color: var(--accent-gold);
-    width: 120px;
-    font-size: 11px;
+    width: clamp(50px, 10vw, 120px);
+    font-size: clamp(8px, 0.9vw, 11px);
 }
 
-/* ---------- LINKS ---------- */
+
+/* ==========================================================
+   LINKS
+   ========================================================== */
 a {
     color: var(--accent-red);
     text-decoration: none;
     font-family: 'Share Tech Mono', monospace;
-    font-size: 12px;
-    opacity: 0.6;
+    font-size: clamp(9px, 1vw, 12px);
+    opacity: 0.5;
     transition: opacity 0.2s ease, text-shadow 0.2s ease;
 }
 
@@ -316,50 +428,133 @@ a:hover {
     text-shadow: 0 0 8px rgba(204, 32, 32, 0.4);
 }
 
-/* ---------- SCROLLBAR (webkit) ---------- */
-::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
 
-::-webkit-scrollbar-track {
-    background: var(--bg-dark);
-}
+/* ==========================================================
+   SCROLLBAR — hidden
+   ========================================================== */
+::-webkit-scrollbar { width: 0; height: 0; }
 
-::-webkit-scrollbar-thumb {
-    background: #333;
-    border-radius: 4px;
-}
 
-::-webkit-scrollbar-thumb:hover {
-    background: var(--accent-red-dim);
-}
-
-/* ---------- RESPONSIVE ---------- */
-@media (max-width: 600px) {
+/* ==========================================================
+   PORTRAIT PHONES — tighten everything
+   ========================================================== */
+@media (orientation: portrait) and (max-width: 599px) {
     body {
-        padding: 8px;
+        padding: clamp(3px, 0.8vw, 8px);
+        gap: clamp(2px, 0.5vh, 6px);
+    }
+
+    #clefTable td {
+        height: clamp(5px, 1vh, 11px);
+    }
+    .outside-space-clef-row td {
+        height: clamp(3px, 0.5vh, 7px);
     }
 
     .padButtonClass {
-        width: 62px;
-        height: 62px;
-        font-size: 9px;
+        font-size: clamp(7px, 2.4vw, 11px);
     }
 
+    .controls-bar {
+        flex-wrap: wrap;
+    }
+    .controls-selects {
+        flex-wrap: wrap;
+    }
+    #beatSelect, #levelSelect, #bpmSelect {
+        font-size: clamp(9px, 2.6vw, 12px);
+        padding: 3px 5px;
+        max-width: none;
+        flex: 1 1 calc(33% - 4px);
+    }
+
+    #playButton, #togglePadButton {
+        padding: clamp(4px, 0.6vh, 7px) clamp(8px, 3vw, 16px);
+        font-size: clamp(10px, 2.8vw, 14px);
+    }
+}
+
+/* ==========================================================
+   VERY SHORT PORTRAIT (< 600px tall)
+   ========================================================== */
+@media (max-height: 600px) and (orientation: portrait) {
+    #clefTable td {
+        height: clamp(4px, 0.8vh, 8px);
+    }
+    .outside-space-clef-row td {
+        height: clamp(2px, 0.4vh, 5px);
+    }
     #padTable {
-        border-spacing: 5px;
-        padding: 6px;
+        border-spacing: 2px;
+        padding: 2px;
+    }
+    .bottom-dock {
+        padding: 3px 4px;
+        gap: 2px;
+    }
+}
+
+/* ==========================================================
+   LANDSCAPE PHONES (short & wide)
+   ========================================================== */
+@media (max-height: 500px) and (orientation: landscape) {
+    body {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-content: stretch;
+        gap: clamp(2px, 0.4vw, 6px);
     }
 
-    select {
-        min-width: 120px;
-        font-size: 12px;
+    /* Staff spans full width on top */
+    #clefTable {
+        width: 100%;
+        order: 1;
+        flex: 0 0 auto;
+    }
+    #clefTable td {
+        height: clamp(4px, 1vh, 9px);
+    }
+    .outside-space-clef-row td {
+        height: clamp(2px, 0.4vh, 5px);
     }
 
-    #playButton,
-    #togglePadButton {
-        padding: 8px 16px;
-        font-size: 13px;
+    /* Pads take left portion */
+    #padTable {
+        order: 2;
+        flex: 1 1 60%;
+        min-height: 0;
+        border-spacing: 2px;
+        padding: 2px;
+    }
+    .padButtonClass {
+        font-size: clamp(7px, 1.2vw, 10px);
+    }
+
+    /* Bottom dock becomes right sidebar */
+    .bottom-dock {
+        order: 3;
+        flex: 0 0 auto;
+        width: clamp(140px, 35%, 260px);
+        flex-direction: column;
+        justify-content: center;
+        padding: 4px 6px;
+    }
+    .controls-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .controls-actions {
+        justify-content: center;
+    }
+    .controls-selects {
+        flex-direction: column;
+    }
+    #beatSelect, #levelSelect, #bpmSelect {
+        max-width: none;
+        flex: 0 0 auto;
+    }
+    .score-bar {
+        flex-wrap: wrap;
+        justify-content: center;
     }
 }

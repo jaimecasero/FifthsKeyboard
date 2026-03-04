@@ -655,3 +655,32 @@ function changeLevel() {
     selectedLevel = parseInt(document.getElementById('levelSelect').value);
     renderBeat();
 }
+
+/* ============================================
+   DRUMTICE — Dark-mode playhead color patch
+   Add this AFTER drumtice.js or inline in HTML
+   ============================================ */
+
+// Override renderNextColumn for dark-theme playhead colors
+const _originalRenderNextColumn = renderNextColumn;
+renderNextColumn = async function(currentTime) {
+    let td = footRow.getElementsByTagName("td")[currentTime];
+    td.style.background = "rgba(204, 32, 32, 0.25)";
+    let prevTd;
+    if (currentTime === 0) {
+        prevTd = footRow.getElementsByTagName("td")[CLEF_COLUMNS - 1];
+    } else {
+        prevTd = footRow.getElementsByTagName("td")[currentTime - 1];
+    }
+    prevTd.style.background = "transparent";
+};
+
+// Override renderUserFailed to use dark-mode colors
+const _originalRenderUserFailed = renderUserFailed;
+renderUserFailed = function(event) {
+    mistakesText.value = parseInt(mistakesText.value) + 1;
+    changeTextColor(mistakesText, "#ff3333");
+    setTimeout(function () {
+        changeTextColor(mistakesText, "#2a2a2a");
+    }, 500);
+};
