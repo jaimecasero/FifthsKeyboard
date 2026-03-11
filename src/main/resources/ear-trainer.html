@@ -229,7 +229,9 @@
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          gap: 20px;
+          gap: 16px;
+          overflow-y: auto;
+          padding: 8px 16px;
         }
 
         .play-btn {
@@ -334,6 +336,33 @@
 
         /* SVG icons inline */
         .icon-svg { display: inline-block; vertical-align: middle; }
+
+        /* Notes reveal after answer */
+        .notes-reveal {
+          margin-top: 8px;
+          padding: 10px 16px;
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 10px;
+          max-width: 340px;
+          text-align: center;
+        }
+        .notes-reveal-label {
+          font-size: 11px;
+          color: var(--text-dim);
+          letter-spacing: 1px;
+          text-transform: uppercase;
+          margin-bottom: 6px;
+        }
+        .notes-reveal-notes {
+          font-size: 15px;
+          font-weight: 500;
+          color: var(--text);
+          line-height: 1.7;
+          word-spacing: 1px;
+          font-family: 'DM Sans', monospace;
+        }
+        .note-char { color: var(--accent); font-weight: 700; }
     </style>
 </head>
 <body>
@@ -514,8 +543,8 @@
           playNote(base, 0, 0.7, 0.5);
           playNote(n2, gap, 0.7, 0.5);
         },
-        playMelody(notes, tempo = 0.4) {
-          notes.forEach((n, i) => playNote(n, i * tempo, 0.45, 0.45));
+        playMelody(notes, tempo = 0.28) {
+          notes.forEach((n, i) => playNote(n, i * tempo, 0.32, 0.45));
         }
       };
     })();
@@ -537,13 +566,13 @@
     ];
     const NOTES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
     const MODES = [
-      { name: 'Ionian',     iv: [0,2,4,5,7,9,11] },
-      { name: 'Dorian',     iv: [0,2,3,5,7,9,10] },
-      { name: 'Phrygian',   iv: [0,1,3,5,7,8,10] },
-      { name: 'Lydian',     iv: [0,2,4,6,7,9,11] },
-      { name: 'Mixolydian', iv: [0,2,4,5,7,9,10] },
-      { name: 'Aeolian',    iv: [0,2,3,5,7,8,10] },
-      { name: 'Locrian',    iv: [0,1,3,5,6,8,10] },
+      { name: 'Ionian',     iv: [0,2,4,5,7,9,11], char: [] },           // no alterations vs itself
+      { name: 'Dorian',     iv: [0,2,3,5,7,9,10], char: [2,5] },       // b3, b7 (indices into iv)
+      { name: 'Phrygian',   iv: [0,1,3,5,7,8,10], char: [1,5] },       // b2, b6
+      { name: 'Lydian',     iv: [0,2,4,6,7,9,11], char: [3] },          // #4
+      { name: 'Mixolydian', iv: [0,2,4,5,7,9,10], char: [6] },          // b7
+      { name: 'Aeolian',    iv: [0,2,3,5,7,8,10], char: [2,5,6] },     // b3, b6, b7
+      { name: 'Locrian',    iv: [0,1,3,5,6,8,10], char: [1,4] },       // b2, b5
     ];
     const TOTAL = 10;
 
@@ -562,6 +591,12 @@
     // ─── Utility ─────────────────────────────────────────────
     const randInt = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
     const $ = id => document.getElementById(id);
+
+    function midiToNoteName(midi) {
+      const name = NOTES[midi % 12];
+      const octave = Math.floor(midi / 12) - 1;
+      return name + octave;
+    }
 
     function showScreen(id) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -640,20 +675,77 @@
       const idx = arr[randInt(0, arr.length - 1)];
       let dir = direction;
       if (dir === 'both') dir = Math.random() > 0.5 ? 'ascending' : 'descending';
-      return { type: 'interval', intervalIdx: idx, dir, baseMidi: randInt(55, 72) };
+      const baseMidi = randInt(55, 72);
+      const note2 = dir === 'descending' ? baseMidi - INTERVALS[idx].semi : baseMidi + INTERVALS[idx].semi;
+      const playedNotes = [baseMidi, note2];
+      return { type: 'interval', intervalIdx: idx, dir, baseMidi, playedNotes };
     }
 
-    function genMelody(rootMidi, modeIv, len = 6) {
+    /**
+     * Generate a musically meaningful melody of 20+ notes that emphasises
+     * the characteristic tones of the mode (the degrees that differ from Ionian).
+     * Structure: opening phrase → characteristic emphasis → development → cadence to tonic.
+     */
+    function genMelody(rootMidi, mode, len = 24) {
+      const modeIv = mode.iv;
+      const charIndices = mode.char; // scale-degree indices of characteristic tones
+
+      // Build two octaves of the scale
       const scale = modeIv.map(i => rootMidi + i);
-      const up = [...scale, ...scale.map(n => n + 12)];
+      const scale2 = [...scale, ...scale.map(n => n + 12)]; // 14 notes across 2 octaves
+      const scaleLen = scale.length; // 7
+
       const notes = [];
-      let idx = randInt(0, scale.length - 1);
-      for (let i = 0; i < len; i++) {
-        idx = Math.max(0, Math.min(up.length - 1, idx + randInt(-2, 2)));
-        notes.push(up[idx]);
+
+      // Helper: get a scale tone by degree index (wraps across octaves)
+      const deg = (d) => {
+        const oct = Math.floor(d / scaleLen);
+        const idx = ((d % scaleLen) + scaleLen) % scaleLen;
+        return scale[idx] + oct * 12;
+      };
+
+      // Phase 1: Opening — ascend from tonic through first 5 degrees (5 notes)
+      for (let i = 0; i < 5; i++) notes.push(deg(i));
+
+      // Phase 2: Characteristic emphasis — repeatedly touch characteristic tones (8 notes)
+      if (charIndices.length > 0) {
+        for (let i = 0; i < 8; i++) {
+          if (i % 2 === 0) {
+            // Play a characteristic tone
+            const ci = charIndices[i % charIndices.length];
+            // Randomly in octave 0 or 1
+            notes.push(deg(ci + (Math.random() > 0.5 ? scaleLen : 0)));
+          } else {
+            // Neighbour — step away then back, creating tension around the char tone
+            const ci = charIndices[(i - 1) % charIndices.length];
+            const neighbor = Math.random() > 0.5 ? ci + 1 : ci - 1;
+            notes.push(deg(neighbor >= 0 ? neighbor : 0));
+          }
+        }
+      } else {
+        // Ionian: just do a scalar run up and back
+        for (let i = 0; i < 8; i++) notes.push(deg(i < 4 ? i + 3 : 10 - i));
       }
+
+      // Phase 3: Development — mix of steps and small leaps (7 notes)
+      let pos = 4; // start around 5th degree
+      for (let i = 0; i < 7; i++) {
+        const step = randInt(-3, 3);
+        pos = Math.max(0, Math.min(13, pos + step));
+        notes.push(scale2[pos]);
+      }
+
+      // Phase 4: Cadence — approach tonic: 5th → characteristic tone (if any) → 2nd → tonic
+      notes.push(deg(4)); // 5th
+      if (charIndices.length > 0) {
+        notes.push(deg(charIndices[0])); // most important characteristic tone
+      }
+      notes.push(deg(1)); // 2nd degree
+      notes.push(rootMidi); // resolve to tonic
+
+      // Force first note to tonic too
       notes[0] = rootMidi;
-      notes[notes.length - 1] = rootMidi;
+
       return notes;
     }
 
@@ -661,7 +753,7 @@
       const arr = [...selModes];
       const idx = arr[randInt(0, arr.length - 1)];
       const rootMidi = 60 + selKey;
-      const melody = genMelody(rootMidi, MODES[idx].iv);
+      const melody = genMelody(rootMidi, MODES[idx]);
       return { type: 'mode', modeIdx: idx, melody, rootMidi };
     }
 
@@ -743,16 +835,44 @@
         }
       });
 
-      // Feedback pill
+      // Feedback pill + notes reveal
       const fbEl = $(screenId + 'Feedback');
       const label = question.type === 'interval' ? INTERVALS[correctIdx].name : MODES[correctIdx].name;
-      fbEl.innerHTML = correct
+
+      // Build the notes display
+      let notesHtml = '';
+      if (question.type === 'interval') {
+        const names = question.playedNotes.map(m => midiToNoteName(m));
+        notesHtml = names.map(n => `<span class="note-char">${n}</span>`).join('  →  ');
+      } else {
+        // For mode melodies, highlight characteristic tones
+        const mode = MODES[question.modeIdx];
+        const charSemitones = new Set(mode.char.map(ci => mode.iv[ci]));
+        notesHtml = question.melody.map(m => {
+          const name = midiToNoteName(m);
+          const semFromRoot = ((m - question.rootMidi) % 12 + 12) % 12;
+          const isChar = charSemitones.has(semFromRoot);
+          return isChar
+            ? `<span class="note-char">${name}</span>`
+            : `<span>${name}</span>`;
+        }).join(' ');
+      }
+
+      const feedbackPill = correct
         ? `<div class="feedback-pill correct">Correct!</div>`
         : `<div class="feedback-pill wrong">Wrong — it was ${label}</div>`;
+
+      fbEl.innerHTML = feedbackPill +
+        `<div class="notes-reveal">
+          <div class="notes-reveal-label">Notes played${question.type === 'mode' ? ' (characteristic tones highlighted)' : ''}</div>
+          <div class="notes-reveal-notes">${notesHtml}</div>
+        </div>`;
 
       // Update score display
       $(screenId + 'Score').textContent = `${score} ✓`;
 
+      // Longer pause so user can read the notes
+      const advanceDelay = question.type === 'interval' ? 2500 : 3500;
       setTimeout(() => {
         round++;
         if (round >= TOTAL) {
@@ -763,7 +883,7 @@
         question = question.type === 'interval' ? genIntervalQ() : genModeQ();
         if (question.type === 'interval') renderIntervalGame(); else renderModeGame();
         setTimeout(playQuestion, 200);
-      }, 1200);
+      }, advanceDelay);
     }
 
     // ─── Start Games ─────────────────────────────────────────
