@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Ear Forge</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Instrument+Serif&display=swap" rel="stylesheet">
+    <style>
+        :root {
+          --bg: #0a0a0f;
+          --surface: #14141f;
+          --surface-light: #1e1e2e;
+          --accent: #e8c547;
+          --accent-dim: #b8962e;
+          --correct: #2dd4a0;
+          --wrong: #ef4444;
+          --text: #e8e6e3;
+          --text-dim: #7a7886;
+          --border: #2a2a3a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+          font-family: 'DM Sans', sans-serif;
+          background: var(--bg);
+          color: var(--text);
+          height: 100dvh;
+          width: 100vw;
+          overflow: hidden;
+          position: fixed;
+          top: 0; left: 0;
+        }
+
+        .screen {
+          display: none;
+          flex-direction: column;
+          height: 100dvh;
+          width: 100vw;
+          overflow: hidden;
+        }
+        .screen.active { display: flex; }
+
+        .serif { font-family: 'Instrument Serif', serif; font-weight: 400; }
+
+        button {
+          font-family: 'DM Sans', sans-serif;
+          border: none;
+          border-radius: 12px;
+          cursor: pointer;
+          transition: all 0.15s ease;
+          -webkit-tap-highlight-color: transparent;
+          outline: none;
+        }
+        button:active { transform: scale(0.97); }
+
+        .top-bar {
+          padding: 16px 20px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          flex-shrink: 0;
+        }
+        .top-bar-spread { justify-content: space-between; }
+
+        .back-btn {
+          background: none;
+          color: var(--text-dim);
+          padding: 4px;
+          font-size: 0;
+        }
+
+        .scrollable {
+          flex: 1;
+          overflow-y: auto;
+          -webkit-overflow-scrolling: touch;
+          padding: 0 20px;
+        }
+
+        .bottom-action {
+          padding: 16px 20px 28px;
+          flex-shrink: 0;
+        }
+
+        .label {
+          color: var(--text-dim);
+          font-size: 13px;
+          letter-spacing: 1.5px;
+          text-transform: uppercase;
+          margin: 0 0 12px;
+        }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .flex-col { display: flex; flex-direction: column; gap: 10px; }
+        .flex-row { display: flex; gap: 8px; }
+        .flex-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+
+        .chip {
+          padding: 12px 8px;
+          background: var(--surface);
+          color: var(--text-dim);
+          border: 1px solid var(--border);
+          font-size: 13px;
+          font-weight: 400;
+          text-align: center;
+        }
+        .chip.active {
+          background: rgba(232, 197, 71, 0.12);
+          color: var(--accent);
+          border-color: rgba(232, 197, 71, 0.3);
+          font-weight: 600;
+        }
+
+        .key-chip {
+          padding: 10px 14px;
+          min-width: 44px;
+          background: var(--surface);
+          color: var(--text-dim);
+          border: 1px solid var(--border);
+          font-size: 14px;
+        }
+        .key-chip.active {
+          background: rgba(232, 197, 71, 0.12);
+          color: var(--accent);
+          border-color: rgba(232, 197, 71, 0.3);
+          font-weight: 700;
+        }
+
+        .mode-chip {
+          padding: 14px 16px;
+          background: var(--surface);
+          color: var(--text-dim);
+          border: 1px solid var(--border);
+          font-size: 14px;
+          text-align: left;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        .mode-chip.active {
+          background: rgba(232, 197, 71, 0.12);
+          color: var(--accent);
+          border-color: rgba(232, 197, 71, 0.3);
+          font-weight: 600;
+        }
+
+        .dir-chip {
+          flex: 1;
+          padding: 12px 8px;
+          background: var(--surface);
+          color: var(--text-dim);
+          border: 1px solid var(--border);
+          font-size: 13px;
+          text-transform: capitalize;
+        }
+        .dir-chip.active {
+          background: rgba(232, 197, 71, 0.12);
+          color: var(--accent);
+          border-color: rgba(232, 197, 71, 0.3);
+          font-weight: 600;
+        }
+
+        .primary-btn {
+          width: 100%;
+          padding: 16px;
+          background: var(--accent);
+          color: var(--bg);
+          font-size: 16px;
+          font-weight: 700;
+          letter-spacing: 0.5px;
+        }
+        .primary-btn:disabled {
+          background: var(--surface-light);
+          color: var(--text-dim);
+        }
+
+        .menu-btn {
+          padding: 20px;
+          background: var(--surface-light);
+          color: var(--text);
+          font-size: 16px;
+          font-weight: 500;
+          border: 1px solid var(--border);
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          width: 100%;
+          text-align: left;
+        }
+
+        .menu-icon {
+          width: 44px; height: 44px;
+          border-radius: 10px;
+          background: rgba(232, 197, 71, 0.08);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--accent);
+          font-size: 20px;
+          font-weight: 700;
+          flex-shrink: 0;
+        }
+
+        .menu-label { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+
+        .progress-bar {
+          padding: 0 20px;
+          margin-bottom: 8px;
+          flex-shrink: 0;
+        }
+        .progress-track {
+          height: 3px;
+          background: var(--surface);
+          border-radius: 2px;
+          overflow: hidden;
+        }
+        .progress-fill {
+          height: 100%;
+          background: var(--accent);
+          border-radius: 2px;
+          transition: width 0.4s ease;
+        }
+
+        .game-center {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 20px;
+        }
+
+        .play-btn {
+          width: 88px; height: 88px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+          color: var(--bg);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 8px 32px rgba(232, 197, 71, 0.18);
+          font-size: 0;
+        }
+
+        .answer-grid { padding: 0 16px 32px; flex-shrink: 0; }
+
+        .answer-btn {
+          padding: 16px 8px;
+          background: var(--surface-light);
+          color: var(--text);
+          border: 1px solid var(--border);
+          font-size: 14px;
+          font-weight: 500;
+          transition: all 0.2s ease;
+        }
+        .answer-btn .short { font-weight: 700; font-size: 16px; display: block; }
+        .answer-btn .long { font-size: 11px; color: var(--text-dim); margin-top: 2px; display: block; }
+        .answer-btn.correct-answer {
+          background: rgba(45, 212, 160, 0.12);
+          color: var(--correct);
+          border-color: rgba(45, 212, 160, 0.3);
+        }
+        .answer-btn.correct-answer .long { color: var(--correct); }
+        .answer-btn.wrong-answer {
+          background: rgba(239, 68, 68, 0.12);
+          color: var(--wrong);
+          border-color: rgba(239, 68, 68, 0.3);
+        }
+        .answer-btn.wrong-answer .long { color: var(--wrong); }
+        .answer-btn.dimmed { opacity: 0.35; }
+
+        .feedback-pill {
+          padding: 10px 20px;
+          border-radius: 10px;
+          font-size: 14px;
+          font-weight: 600;
+        }
+        .feedback-pill.correct {
+          background: rgba(45, 212, 160, 0.1);
+          color: var(--correct);
+          border: 1px solid rgba(45, 212, 160, 0.2);
+        }
+        .feedback-pill.wrong {
+          background: rgba(239, 68, 68, 0.1);
+          color: var(--wrong);
+          border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        /* Home decorative rings */
+        .ring {
+          position: absolute;
+          border-radius: 50%;
+          pointer-events: none;
+        }
+
+        /* Results */
+        .results-center {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          height: 100dvh;
+          padding: 20px;
+        }
+        .score-ring { position: relative; width: 140px; height: 140px; margin-bottom: 32px; }
+        .score-ring-text {
+          position: absolute;
+          top: 50%; left: 50%;
+          transform: translate(-50%, -50%);
+          font-size: 36px;
+          font-weight: 700;
+        }
+        .history-dots { display: flex; gap: 6px; margin-bottom: 40px; }
+        .dot {
+          width: 28px; height: 28px;
+          border-radius: 6px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 12px;
+        }
+        .dot.ok { background: rgba(45, 212, 160, 0.12); color: var(--correct); }
+        .dot.fail { background: rgba(239, 68, 68, 0.12); color: var(--wrong); }
+
+        .result-btns { display: flex; gap: 12px; width: 280px; }
+        .result-btns button { flex: 1; padding: 14px; font-size: 14px; }
+        .result-btns .secondary { background: var(--surface-light); color: var(--text); border: 1px solid var(--border); font-weight: 500; }
+        .result-btns .primary { background: var(--accent); color: var(--bg); font-weight: 700; }
+
+        .info-text { color: var(--text-dim); font-size: 14px; }
+        .score-text { display: flex; gap: 16px; font-size: 14px; }
+
+        /* SVG icons inline */
+        .icon-svg { display: inline-block; vertical-align: middle; }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════ HOME ═══════════════ -->
+<div id="home" class="screen active" style="align-items:center;justify-content:center;position:relative;">
+    <div class="ring" style="top:-80px;right:-80px;width:260px;height:260px;border:1px solid var(--border);opacity:0.3;"></div>
+    <div class="ring" style="bottom:-60px;left:-60px;width:200px;height:200px;border:1px solid var(--accent);opacity:0.1;"></div>
+
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5">
+            <path d="M6 18.5C6 20.43 7.57 22 9.5 22c1.93 0 3.5-1.57 3.5-3.5V17c0-1.1.9-2 2-2h.5c2.49 0 4.5-2.01 4.5-4.5S17.99 6 15.5 6h-.5"/>
+            <path d="M9 2C5.69 2 3 4.69 3 8s2.69 6 6 6"/><circle cx="9" cy="8" r="2"/>
+        </svg>
+        <h1 class="serif" style="font-size:36px;letter-spacing:-0.5px;">Ear Forge</h1>
+    </div>
+    <p style="color:var(--text-dim);font-size:14px;margin-bottom:48px;letter-spacing:2px;text-transform:uppercase;">Train your musical ear</p>
+
+    <div style="display:flex;flex-direction:column;gap:16px;width:280px;">
+        <button class="menu-btn" onclick="showScreen('intervalSetup')">
+            <div class="menu-icon">♫</div>
+            <div><div>Intervals</div><div class="menu-label">Identify intervals by ear</div></div>
+        </button>
+        <button class="menu-btn" onclick="showScreen('modeSetup')">
+            <div class="menu-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--accent)"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6Z"/></svg>
+            </div>
+            <div><div>Keys & Modes</div><div class="menu-label">Recognize scales & modes</div></div>
+        </button>
+    </div>
+</div>
+
+<!-- ═══════════════ INTERVAL SETUP ═══════════════ -->
+<div id="intervalSetup" class="screen">
+    <div class="top-bar">
+        <button class="back-btn" onclick="showScreen('home')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15,18 9,12 15,6"/></svg>
+        </button>
+        <h2 class="serif" style="font-size:22px;">Intervals</h2>
+    </div>
+    <div class="scrollable">
+        <p class="label">Select intervals (min 2)</p>
+        <div id="intervalChips" class="grid-2" style="margin-bottom:24px;"></div>
+        <p class="label">Direction</p>
+        <div id="dirChips" class="flex-row" style="margin-bottom:24px;"></div>
+    </div>
+    <div class="bottom-action">
+        <button id="startIntervalBtn" class="primary-btn" onclick="startIntervalGame()">Start Training</button>
+    </div>
+</div>
+
+<!-- ═══════════════ MODE SETUP ═══════════════ -->
+<div id="modeSetup" class="screen">
+    <div class="top-bar">
+        <button class="back-btn" onclick="showScreen('home')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15,18 9,12 15,6"/></svg>
+        </button>
+        <h2 class="serif" style="font-size:22px;">Keys & Modes</h2>
+    </div>
+    <div class="scrollable">
+        <p class="label">Root key</p>
+        <div id="keyChips" class="flex-wrap" style="margin-bottom:24px;"></div>
+        <p class="label">Modes to guess (min 2)</p>
+        <div id="modeChips" class="flex-col" style="margin-bottom:24px;"></div>
+    </div>
+    <div class="bottom-action">
+        <button id="startModeBtn" class="primary-btn" onclick="startModeGame()">Start Training</button>
+    </div>
+</div>
+
+<!-- ═══════════════ INTERVAL GAME ═══════════════ -->
+<div id="intervalGame" class="screen">
+    <div class="top-bar top-bar-spread">
+        <button class="back-btn" onclick="showScreen('home')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15,18 9,12 15,6"/></svg>
+        </button>
+        <div class="score-text">
+            <span style="color:var(--text-dim)">Round <span id="igRound" style="color:var(--text);font-weight:600">1/10</span></span>
+            <span id="igScore" style="color:var(--correct);font-weight:600">0 ✓</span>
+        </div>
+    </div>
+    <div class="progress-bar"><div class="progress-track"><div id="igProgress" class="progress-fill" style="width:0%"></div></div></div>
+    <div class="game-center">
+        <div id="igDirection" style="color:var(--text-dim);font-size:13px;letter-spacing:1.5px;text-transform:uppercase;"></div>
+        <button class="play-btn" onclick="replayQuestion()">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="var(--bg)"><polygon points="5,3 19,12 5,21"/></svg>
+        </button>
+        <span style="color:var(--text-dim);font-size:12px;">Tap to replay</span>
+        <div id="igFeedback"></div>
+    </div>
+    <div class="answer-grid">
+        <div id="igAnswers" class="grid-2" style="gap:10px;"></div>
+    </div>
+</div>
+
+<!-- ═══════════════ MODE GAME ═══════════════ -->
+<div id="modeGame" class="screen">
+    <div class="top-bar top-bar-spread">
+        <button class="back-btn" onclick="showScreen('home')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15,18 9,12 15,6"/></svg>
+        </button>
+        <div class="score-text">
+            <span style="color:var(--text-dim)">Round <span id="mgRound" style="color:var(--text);font-weight:600">1/10</span></span>
+            <span id="mgScore" style="color:var(--correct);font-weight:600">0 ✓</span>
+        </div>
+    </div>
+    <div class="progress-bar"><div class="progress-track"><div id="mgProgress" class="progress-fill" style="width:0%"></div></div></div>
+    <div class="game-center">
+        <div id="mgKeyLabel" style="color:var(--text-dim);font-size:13px;letter-spacing:1.5px;text-transform:uppercase;"></div>
+        <button class="play-btn" onclick="replayQuestion()">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="var(--bg)"><polygon points="5,3 19,12 5,21"/></svg>
+        </button>
+        <span style="color:var(--text-dim);font-size:12px;">Tap to replay melody</span>
+        <div id="mgFeedback"></div>
+    </div>
+    <div class="answer-grid">
+        <div id="mgAnswers" class="flex-col" style="gap:10px;"></div>
+    </div>
+</div>
+
+<!-- ═══════════════ RESULTS ═══════════════ -->
+<div id="results" class="screen">
+    <div class="results-center">
+        <div id="resEmoji" style="font-size:48px;margin-bottom:8px;"></div>
+        <h2 id="resMessage" class="serif" style="font-size:32px;margin-bottom:4px;"></h2>
+        <p id="resSubtext" class="info-text" style="margin-bottom:32px;"></p>
+        <div class="score-ring">
+            <svg width="140" height="140" viewBox="0 0 140 140">
+                <circle cx="70" cy="70" r="60" fill="none" stroke="var(--surface)" stroke-width="8"/>
+                <circle id="resArc" cx="70" cy="70" r="60" fill="none" stroke="var(--accent)" stroke-width="8"
+                        stroke-linecap="round" stroke-dasharray="0 377" transform="rotate(-90 70 70)"/>
+            </svg>
+            <div id="resPct" class="score-ring-text"></div>
+        </div>
+        <div id="resDots" class="history-dots"></div>
+        <div class="result-btns">
+            <button class="secondary" onclick="showScreen('home')">Home</button>
+            <button class="primary" onclick="playAgain()">Play Again</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ─── Audio Engine ────────────────────────────────────────
+    const Audio = (() => {
+      let ctx = null;
+      const getCtx = () => {
+        if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+        if (ctx.state === 'suspended') ctx.resume();
+        return ctx;
+      };
+      const midiToFreq = m => 440 * Math.pow(2, (m - 69) / 12);
+
+      const playNote = (midi, startTime = 0, duration = 0.6, vol = 0.5) => {
+        const c = getCtx();
+        const t = c.currentTime + startTime;
+        const osc = c.createOscillator();
+        const gain = c.createGain();
+        const filter = c.createBiquadFilter();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(midiToFreq(midi), t);
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(2000, t);
+        filter.Q.setValueAtTime(1, t);
+        gain.gain.setValueAtTime(0, t);
+        gain.gain.linearRampToValueAtTime(vol, t + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(c.destination);
+        osc.start(t);
+        osc.stop(t + duration + 0.05);
+      };
+
+      return {
+        playInterval(base, semitones, dir, gap = 0.7) {
+          const n2 = dir === 'descending' ? base - semitones : base + semitones;
+          playNote(base, 0, 0.7, 0.5);
+          playNote(n2, gap, 0.7, 0.5);
+        },
+        playMelody(notes, tempo = 0.4) {
+          notes.forEach((n, i) => playNote(n, i * tempo, 0.45, 0.45));
+        }
+      };
+    })();
+
+    // ─── Data ────────────────────────────────────────────────
+    const INTERVALS = [
+      { name: 'Minor 2nd',   short: 'm2',  semi: 1 },
+      { name: 'Major 2nd',   short: 'M2',  semi: 2 },
+      { name: 'Minor 3rd',   short: 'm3',  semi: 3 },
+      { name: 'Major 3rd',   short: 'M3',  semi: 4 },
+      { name: 'Perfect 4th', short: 'P4',  semi: 5 },
+      { name: 'Tritone',     short: 'TT',  semi: 6 },
+      { name: 'Perfect 5th', short: 'P5',  semi: 7 },
+      { name: 'Minor 6th',   short: 'm6',  semi: 8 },
+      { name: 'Major 6th',   short: 'M6',  semi: 9 },
+      { name: 'Minor 7th',   short: 'm7',  semi: 10 },
+      { name: 'Major 7th',   short: 'M7',  semi: 11 },
+      { name: 'Octave',      short: 'P8',  semi: 12 },
+    ];
+    const NOTES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+    const MODES = [
+      { name: 'Ionian',     iv: [0,2,4,5,7,9,11] },
+      { name: 'Dorian',     iv: [0,2,3,5,7,9,10] },
+      { name: 'Phrygian',   iv: [0,1,3,5,7,8,10] },
+      { name: 'Lydian',     iv: [0,2,4,6,7,9,11] },
+      { name: 'Mixolydian', iv: [0,2,4,5,7,9,10] },
+      { name: 'Aeolian',    iv: [0,2,3,5,7,8,10] },
+      { name: 'Locrian',    iv: [0,1,3,5,6,8,10] },
+    ];
+    const TOTAL = 10;
+
+    // ─── State ───────────────────────────────────────────────
+    let selIntervals = new Set([0,1,2,3]);
+    let direction = 'ascending';
+    let selKey = 0;
+    let selModes = new Set([0,1,5]);
+
+    let gameType = '';  // 'interval' or 'mode'
+    let round = 0, score = 0;
+    let answered = false;
+    let question = null;
+    let history = [];
+
+    // ─── Utility ─────────────────────────────────────────────
+    const randInt = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
+    const $ = id => document.getElementById(id);
+
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      $(id).classList.add('active');
+    }
+
+    // ─── Build Setup UIs ─────────────────────────────────────
+    function buildIntervalSetup() {
+      const container = $('intervalChips');
+      container.innerHTML = '';
+      INTERVALS.forEach((iv, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'chip' + (selIntervals.has(i) ? ' active' : '');
+        btn.innerHTML = `<strong>${iv.short}</strong> ${iv.name}`;
+        btn.onclick = () => {
+          if (selIntervals.has(i)) {
+            if (selIntervals.size <= 2) return;
+            selIntervals.delete(i);
+          } else {
+            selIntervals.add(i);
+          }
+          buildIntervalSetup();
+        };
+        container.appendChild(btn);
+      });
+
+      const dirCont = $('dirChips');
+      dirCont.innerHTML = '';
+      ['ascending','descending','both'].forEach(d => {
+        const btn = document.createElement('button');
+        const arrows = { ascending: '↑', descending: '↓', both: '↕' };
+        btn.className = 'dir-chip' + (direction === d ? ' active' : '');
+        btn.textContent = arrows[d] + ' ' + d;
+        btn.onclick = () => { direction = d; buildIntervalSetup(); };
+        dirCont.appendChild(btn);
+      });
+
+      $('startIntervalBtn').disabled = selIntervals.size < 2;
+    }
+
+    function buildModeSetup() {
+      const keyCont = $('keyChips');
+      keyCont.innerHTML = '';
+      NOTES.forEach((n, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'key-chip' + (selKey === i ? ' active' : '');
+        btn.textContent = n;
+        btn.onclick = () => { selKey = i; buildModeSetup(); };
+        keyCont.appendChild(btn);
+      });
+
+      const modeCont = $('modeChips');
+      modeCont.innerHTML = '';
+      MODES.forEach((m, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'mode-chip' + (selModes.has(i) ? ' active' : '');
+        btn.innerHTML = `<span>${m.name}</span>` + (selModes.has(i) ? '<span style="font-size:14px">✓</span>' : '');
+        btn.onclick = () => {
+          if (selModes.has(i)) {
+            if (selModes.size <= 2) return;
+            selModes.delete(i);
+          } else {
+            selModes.add(i);
+          }
+          buildModeSetup();
+        };
+        modeCont.appendChild(btn);
+      });
+
+      $('startModeBtn').disabled = selModes.size < 2;
+    }
+
+    // ─── Question Generation ─────────────────────────────────
+    function genIntervalQ() {
+      const arr = [...selIntervals];
+      const idx = arr[randInt(0, arr.length - 1)];
+      let dir = direction;
+      if (dir === 'both') dir = Math.random() > 0.5 ? 'ascending' : 'descending';
+      return { type: 'interval', intervalIdx: idx, dir, baseMidi: randInt(55, 72) };
+    }
+
+    function genMelody(rootMidi, modeIv, len = 6) {
+      const scale = modeIv.map(i => rootMidi + i);
+      const up = [...scale, ...scale.map(n => n + 12)];
+      const notes = [];
+      let idx = randInt(0, scale.length - 1);
+      for (let i = 0; i < len; i++) {
+        idx = Math.max(0, Math.min(up.length - 1, idx + randInt(-2, 2)));
+        notes.push(up[idx]);
+      }
+      notes[0] = rootMidi;
+      notes[notes.length - 1] = rootMidi;
+      return notes;
+    }
+
+    function genModeQ() {
+      const arr = [...selModes];
+      const idx = arr[randInt(0, arr.length - 1)];
+      const rootMidi = 60 + selKey;
+      const melody = genMelody(rootMidi, MODES[idx].iv);
+      return { type: 'mode', modeIdx: idx, melody, rootMidi };
+    }
+
+    // ─── Play Question ───────────────────────────────────────
+    function playQuestion() {
+      if (!question) return;
+      if (question.type === 'interval') {
+        Audio.playInterval(question.baseMidi, INTERVALS[question.intervalIdx].semi, question.dir);
+      } else {
+        Audio.playMelody(question.melody);
+      }
+    }
+    function replayQuestion() { playQuestion(); }
+
+    // ─── Render Game UI ──────────────────────────────────────
+    function renderIntervalGame() {
+      $('igRound').textContent = `${round + 1}/${TOTAL}`;
+      $('igScore').textContent = `${score} ✓`;
+      $('igProgress').style.width = `${(round / TOTAL) * 100}%`;
+      $('igDirection').textContent = question.dir === 'ascending' ? '↑ Ascending' : '↓ Descending';
+      $('igFeedback').innerHTML = '';
+
+      const cont = $('igAnswers');
+      cont.innerHTML = '';
+      [...selIntervals].forEach(idx => {
+        const iv = INTERVALS[idx];
+        const btn = document.createElement('button');
+        btn.className = 'answer-btn';
+        btn.innerHTML = `<span class="short">${iv.short}</span><span class="long">${iv.name}</span>`;
+        btn.onclick = () => handleAnswer(idx);
+        btn.dataset.idx = idx;
+        cont.appendChild(btn);
+      });
+    }
+
+    function renderModeGame() {
+      $('mgRound').textContent = `${round + 1}/${TOTAL}`;
+      $('mgScore').textContent = `${score} ✓`;
+      $('mgProgress').style.width = `${(round / TOTAL) * 100}%`;
+      $('mgKeyLabel').textContent = `Key of ${NOTES[selKey]}`;
+      $('mgFeedback').innerHTML = '';
+
+      const cont = $('mgAnswers');
+      cont.innerHTML = '';
+      [...selModes].forEach(idx => {
+        const btn = document.createElement('button');
+        btn.className = 'answer-btn';
+        btn.style.textAlign = 'left';
+        btn.style.padding = '16px';
+        btn.style.fontSize = '15px';
+        btn.textContent = MODES[idx].name;
+        btn.onclick = () => handleAnswer(idx);
+        btn.dataset.idx = idx;
+        cont.appendChild(btn);
+      });
+    }
+
+    // ─── Answer Handling ─────────────────────────────────────
+    function handleAnswer(chosenIdx) {
+      if (answered) return;
+      answered = true;
+
+      const correctIdx = question.type === 'interval' ? question.intervalIdx : question.modeIdx;
+      const correct = chosenIdx === correctIdx;
+      if (correct) score++;
+      history.push({ correct });
+
+      // Highlight buttons
+      const screenId = question.type === 'interval' ? 'ig' : 'mg';
+      const container = $(screenId + 'Answers');
+      container.querySelectorAll('.answer-btn').forEach(btn => {
+        const idx = parseInt(btn.dataset.idx);
+        if (idx === correctIdx) {
+          btn.classList.add('correct-answer');
+        } else if (idx === chosenIdx && !correct) {
+          btn.classList.add('wrong-answer');
+        } else {
+          btn.classList.add('dimmed');
+        }
+      });
+
+      // Feedback pill
+      const fbEl = $(screenId + 'Feedback');
+      const label = question.type === 'interval' ? INTERVALS[correctIdx].name : MODES[correctIdx].name;
+      fbEl.innerHTML = correct
+        ? `<div class="feedback-pill correct">Correct!</div>`
+        : `<div class="feedback-pill wrong">Wrong — it was ${label}</div>`;
+
+      // Update score display
+      $(screenId + 'Score').textContent = `${score} ✓`;
+
+      setTimeout(() => {
+        round++;
+        if (round >= TOTAL) {
+          showResults();
+          return;
+        }
+        answered = false;
+        question = question.type === 'interval' ? genIntervalQ() : genModeQ();
+        if (question.type === 'interval') renderIntervalGame(); else renderModeGame();
+        setTimeout(playQuestion, 200);
+      }, 1200);
+    }
+
+    // ─── Start Games ─────────────────────────────────────────
+    function startIntervalGame() {
+      gameType = 'interval';
+      round = 0; score = 0; answered = false; history = [];
+      question = genIntervalQ();
+      showScreen('intervalGame');
+      renderIntervalGame();
+      setTimeout(playQuestion, 300);
+    }
+
+    function startModeGame() {
+      gameType = 'mode';
+      round = 0; score = 0; answered = false; history = [];
+      question = genModeQ();
+      showScreen('modeGame');
+      renderModeGame();
+      setTimeout(playQuestion, 300);
+    }
+
+    function playAgain() {
+      if (gameType === 'interval') startIntervalGame();
+      else startModeGame();
+    }
+
+    // ─── Results ─────────────────────────────────────────────
+    function showResults() {
+      showScreen('results');
+      const pct = Math.round((score / TOTAL) * 100);
+      const emoji = pct >= 80 ? '🔥' : pct >= 60 ? '👏' : pct >= 40 ? '🎯' : '💪';
+      const msg = pct >= 80 ? 'Outstanding!' : pct >= 60 ? 'Good job!' : pct >= 40 ? 'Getting there!' : 'Keep practicing!';
+      const ringColor = pct >= 60 ? 'var(--correct)' : 'var(--accent)';
+
+      $('resEmoji').textContent = emoji;
+      $('resMessage').textContent = msg;
+      $('resSubtext').textContent = `You scored ${score} out of ${TOTAL}`;
+      $('resArc').setAttribute('stroke', ringColor);
+      $('resArc').setAttribute('stroke-dasharray', `${(pct / 100) * 377} 377`);
+      $('resPct').textContent = pct + '%';
+      $('resPct').style.color = ringColor;
+
+      const dots = $('resDots');
+      dots.innerHTML = '';
+      history.forEach(h => {
+        const d = document.createElement('div');
+        d.className = 'dot ' + (h.correct ? 'ok' : 'fail');
+        d.textContent = h.correct ? '✓' : '✗';
+        dots.appendChild(d);
+      });
+    }
+
+    // ─── Init ────────────────────────────────────────────────
+    buildIntervalSetup();
+    buildModeSetup();
+</script>
+</body>
+</html>
